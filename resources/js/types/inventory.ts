@@ -60,3 +60,16 @@ export interface StockBatch {
     received_date: string;
     expiry_date: string | null;
 }
+
+export interface CartItem {
+    product_id: number;
+    name: string;
+    sku: string;
+    unit_type: 'piece' | 'pack';
+    quantity: number;
+    unit_price: number;
+    line_total: number;
+    max_available: number; // piece-equivalent stock, to prevent overselling in the cart UI
+    has_pack_option: boolean;
+    pack_conversion_factor: number | null;
+}

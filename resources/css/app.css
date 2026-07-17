@@ -153,3 +153,16 @@
         display: none !important;
     }
 }
+
+@media print {
+    body * {
+        visibility: hidden;
+    }
+    .barcode-label, .barcode-label *,
+    .receipt, .receipt * {
+        visibility: visible;
+    }
+    .print\:hidden {
+        display: none !important;
+    }
+}
