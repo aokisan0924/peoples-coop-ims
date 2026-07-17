@@ -8,8 +8,6 @@ use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
 
-use function Termwind\render;
-
 class SupplierController extends Controller
 {
     /**

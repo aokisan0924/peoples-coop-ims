@@ -21,12 +21,13 @@ class ProductController extends Controller
     {
         return Inertia::render('products/index', [
             'products' => Product::with(['category', 'baseUnit', 'packUnit'])
+                ->withSum('stockBatches as total_stock', 'remaining_qty')
                 ->orderBy('name')
                 ->get()
                 ->map(fn (Product $product) => [
                     ...$product->toArray(),
-                    'total_stock' => $product->total_stock,
-                    'is_low_stock' => $product->is_low_stock,
+                    'total_stock' => $product->total_stock ?? 0,
+                    'is_low_stock' => ($product->total_stock ?? 0) <= $product->low_stock_threshold,
                     'member_piece_price' => $product->member_piece_price,
                     'non_member_piece_price' => $product->non_member_piece_price,
                     'member_pack_price' => $product->member_pack_price,
@@ -130,7 +131,7 @@ class ProductController extends Controller
         return redirect()->route('products.index')->with('success', 'Product removed.');
     }
 
-    
+
     public function label(Product $product): Response
     {
         return Inertia::render('products/label', [
@@ -162,6 +163,7 @@ class ProductController extends Controller
                     ->orWhere('sku', 'like', "%{$query}%");
             })
             ->with(['category', 'baseUnit'])
+            ->withSum('stockBatches as total_stock', 'remaining_qty')
             ->limit(20)
             ->get()
             ->map(fn (Product $product) => [
@@ -170,8 +172,12 @@ class ProductController extends Controller
                 'sku' => $product->sku,
                 'barcode' => $product->barcode,
                 'category' => $product->category?->name,
-                'total_stock' => $product->total_stock,
+                'total_stock' => $product->total_stock ?? 0,
                 'member_piece_price' => $product->member_piece_price,
+                'member_pack_price' => $product->member_pack_price,
+                'non_member_piece_price' => $product->non_member_piece_price,
+                'non_member_pack_price' => $product->non_member_pack_price,
+                'pack_conversion_factor' => $product->pack_conversion_factor,
             ]);
 
         return response()->json(['products' => $products]);

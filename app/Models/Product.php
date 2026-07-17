@@ -12,17 +12,16 @@ class Product extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name' ,'sku', 'barcode', 'category_id',
-        'base_unit_id', 'pack_unit_id', 'pack_conversion_unit',
-        'piece_price', 'pack_price', 'cost_price',
-        'low_stock_threshold', 'is_active'
+        'name', 'sku', 'barcode', 'category_id',
+        'base_unit_id', 'pack_unit_id', 'pack_conversion_factor',
+        'cost_price', 'markup_percentage',
+        'low_stock_threshold', 'is_active',
     ];
 
     protected function casts(): array {
         return [
-            'piece_price' => 'decimal:2',
-            'pack_price' => 'decimal:2',
             'cost_price' => 'decimal:2',
+            'markup_percentage' => 'decimal:2',
             'is_active' => 'boolean',
         ];
     }

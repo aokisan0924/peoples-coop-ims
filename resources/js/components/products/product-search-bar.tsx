@@ -10,6 +10,10 @@ interface ProductResult {
     category: string | null;
     total_stock: number;
     member_piece_price: number;
+    non_member_piece_price?: number;
+    member_pack_price?: number | null;
+    non_member_pack_price?: number | null;
+    pack_conversion_factor?: number | null;
 }
 
 interface Props {

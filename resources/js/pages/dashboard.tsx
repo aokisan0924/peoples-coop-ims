@@ -1,19 +1,12 @@
 import { Head, Link } from '@inertiajs/react';
-import {
-    LineChart,
-    Line,
-    XAxis,
-    YAxis,
-    CartesianGrid,
-    Tooltip,
-    ResponsiveContainer,
-} from 'recharts';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ShoppingCart, PackagePlus, PlusCircle, AlertTriangle } from 'lucide-react';
+import { ShoppingCart, PackagePlus, PlusCircle, AlertTriangle, LineChart } from 'lucide-react';
 import { dashboard } from '@/routes';
 import products from '@/routes/products';
 import stockBatches from '@/routes/stock-batches';
+import reports from '@/routes/reports';
+import { useAuth } from '@/hooks/use-auth';
 
 interface PeriodStat {
     total: number;
@@ -35,11 +28,6 @@ interface ExpiringBatch {
     days_left: number;
 }
 
-interface TrendPoint {
-    date: string;
-    total: number;
-}
-
 interface Props {
     todaySales: PeriodStat;
     monthSales: PeriodStat;
@@ -47,7 +35,6 @@ interface Props {
     lowStockCount: number;
     lowStockProducts: LowStockProduct[];
     expiringSoon: ExpiringBatch[];
-    trend: TrendPoint[];
 }
 
 function peso(n: number): string {
@@ -61,14 +48,15 @@ export default function Dashboard({
     lowStockCount,
     lowStockProducts,
     expiringSoon,
-    trend,
 }: Props) {
+    const { isManager } = useAuth();
+
     return (
         <>
             <Head title="Dashboard" />
 
             <div className="p-4 space-y-6">
-                {/* Quick actions */}
+                {/* Quick actions — only show links to pages the current role can actually open */}
                 <div className="flex flex-wrap gap-2">
                     <Button asChild>
                         <Link href="/pos">
@@ -76,21 +64,25 @@ export default function Dashboard({
                             New Sale
                         </Link>
                     </Button>
-                    <Button variant="outline" asChild>
-                        <Link href={stockBatches.create().url}>
-                            <PackagePlus className="size-4" />
-                            Receive Stock
-                        </Link>
-                    </Button>
-                    <Button variant="outline" asChild>
-                        <Link href={products.create().url}>
-                            <PlusCircle className="size-4" />
-                            Add Product
-                        </Link>
-                    </Button>
+                    {isManager && (
+                        <>
+                            <Button variant="outline" asChild>
+                                <Link href={stockBatches.create().url}>
+                                    <PackagePlus className="size-4" />
+                                    Receive Stock
+                                </Link>
+                            </Button>
+                            <Button variant="outline" asChild>
+                                <Link href={products.create().url}>
+                                    <PlusCircle className="size-4" />
+                                    Add Product
+                                </Link>
+                            </Button>
+                        </>
+                    )}
                 </div>
 
-                {/* Summary cards */}
+                {/* Summary cards — today's snapshot at a glance; deeper history lives in Reports */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div className="border rounded-lg p-4">
                         <p className="text-xs text-muted-foreground">Today's Sales</p>
@@ -106,7 +98,7 @@ export default function Dashboard({
                         <p className="text-xs text-muted-foreground">Active Products</p>
                         <p className="text-2xl font-bold mt-1">{activeProductsCount}</p>
                     </div>
-                    <Link href={products.index().url} className="border rounded-lg p-4 hover:bg-muted transition-colors">
+                    <div className="border rounded-lg p-4">
                         <p className="text-xs text-muted-foreground">Low Stock</p>
                         <p className={`text-2xl font-bold mt-1 ${lowStockCount > 0 ? 'text-red-600' : ''}`}>
                             {lowStockCount}
@@ -114,10 +106,10 @@ export default function Dashboard({
                         <p className="text-xs text-muted-foreground mt-1">
                             {lowStockCount > 0 ? 'Needs attention' : 'All good'}
                         </p>
-                    </Link>
+                    </div>
                 </div>
 
-                {/* Alerts */}
+                {/* Alerts — things that need action today */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* Low stock table */}
                     <div className="border rounded-lg p-4">
@@ -134,9 +126,11 @@ export default function Dashboard({
                                         <span className="truncate mr-2">{p.name}</span>
                                         <div className="flex items-center gap-2 shrink-0">
                                             <Badge variant="destructive">{p.total_stock} left</Badge>
-                                            <Button variant="outline" size="sm" asChild>
-                                                <Link href={stockBatches.create().url}>Restock</Link>
-                                            </Button>
+                                            {isManager && (
+                                                <Button variant="outline" size="sm" asChild>
+                                                    <Link href={stockBatches.create().url}>Restock</Link>
+                                                </Button>
+                                            )}
                                         </div>
                                     </div>
                                 ))}
@@ -170,33 +164,25 @@ export default function Dashboard({
                     </div>
                 </div>
 
-                {/* 7-day trend */}
-                <div className="border rounded-lg p-4">
-                    <h2 className="text-sm font-medium mb-4">Last 7 Days</h2>
-                    <ResponsiveContainer width="100%" height={220}>
-                        <LineChart data={trend}>
-                            <CartesianGrid strokeDasharray="3 3" className="opacity-20" />
-                            <XAxis
-                                dataKey="date"
-                                tickFormatter={(d) => new Date(d).toLocaleDateString('en-PH', { weekday: 'short' })}
-                                fontSize={12}
-                            />
-                            <YAxis fontSize={12} tickFormatter={(v) => `₱${v}`} />
-                            <Tooltip
-                                labelFormatter={(d) => new Date(d).toLocaleDateString('en-PH', { month: 'long', day: 'numeric' })}
-                                formatter={(value) => [peso(Number(value ?? 0)), 'Sales']}
-                            />
-                            <Line type="monotone" dataKey="total" stroke="#2563eb" strokeWidth={2} dot={{ r: 3 }} />
-                        </LineChart>
-                    </ResponsiveContainer>
-                </div>
+                {/* Trend charts, payment mix, cashier & best-seller breakdowns all live in
+                    Reports now — the dashboard stays focused on "what needs attention today". */}
+                {isManager && (
+                    <Link
+                        href={reports.sales().url}
+                        className="flex items-center justify-between border rounded-lg p-4 hover:bg-muted transition-colors text-sm"
+                    >
+                        <span className="flex items-center gap-2 font-medium">
+                            <LineChart className="size-4" />
+                            View full sales report
+                        </span>
+                        <span className="text-muted-foreground">Trends, payment mix, top sellers →</span>
+                    </Link>
+                )}
             </div>
         </>
     );
 }
 
 Dashboard.layout = {
-    breadcrumbs: [
-        { title: 'Dashboard', href: dashboard().url },
-    ],
+    breadcrumbs: [{ title: 'Dashboard', href: dashboard().url }],
 };

@@ -22,6 +22,7 @@ import type { NavItem } from '@/types';
 import stockBatches from '@/routes/stock-batches';
 import pos from '@/routes/pos';
 import reports from '@/routes/reports';
+import { useAuth } from '@/hooks/use-auth';
 
 const mainNavItems: NavItem[] = [
     {
@@ -30,41 +31,46 @@ const mainNavItems: NavItem[] = [
         icon: LayoutGrid,
     },
     {
-        title: 'Reports',
-        href: reports.sales(),
-        icon: LineChart,
-    },
-    {
         title: 'Point of Sale',
         href: pos.index(),
         icon: ShoppingCart,
     },
     {
+        title: 'Reports',
+        href: reports.sales(),
+        icon: LineChart,
+        managerOnly: true,
+    },
+    {
         title: 'Products',
         href: products.index(),
         icon: Package,
+        managerOnly: true,
     },
     {
         title: 'Stock Batch',
         href: stockBatches.index(),
         icon: Boxes,
+        managerOnly: true,
     },
     {
         title: 'Categories',
         href: categories.index(),
         icon: Tags,
+        managerOnly: true,
     },
     {
         title: 'Units',
         href: units.index(),
         icon: Ruler,
+        managerOnly: true,
     },
     {
         title: 'Suppliers',
         href: suppliers.index(),
         icon: Truck,
+        managerOnly: true,
     },
-    
 ];
 
 const footerNavItems: NavItem[] = [
@@ -81,6 +87,9 @@ const footerNavItems: NavItem[] = [
 ];
 
 export function AppSidebar() {
+    const { isManager } = useAuth();
+    const visibleNavItems = mainNavItems.filter((item) => !item.managerOnly || isManager);
+
     return (
         <Sidebar collapsible="icon" variant="inset">
             <SidebarHeader>
@@ -95,7 +104,7 @@ export function AppSidebar() {
                 </SidebarMenu>
             </SidebarHeader>
             <SidebarContent>
-                <NavMain items={mainNavItems} />
+                <NavMain items={visibleNavItems} />
             </SidebarContent>
             <SidebarFooter>
                 <NavFooter items={footerNavItems} className="mt-auto" />
