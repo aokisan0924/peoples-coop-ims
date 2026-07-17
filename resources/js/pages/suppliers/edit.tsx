@@ -1,17 +1,10 @@
 import { Head, useForm, Link } from '@inertiajs/react';
-import AppLayout from '@/layouts/app-layout';
 import SupplierFormFields from '@/components/suppliers/supplier-form-fields';
 import { Button } from '@/components/ui/button';
-import { type BreadcrumbItem } from '@/types';
 import { type Supplier } from '@/types/inventory';
 import suppliers from '@/routes/suppliers';
 
 export default function EditSupplier({ supplier }: { supplier: Supplier }) {
-    const breadcrumbs: BreadcrumbItem[] = [
-        { title: 'Suppliers', href: suppliers.index().url },
-        { title: 'Edit Supplier', href: suppliers.edit(supplier.id).url },
-    ];
-
     const { data, setData, put, processing, errors } = useForm({
         name: supplier.name,
         contact_person: supplier.contact_person ?? '',
@@ -27,7 +20,7 @@ export default function EditSupplier({ supplier }: { supplier: Supplier }) {
     }
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        <>
             <Head title="Edit Supplier" />
 
             <div className="max-w-xl p-4">
@@ -46,6 +39,13 @@ export default function EditSupplier({ supplier }: { supplier: Supplier }) {
                     </div>
                 </form>
             </div>
-        </AppLayout>
+        </>
     );
 }
+
+EditSupplier.layout = {
+    breadcrumbs: [
+        { title: 'Suppliers', href: suppliers.index().url },
+        { title: 'Edit Supplier', href: '#' },
+    ],
+};

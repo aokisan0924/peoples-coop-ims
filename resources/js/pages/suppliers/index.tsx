@@ -1,13 +1,7 @@
 import { Head, Link, router } from '@inertiajs/react';
-import AppLayout from '@/layouts/app-layout';
 import { Button } from '@/components/ui/button';
-import { type BreadcrumbItem } from '@/types';
 import { type Supplier } from '@/types/inventory';
 import suppliers from '@/routes/suppliers';
-
-const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Suppliers', href: suppliers.index().url },
-];
 
 export default function SuppliersIndex({ suppliers: supplierList }: { suppliers: Supplier[] }) {
     function handleDelete(supplier: Supplier) {
@@ -17,7 +11,7 @@ export default function SuppliersIndex({ suppliers: supplierList }: { suppliers:
     }
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        <>
             <Head title="Suppliers" />
 
             <div className="p-4">
@@ -71,6 +65,12 @@ export default function SuppliersIndex({ suppliers: supplierList }: { suppliers:
                     </table>
                 </div>
             </div>
-        </AppLayout>
+        </>
     );
 }
+
+SuppliersIndex.layout = {
+    breadcrumbs: [
+        { title: 'Suppliers', href: suppliers.index().url },
+    ],
+};

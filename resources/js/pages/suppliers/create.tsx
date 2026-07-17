@@ -1,14 +1,7 @@
 import { Head, useForm, Link } from '@inertiajs/react';
-import AppLayout from '@/layouts/app-layout';
 import SupplierFormFields from '@/components/suppliers/supplier-form-fields';
 import { Button } from '@/components/ui/button';
-import { type BreadcrumbItem } from '@/types';
 import suppliers from '@/routes/suppliers';
-
-const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Suppliers', href: suppliers.index().url },
-    { title: 'Add Supplier', href: suppliers.create().url },
-];
 
 export default function CreateSupplier() {
     const { data, setData, post, processing, errors } = useForm({
@@ -26,7 +19,7 @@ export default function CreateSupplier() {
     }
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        <>
             <Head title="Add Supplier" />
 
             <div className="max-w-xl p-4">
@@ -45,6 +38,13 @@ export default function CreateSupplier() {
                     </div>
                 </form>
             </div>
-        </AppLayout>
+        </>
     );
 }
+
+CreateSupplier.layout = {
+    breadcrumbs: [
+        { title: 'Suppliers', href: suppliers.index().url },
+        { title: 'Add Supplier', href: suppliers.create().url },
+    ],
+};
