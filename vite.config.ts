@@ -39,19 +39,21 @@ export default defineConfig({
                 modifyURLPrefix: {
                     '': '/build/', // precached files live under public/build/, but are served at /build/... — fix the URL mismatch
                 },
-                navigateFallback: null,
+                navigateFallback: '/pos',
+                navigateFallbackDenylist: [/^\/settings/, /^\/reports/, /^\/products/, /^\/stock-batches/, /^\/suppliers/, /^\/categories/, /^\/units/, /^\/sales/],
                 cleanupOutdatedCaches: true,
                 skipWaiting: true,
                 clientsClaim: true,
                 runtimeCaching: [
                     {
                         urlPattern: ({ url, request }) =>
-                            request.mode === 'navigate' && url.pathname === '/pos',
+                            request.mode === 'navigate' &&
+                            (url.pathname === '/pos' || url.pathname.startsWith('/pos/')),
                         handler: 'NetworkFirst',
                         options: {
                             cacheName: 'pos-page-cache',
                             networkTimeoutSeconds: 3,
-                            expiration: { maxEntries: 1, maxAgeSeconds: 60 * 60 * 24 * 7 },
+                            expiration: { maxEntries: 5, maxAgeSeconds: 60 * 60 * 24 * 7 },
                         },
                     },
                 ],

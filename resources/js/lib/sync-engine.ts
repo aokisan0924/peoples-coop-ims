@@ -148,15 +148,23 @@ class SyncEngine {
     if (!navigator.onLine) return;
 
     try {
-        const response = await fetch('/products/offline-snapshot');
+        const response = await fetch('/products/offline-snapshot', {
+            headers: { Accept: 'application/json' },
+        });
+
+        if (!response.ok) {
+            console.warn(`Offline product cache refresh failed: HTTP ${response.status}`);
+            return;
+        }
+
         const data = await response.json();
 
         await offlineDb.cachedProducts.clear();
         await offlineDb.cachedProducts.bulkAdd(
             data.products.map((p: any) => ({ ...p, cached_at: new Date().toISOString() }))
         );
-    } catch {
-            // silent — cache just stays stale until next successful attempt
+    } catch (e) {
+            console.warn('Offline product cache refresh failed:', e);
         }
     }
 }

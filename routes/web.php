@@ -28,6 +28,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Product lookup — cashiers need this to ring up sales
     Route::get('products/search', [ProductController::class, 'search'])->name('products.search');
 
+    // Offline product cache snapshot — pulled periodically by the sync engine on
+    // every authenticated device (cashier tills included) so offline search works.
+    Route::get('products/offline-snapshot', [ProductController::class, 'offlineSnapshot'])->name('products.offline-snapshot');
+
     // Barcode lookup for the receiving counter
     Route::post('stock-batches/lookup-barcode', [StockBatchController::class, 'lookupByBarcode'])
         ->name('stock-batches.lookup-barcode');
@@ -54,7 +58,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('products/labels/print', [ProductController::class, 'labelsBatch'])->name('products.labels.batch');
         Route::get('products/{product}/label', [ProductController::class, 'label'])->name('products.label');
         Route::get('products/{product}/barcode', [ProductController::class, 'showBarcode'])->name('products.barcode');
-        Route::get('products/offline-snapshot', [ProductController::class, 'offlineSnapshot'])->name('products.offline-snapshot');
         Route::resource('products', ProductController::class)->except(['search']);
 
         // Stock Batches (lookup-barcode stays outside this group, above)
