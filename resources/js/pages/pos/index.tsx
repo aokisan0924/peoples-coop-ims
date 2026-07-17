@@ -15,6 +15,9 @@ import { usePosCart } from '@/hooks/use-pos-cart';
 import { Trash2 } from 'lucide-react';
 import { Switch } from '@radix-ui/react-switch';
 import { Users, UserCheck } from 'lucide-react';
+import SyncStatusBadge from '@/components/pos/sync-status-badge';
+import { syncEngine } from '@/lib/sync-engine';
+import { offlineDb } from '@/lib/offline-db';
 
 export default function PosIndex() {
     const cart = usePosCart();
@@ -49,37 +52,29 @@ export default function PosIndex() {
         setProcessing(true);
 
         try {
-            const response = await fetch('/sales', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content ?? '',
-                },
-                body: JSON.stringify({
-                    is_member: cart.isMember,
-                    payment_method: paymentMethod,
-                    amount_tendered: paymentMethod === 'cash' ? parseFloat(amountTendered) : null,
-                    gcash_reference: paymentMethod === 'gcash' ? gcashReference : null,
-                    items: cart.items.map((item) => ({
-                        product_id: item.product_id,
-                        unit_type: item.unit_type,
-                        quantity: item.quantity,
-                    })),
-                }),
+            // Always queue locally first — this is the key offline-first behavior.
+            // The cashier never waits on the network to complete a sale.
+            const uuid = await syncEngine.queueSale({
+                is_member: cart.isMember,
+                payment_method: paymentMethod,
+                amount_tendered: paymentMethod === 'cash' ? parseFloat(amountTendered) : null,
+                gcash_reference: paymentMethod === 'gcash' ? gcashReference : null,
+                items: cart.items.map((item) => ({
+                    product_id: item.product_id,
+                    unit_type: item.unit_type,
+                    quantity: item.quantity,
+                })),
             });
 
-            const data = await response.json();
+            cart.clearCart();
+            setAmountTendered('');
+            setGcashReference('');
 
-            if (!data.success) {
-                setError(data.message ?? 'Checkout failed.');
-                setProcessing(false);
-                return;
-            }
-
-            // Navigate to the receipt page, which auto-prints
-            router.visit(`/sales/${data.sale.id}/receipt`);
+            // Route to a local "queued" receipt view rather than /sales/{id}/receipt,
+            // since we may not have a real server-side sale ID yet if offline.
+            router.visit(`/pos/queued-receipt/${uuid}`);
         } catch (e) {
-            setError('Network error — check your connection and try again.');
+            setError('Failed to queue sale locally. Try again.');
             setProcessing(false);
         }
     }
@@ -106,6 +101,7 @@ export default function PosIndex() {
                 <div className="w-[420px] flex flex-col p-4">
                     <div className="flex items-center justify-between mb-4">
                         <h2 className="text-lg font-semibold">Cart</h2>
+                        <SyncStatusBadge />
                         <div className="flex flex-col items-end gap-1">
                             <Button
                                 type="button"

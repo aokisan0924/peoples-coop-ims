@@ -33,6 +33,7 @@ class SaleController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
+            'client_uuid' => ['required', 'uuid'],
             'is_member' => ['required', 'boolean'],
             'payment_method' => ['required', 'in:cash,gcash'],
             'amount_tendered' => ['nullable', 'numeric', 'min:0'],
@@ -42,6 +43,15 @@ class SaleController extends Controller
             'items.*.unit_type' => ['required', 'in:piece,pack'],
             'items.*.quantity' => ['required', 'integer', 'min:1'],
         ]);
+
+        $existing = Sale::where('client_uuid', $validated['client_uuid'])->first();
+        if ($existing) {
+            return response()->json([
+                'success' => true,
+                'sale' => $existing->load('items.product', 'cashier'),
+                'was_duplicate' => true,
+            ]);
+        }
 
         try {
             $sale = DB::transaction(function () use ($validated, $request) {
@@ -128,7 +138,10 @@ class SaleController extends Controller
             ]);
         } catch (RuntimeException $e) {
             // Business-rule failure (insufficient stock, bad tender amount) — safe to show directly to cashier
-            return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 422);
         }
     }
 

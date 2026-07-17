@@ -10,6 +10,7 @@ use App\Http\Controllers\StockBatchController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\UnitController;
 use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
 
 Route::inertia('/', 'welcome')->name('home');
 
@@ -19,6 +20,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Point-of-Sale — everyone
     Route::get('pos', [PosController::class, 'index'])->name('pos.index');
+
+    Route::get('pos/queued-receipt/{uuid}', function (string $uuid) {
+        return Inertia::render('pos/queued-receipt', ['uuid' => $uuid]);
+    })->name('pos.queued-receipt');
 
     // Product lookup — cashiers need this to ring up sales
     Route::get('products/search', [ProductController::class, 'search'])->name('products.search');
@@ -49,6 +54,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('products/labels/print', [ProductController::class, 'labelsBatch'])->name('products.labels.batch');
         Route::get('products/{product}/label', [ProductController::class, 'label'])->name('products.label');
         Route::get('products/{product}/barcode', [ProductController::class, 'showBarcode'])->name('products.barcode');
+        Route::get('products/offline-snapshot', [ProductController::class, 'offlineSnapshot'])->name('products.offline-snapshot');
         Route::resource('products', ProductController::class)->except(['search']);
 
         // Stock Batches (lookup-barcode stays outside this group, above)

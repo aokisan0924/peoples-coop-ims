@@ -188,4 +188,30 @@ class ProductController extends Controller
             'product' => $product,
         ]);
     }
+
+    /**
+     * Full active-product snapshot for offline caching — called periodically
+     * while online so POS search/scan keeps working without a connection.
+     */
+    public function offlineSnapshot(): JsonResponse
+    {
+        $products = Product::where('is_active', true)
+            ->with(['category', 'baseUnit'])
+            ->get()
+            ->map(fn (Product $product) => [
+                'id' => $product->id,
+                'name' => $product->name,
+                'sku' => $product->sku,
+                'barcode' => $product->barcode,
+                'category' => $product->category?->name,
+                'total_stock' => $product->total_stock,
+                'member_piece_price' => $product->member_piece_price,
+                'non_member_piece_price' => $product->non_member_piece_price,
+                'member_pack_price' => $product->member_pack_price,
+                'non_member_pack_price' => $product->non_member_pack_price,
+                'pack_conversion_factor' => $product->pack_conversion_factor,
+            ]);
+
+        return response()->json(['products' => $products]);
+    }
 }
