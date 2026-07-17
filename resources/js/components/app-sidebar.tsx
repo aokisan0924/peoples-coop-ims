@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react';
-import { BookOpen, FolderGit2, LayoutGrid } from 'lucide-react';
+import { BookOpen, FolderGit2, LayoutGrid, Truck, Ruler, Tags, Package, Box, Boxes } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -14,7 +14,12 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
+import suppliers from '@/routes/suppliers';
+import units from '@/routes/units';
+import categories from '@/routes/categories';
+import products from '@/routes/products';
 import type { NavItem } from '@/types';
+import stockBatches from '@/routes/stock-batches';
 
 const mainNavItems: NavItem[] = [
     {
@@ -22,6 +27,32 @@ const mainNavItems: NavItem[] = [
         href: dashboard(),
         icon: LayoutGrid,
     },
+    {
+        title: 'Products',
+        href: products.index(),
+        icon: Package,
+    },
+    {
+        title: 'Stock Batch',
+        href: stockBatches.index(),
+        icon: Boxes,
+    },
+    {
+        title: 'Categories',
+        href: categories.index(),
+        icon: Tags,
+    },
+    {
+        title: 'Units',
+        href: units.index(),
+        icon: Ruler,
+    },
+    {
+        title: 'Suppliers',
+        href: suppliers.index(),
+        icon: Truck,
+    },
+    
 ];
 
 const footerNavItems: NavItem[] = [
@@ -51,11 +82,9 @@ export function AppSidebar() {
                     </SidebarMenuItem>
                 </SidebarMenu>
             </SidebarHeader>
-
             <SidebarContent>
                 <NavMain items={mainNavItems} />
             </SidebarContent>
-
             <SidebarFooter>
                 <NavFooter items={footerNavItems} className="mt-auto" />
                 <NavUser />

@@ -141,3 +141,15 @@
         @apply bg-background text-foreground;
     }
 }
+
+@media print {
+    body * {
+        visibility: hidden;
+    }
+    .barcode-label, .barcode-label * {
+        visibility: visible;
+    }
+    .print\:hidden {
+        display: none !important;
+    }
+}
