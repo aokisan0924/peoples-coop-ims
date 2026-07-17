@@ -1,53 +1,45 @@
 import { Head, Link } from '@inertiajs/react';
+import {
+    LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+} from 'recharts';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ShoppingCart, PackagePlus, PlusCircle, AlertTriangle, LineChart } from 'lucide-react';
+import { ShoppingCart, PackagePlus, PlusCircle, AlertTriangle } from 'lucide-react';
 import { dashboard } from '@/routes';
 import products from '@/routes/products';
 import stockBatches from '@/routes/stock-batches';
-import reports from '@/routes/reports';
 import { useAuth } from '@/hooks/use-auth';
 
-interface PeriodStat {
-    total: number;
-    count: number;
-}
-
-interface LowStockProduct {
-    id: number;
-    name: string;
-    total_stock: number;
-    low_stock_threshold: number;
-}
-
-interface ExpiringBatch {
-    id: number;
-    product_name: string;
-    remaining_qty: number;
-    expiry_date: string;
-    days_left: number;
-}
+interface PeriodStat { total: number; count: number }
+interface LowStockProduct { id: number; name: string; total_stock: number; low_stock_threshold: number }
+interface ExpiringBatch { id: number; product_name: string; remaining_qty: number; expiry_date: string; days_left: number }
+interface TrendPoint { date: string; total: number }
+interface PaymentBreakdown { payment_method: 'cash' | 'gcash'; total: string; count: number }
+interface CashierBreakdown { name: string; total: string; count: number }
+interface BestSeller { name: string; units_sold: number; revenue: string }
 
 interface Props {
     todaySales: PeriodStat;
+    weekSales: PeriodStat;
     monthSales: PeriodStat;
+    yearSales: PeriodStat;
     activeProductsCount: number;
-    lowStockCount: number;
     lowStockProducts: LowStockProduct[];
     expiringSoon: ExpiringBatch[];
+    trend: TrendPoint[];
+    paymentBreakdown: PaymentBreakdown[];
+    cashierBreakdown: CashierBreakdown[];
+    bestSellers: BestSeller[];
 }
 
-function peso(n: number): string {
-    return `₱${n.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+function peso(n: number | string): string {
+    return `₱${parseFloat(String(n)).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
 export default function Dashboard({
-    todaySales,
-    monthSales,
-    activeProductsCount,
-    lowStockCount,
-    lowStockProducts,
-    expiringSoon,
+    todaySales, weekSales, monthSales, yearSales,
+    activeProductsCount, lowStockProducts, expiringSoon,
+    trend, paymentBreakdown, cashierBreakdown, bestSellers,
 }: Props) {
     const { isManager } = useAuth();
 
@@ -82,40 +74,20 @@ export default function Dashboard({
                     )}
                 </div>
 
-                {/* Summary cards — today's snapshot at a glance; deeper history lives in Reports */}
+                {/* Summary cards */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div className="border rounded-lg p-4">
-                        <p className="text-xs text-muted-foreground">Today's Sales</p>
-                        <p className="text-2xl font-bold mt-1">{peso(todaySales.total)}</p>
-                        <p className="text-xs text-muted-foreground mt-1">{todaySales.count} transactions</p>
-                    </div>
-                    <div className="border rounded-lg p-4">
-                        <p className="text-xs text-muted-foreground">This Month</p>
-                        <p className="text-2xl font-bold mt-1">{peso(monthSales.total)}</p>
-                        <p className="text-xs text-muted-foreground mt-1">{monthSales.count} transactions</p>
-                    </div>
-                    <div className="border rounded-lg p-4">
-                        <p className="text-xs text-muted-foreground">Active Products</p>
-                        <p className="text-2xl font-bold mt-1">{activeProductsCount}</p>
-                    </div>
-                    <div className="border rounded-lg p-4">
-                        <p className="text-xs text-muted-foreground">Low Stock</p>
-                        <p className={`text-2xl font-bold mt-1 ${lowStockCount > 0 ? 'text-red-600' : ''}`}>
-                            {lowStockCount}
-                        </p>
-                        <p className="text-xs text-muted-foreground mt-1">
-                            {lowStockCount > 0 ? 'Needs attention' : 'All good'}
-                        </p>
-                    </div>
+                    <StatCard label="Today" data={todaySales} />
+                    <StatCard label="This Week" data={weekSales} />
+                    <StatCard label="This Month" data={monthSales} />
+                    <StatCard label="This Year" data={yearSales} />
                 </div>
 
                 {/* Alerts — things that need action today */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Low stock table */}
                     <div className="border rounded-lg p-4">
                         <h2 className="text-sm font-medium mb-3 flex items-center gap-2">
                             <AlertTriangle className="size-4 text-red-500" />
-                            Low Stock Products
+                            Low Stock ({lowStockProducts.length})
                         </h2>
                         {lowStockProducts.length === 0 ? (
                             <p className="text-sm text-muted-foreground">Nothing is low on stock right now.</p>
@@ -138,7 +110,6 @@ export default function Dashboard({
                         )}
                     </div>
 
-                    {/* Expiring soon */}
                     <div className="border rounded-lg p-4">
                         <h2 className="text-sm font-medium mb-3 flex items-center gap-2">
                             <AlertTriangle className="size-4 text-amber-500" />
@@ -164,22 +135,77 @@ export default function Dashboard({
                     </div>
                 </div>
 
-                {/* Trend charts, payment mix, cashier & best-seller breakdowns all live in
-                    Reports now — the dashboard stays focused on "what needs attention today". */}
+                {/* Trend chart — Manager-only, since it's financial detail beyond a cashier's needs */}
                 {isManager && (
-                    <Link
-                        href={reports.sales().url}
-                        className="flex items-center justify-between border rounded-lg p-4 hover:bg-muted transition-colors text-sm"
-                    >
-                        <span className="flex items-center gap-2 font-medium">
-                            <LineChart className="size-4" />
-                            View full sales report
-                        </span>
-                        <span className="text-muted-foreground">Trends, payment mix, top sellers →</span>
-                    </Link>
+                    <div className="border rounded-lg p-4">
+                        <h2 className="text-sm font-medium mb-4">Last 30 Days</h2>
+                        <ResponsiveContainer width="100%" height={260}>
+                            <LineChart data={trend}>
+                                <CartesianGrid strokeDasharray="3 3" className="opacity-20" />
+                                <XAxis dataKey="date" tickFormatter={(d) => new Date(d).toLocaleDateString('en-PH', { month: 'short', day: 'numeric' })} fontSize={12} />
+                                <YAxis fontSize={12} tickFormatter={(v) => `₱${v}`} />
+                                <Tooltip
+                                    labelFormatter={(d) => new Date(d).toLocaleDateString('en-PH', { month: 'long', day: 'numeric', year: 'numeric' })}
+                                    formatter={(value) => [peso(Number(value ?? 0)), 'Sales']}
+                                />
+                                <Line type="monotone" dataKey="total" stroke="#2563eb" strokeWidth={2} dot={false} />
+                            </LineChart>
+                        </ResponsiveContainer>
+                    </div>
+                )}
+
+                {/* Breakdowns — Manager-only */}
+                {isManager && (
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="border rounded-lg p-4">
+                            <h2 className="text-sm font-medium mb-3">Payment Methods (This Month)</h2>
+                            {paymentBreakdown.length === 0 ? (
+                                <p className="text-sm text-muted-foreground">No sales yet.</p>
+                            ) : paymentBreakdown.map((p) => (
+                                <div key={p.payment_method} className="flex justify-between text-sm mb-1">
+                                    <span className="capitalize">{p.payment_method} ({p.count})</span>
+                                    <span className="font-medium">{peso(p.total)}</span>
+                                </div>
+                            ))}
+                        </div>
+
+                        <div className="border rounded-lg p-4">
+                            <h2 className="text-sm font-medium mb-3">By Cashier (This Month)</h2>
+                            {cashierBreakdown.length === 0 ? (
+                                <p className="text-sm text-muted-foreground">No sales yet.</p>
+                            ) : cashierBreakdown.map((c) => (
+                                <div key={c.name} className="flex justify-between text-sm mb-1">
+                                    <span>{c.name} ({c.count})</span>
+                                    <span className="font-medium">{peso(c.total)}</span>
+                                </div>
+                            ))}
+                        </div>
+
+                        <div className="border rounded-lg p-4">
+                            <h2 className="text-sm font-medium mb-3">Best Sellers (This Month)</h2>
+                            {bestSellers.length === 0 ? (
+                                <p className="text-sm text-muted-foreground">No sales yet.</p>
+                            ) : bestSellers.map((b) => (
+                                <div key={b.name} className="flex justify-between text-sm mb-1">
+                                    <span className="truncate mr-2">{b.name} ({b.units_sold})</span>
+                                    <span className="font-medium whitespace-nowrap">{peso(b.revenue)}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
                 )}
             </div>
         </>
+    );
+}
+
+function StatCard({ label, data }: { label: string; data: PeriodStat }) {
+    return (
+        <div className="border rounded-lg p-4">
+            <p className="text-xs text-muted-foreground">{label}</p>
+            <p className="text-2xl font-bold mt-1">{peso(data.total)}</p>
+            <p className="text-xs text-muted-foreground mt-1">{data.count} transaction{data.count !== 1 ? 's' : ''}</p>
+        </div>
     );
 }
 

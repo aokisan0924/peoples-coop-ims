@@ -54,8 +54,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Stock Batches (lookup-barcode stays outside this group, above)
         Route::resource('stock-batches', StockBatchController::class)->except(['show', 'edit', 'update']);
 
-        // Reports
-        Route::get('reports/sales', [ReportController::class, 'sales'])->name('reports.sales');
+        Route::get('sales', [SaleController::class, 'index'])->name('sales.index');
+        Route::post('sales/{sale}/void', [SaleController::class, 'void'])->name('sales.void');
     });
 });
 

@@ -26,7 +26,6 @@ class ProductController extends Controller
                 ->get()
                 ->map(fn (Product $product) => [
                     ...$product->toArray(),
-                    'total_stock' => $product->total_stock ?? 0,
                     'is_low_stock' => ($product->total_stock ?? 0) <= $product->low_stock_threshold,
                     'member_piece_price' => $product->member_piece_price,
                     'non_member_piece_price' => $product->non_member_piece_price,

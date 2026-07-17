@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react';
-import { BookOpen, FolderGit2, LayoutGrid, Truck, Ruler, Tags, Package, Box, Boxes, ShoppingCart, LineChart } from 'lucide-react';
+import { BookOpen, FolderGit2, LayoutGrid, Truck, Ruler, Tags, Package, Boxes, ShoppingCart, Receipt } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -18,10 +18,10 @@ import suppliers from '@/routes/suppliers';
 import units from '@/routes/units';
 import categories from '@/routes/categories';
 import products from '@/routes/products';
-import type { NavItem } from '@/types';
 import stockBatches from '@/routes/stock-batches';
 import pos from '@/routes/pos';
-import reports from '@/routes/reports';
+import sales from '@/routes/sales';
+import type { NavItem } from '@/types';
 import { useAuth } from '@/hooks/use-auth';
 
 const mainNavItems: NavItem[] = [
@@ -36,9 +36,9 @@ const mainNavItems: NavItem[] = [
         icon: ShoppingCart,
     },
     {
-        title: 'Reports',
-        href: reports.sales(),
-        icon: LineChart,
+        title: 'Sales History',
+        href: sales.index(),
+        icon: Receipt,
         managerOnly: true,
     },
     {

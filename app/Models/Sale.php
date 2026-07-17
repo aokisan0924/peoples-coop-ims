@@ -12,7 +12,7 @@ class Sale extends Model
         'receipt_number', 'cashier_id', 'is_member',
         'subtotal', 'vat_amount', 'total',
         'payment_method', 'amount_tendered', 'change_given', 'gcash_reference',
-        'voided_at',
+        'voided_at', 'voided_by', 'void_reason',
     ];
 
     protected function casts(): array
@@ -36,5 +36,10 @@ class Sale extends Model
     public function items(): HasMany
     {
         return $this->hasMany(SaleItem::class);
+    }
+
+    public function voidedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'voided_by');
     }
 }

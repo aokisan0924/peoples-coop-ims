@@ -47,4 +47,21 @@ class StockDeductionService
         // Weighted-average cost of what was actually consumed, for accurate margin reporting
         return $baseUnitQuantity > 0 ? $totalCost / $baseUnitQuantity : 0.0;
     }
+
+    /**
+     * Restore stock for a voided sale item by creating a new batch,
+     * rather than attempting to reverse-deduct the original (possibly since-depleted) batches.
+     */
+    public function restore(int $productId, int $baseUnitQuantity, float $unitCost, string $reason): void
+    {
+        StockBatch::create([
+            'product_id' => $productId,
+            'supplier_id' => null,
+            'received_qty' => $baseUnitQuantity,
+            'remaining_qty' => $baseUnitQuantity,
+            'cost_price' => $unitCost,
+            'received_date' => now()->toDateString(),
+            'expiry_date' => null,
+        ]);
+    }
 }

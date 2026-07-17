@@ -26,5 +26,15 @@ class DatabaseSeeder extends Seeder
             'name' => 'Test Cashier',
             'email' => 'cashier@example.com',
         ])->assignRole('Cashier');
+
+        // Inventory data — order matters: Units/Categories/Suppliers are
+        // dependencies for Products, which is a dependency for Stock Batches.
+        $this->call([
+            UnitSeeder::class,
+            CategorySeeder::class,
+            SupplierSeeder::class,
+            ProductSeeder::class,
+            StockBatchSeeder::class,
+        ]);
     }
 }

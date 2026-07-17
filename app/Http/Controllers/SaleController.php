@@ -8,14 +8,26 @@ use App\Models\SaleItem;
 use App\Services\StockDeductionService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Inertia\Inertia;
+use Inertia\Response;
 use RuntimeException;
 
 class SaleController extends Controller
 {
     public function __construct(private StockDeductionService $stockDeduction)
     {
+    }
+
+    public function index(): \Inertia\Response
+    {
+        return Inertia::render('sales/index', [
+            'sales' => Sale::with('cashier')
+                ->orderByDesc('created_at')
+                ->paginate(30),
+        ]);
     }
 
     public function store(Request $request): JsonResponse
@@ -120,12 +132,48 @@ class SaleController extends Controller
         }
     }
 
-    public function show(Sale $sale): \Inertia\Response
+    public function void(Request $request, Sale $sale): RedirectResponse
     {
-        return \Inertia\Inertia::render('pos/receipt', [
+        if ($sale->voided_at) {
+            return back()->withErrors(['sale' => 'This sale has already been voided.']);
+        }
+
+        $validated = $request->validate([
+            'void_reason' => ['required', 'string', 'max:255'],
+        ]);
+
+        DB::transaction(function () use ($sale, $validated, $request) {
+            foreach ($sale->items as $item) {
+                $unitCost = $item->base_unit_quantity > 0
+                    ? (float) $item->cost_at_sale / $item->base_unit_quantity
+                    : 0;
+
+                $this->stockDeduction->restore(
+                    $item->product_id,
+                    $item->base_unit_quantity,
+                    $unitCost,
+                    $validated['void_reason']
+                );
+            }
+
+            $sale->update([
+                'voided_at' => now(),
+                'voided_by' => $request->user()->id,
+                'void_reason' => $validated['void_reason'],
+            ]);
+        });
+
+        return back()->with('success', "Sale {$sale->receipt_number} voided and stock restored.");
+    }
+
+    public function show(Sale $sale): Response
+    {
+        return Inertia::render('pos/receipt', [
             'sale' => $sale->load('items.product', 'cashier'),
         ]);
     }
+
+
 
     /**
      * Collision-safe across concurrent terminals: DB-generated sequence number
