@@ -11,7 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
+        Schema::table('gcash_float', function (Blueprint $table) {
+            $table->foreignId('location_id')->nullable()->after('id')->constrained();
+        });
+
+        Schema::table('gcash_transactions', function (Blueprint $table) {
             $table->foreignId('location_id')->nullable()->after('id')->constrained();
         });
     }
@@ -21,7 +25,11 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
+        Schema::table('gcash_float', function (Blueprint $table) {
+            $table->dropConstrainedForeignId('location_id');
+        });
+
+        Schema::table('gcash_transactions', function (Blueprint $table) {
             $table->dropConstrainedForeignId('location_id');
         });
     }
