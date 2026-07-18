@@ -17,6 +17,12 @@ interface TrendPoint { date: string; total: number }
 interface PaymentBreakdown { payment_method: 'cash' | 'gcash'; total: string; count: number }
 interface CashierBreakdown { name: string; total: string; count: number }
 interface BestSeller { name: string; units_sold: number; revenue: string }
+interface BranchStat {
+    id: number;
+    name: string;
+    total_sales: number;
+    transaction_count: number;
+}
 
 interface Props {
     todaySales: PeriodStat;
@@ -30,6 +36,8 @@ interface Props {
     paymentBreakdown: PaymentBreakdown[];
     cashierBreakdown: CashierBreakdown[];
     bestSellers: BestSeller[];
+    isOwner: boolean;
+    branchBreakdown: BranchStat[] | null;
 }
 
 function peso(n: number | string): string {
@@ -40,9 +48,10 @@ export default function Dashboard({
     todaySales, weekSales, monthSales, yearSales,
     activeProductsCount, lowStockProducts, expiringSoon,
     trend, paymentBreakdown, cashierBreakdown, bestSellers,
+    isOwner, branchBreakdown,
 }: Props) {
     const { isManager } = useAuth();
-
+    const canManage = isManager || isOwner;
     return (
         <>
             <Head title="Dashboard" />
@@ -56,7 +65,7 @@ export default function Dashboard({
                             New Sale
                         </Link>
                     </Button>
-                    {isManager && (
+                    {canManage && (
                         <>
                             <Button variant="outline" asChild>
                                 <Link href={stockBatches.create().url}>
@@ -98,7 +107,7 @@ export default function Dashboard({
                                         <span className="truncate mr-2">{p.name}</span>
                                         <div className="flex items-center gap-2 shrink-0">
                                             <Badge variant="destructive">{p.total_stock} left</Badge>
-                                            {isManager && (
+                                            {canManage && (
                                                 <Button variant="outline" size="sm" asChild>
                                                     <Link href={stockBatches.create().url}>Restock</Link>
                                                 </Button>
@@ -136,7 +145,7 @@ export default function Dashboard({
                 </div>
 
                 {/* Trend chart — Manager-only, since it's financial detail beyond a cashier's needs */}
-                {isManager && (
+                {canManage && (
                     <div className="border rounded-lg p-4">
                         <h2 className="text-sm font-medium mb-4">Last 30 Days</h2>
                         <ResponsiveContainer width="100%" height={260}>
@@ -155,7 +164,7 @@ export default function Dashboard({
                 )}
 
                 {/* Breakdowns — Manager-only */}
-                {isManager && (
+                {canManage && (
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div className="border rounded-lg p-4">
                             <h2 className="text-sm font-medium mb-3">Payment Methods (This Month)</h2>
@@ -192,6 +201,31 @@ export default function Dashboard({
                                 </div>
                             ))}
                         </div>
+                    </div>
+                )}
+
+                {/* Branch comparison — Owner-only, now correctly inside the padded/spaced container */}
+                {isOwner && branchBreakdown && (
+                    <div className="border rounded-lg p-4">
+                        <h2 className="text-sm font-medium mb-3">Branch Comparison (This Month)</h2>
+                        <table className="w-full text-sm">
+                            <thead className="bg-muted">
+                                <tr>
+                                    <th className="text-left p-2">Branch</th>
+                                    <th className="text-left p-2">Sales</th>
+                                    <th className="text-left p-2">Transactions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {branchBreakdown.map((b) => (
+                                    <tr key={b.id} className="border-t">
+                                        <td className="p-2 font-medium">{b.name}</td>
+                                        <td className="p-2">{peso(b.total_sales)}</td>
+                                        <td className="p-2">{b.transaction_count}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
                     </div>
                 )}
             </div>

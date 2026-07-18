@@ -52,7 +52,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Everything below changes prices, stock records, or exposes financial reports —
     // manager only.
-    Route::middleware('role:Manager')->group(function () {
+    Route::middleware('role:Manager|Owner')->group(function () {
         // Suppliers
         Route::resource('suppliers', SupplierController::class);
 
@@ -75,16 +75,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('sales/{sale}/void', [SaleController::class, 'void'])->name('sales.void');
 
         Route::post('gcash/adjust-float', [GcashController::class, 'adjustFloat'])->name('gcash.adjust-float');
-    });
-
-    Route::middleware('role:Owner')->group(function () {
-        Route::resource('locations', LocationController::class);
 
         Route::get('users', [UserManagementController::class, 'index'])->name('users.index');
         Route::get('users/create', [UserManagementController::class, 'create'])->name('users.create');
         Route::post('users', [UserManagementController::class, 'store'])->name('users.store');
         Route::delete('users/{user}', [UserManagementController::class, 'destroy'])->name('users.destroy');
+    });
 
+    Route::middleware('role:Owner')->group(function () {
+        Route::resource('locations', LocationController::class);
     });
 });
 
