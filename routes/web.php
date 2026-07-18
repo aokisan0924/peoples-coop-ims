@@ -10,6 +10,7 @@ use App\Http\Controllers\SaleController;
 use App\Http\Controllers\StockBatchController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\UnitController;
+use App\Http\Controllers\UserManagementController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -78,6 +79,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::middleware('role:Owner')->group(function () {
         Route::resource('locations', LocationController::class);
+
+        Route::get('users', [UserManagementController::class, 'index'])->name('users.index');
+        Route::get('users/create', [UserManagementController::class, 'create'])->name('users.create');
+        Route::post('users', [UserManagementController::class, 'store'])->name('users.store');
+        Route::delete('users/{user}', [UserManagementController::class, 'destroy'])->name('users.destroy');
+
     });
 });
 

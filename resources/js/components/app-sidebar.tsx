@@ -1,6 +1,5 @@
 import { Link } from '@inertiajs/react';
 import { BookOpen, FolderGit2, LayoutGrid, Truck, Ruler, Tags, Package, Boxes, ShoppingCart, Receipt, ReceiptIcon } from 'lucide-react';
-import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
@@ -14,6 +13,11 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
+import { useAuth } from '@/hooks/use-auth';
+import { Wallet } from 'lucide-react';
+import { Building2 } from 'lucide-react';
+import { UserPlus } from 'lucide-react';
+import type { NavItem } from '@/types';
 import suppliers from '@/routes/suppliers';
 import units from '@/routes/units';
 import categories from '@/routes/categories';
@@ -21,12 +25,9 @@ import products from '@/routes/products';
 import stockBatches from '@/routes/stock-batches';
 import pos from '@/routes/pos';
 import sales from '@/routes/sales';
-import type { NavItem } from '@/types';
-import { useAuth } from '@/hooks/use-auth';
-import { Wallet } from 'lucide-react';
 import gcash from '@/routes/gcash';
-import { Building2 } from 'lucide-react';
 import locations from '@/routes/locations';
+import AppLogo from '@/components/app-logo';
 
 const mainNavItems: NavItem[] = [
     {
@@ -91,6 +92,12 @@ const mainNavItems: NavItem[] = [
         href: locations.index(),
         icon: Building2,
         ownerOnly: true,
+    },
+        {
+        title: 'Users',
+        href: '/users',
+        icon: UserPlus,
+        managerOnly: true,
     },
 ];
 

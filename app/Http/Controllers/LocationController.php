@@ -72,6 +72,8 @@ class LocationController extends Controller
             'is_active' => ['boolean'],
         ]);
 
+        // is_main is intentionally never editable through this form —
+        // it's a one-time designation set at creation, not a togglable field.
         $location->update($validated);
 
         return redirect()->route('locations.index')->with('success', 'Branch updated.');

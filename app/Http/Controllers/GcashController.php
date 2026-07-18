@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\GcashFloat;
 use App\Models\GcashTransaction;
+use App\Models\Location;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Carbon;
@@ -13,12 +14,24 @@ use Inertia\Response;
 
 class GcashController extends Controller
 {
-    public function index(): Response
+    public function index(Request $request): Response
     {
-        $float = GcashFloat::first();
+        $locationId = $request->user()->seesAllLocations()
+            ? $request->query('location_id')
+            : $request->user()->location_id;
+
+        // Owner has no home branch — show a branch picker instead (handled in Step 4)
+        if (!$locationId) {
+            return Inertia::render('gcash/select-branch', [
+                'locations' => Location::where('is_active', true)->orderBy('name')->get(),
+            ]);
+        }
+
+        $float = GcashFloat::firstOrCreate(['location_id' => $locationId], ['balance' => 0]);
         $today = Carbon::today();
 
-        $todayStats = GcashTransaction::whereBetween('created_at', [$today->copy()->startOfDay(), $today->copy()->endOfDay()])
+        $todayStats = GcashTransaction::where('location_id', $locationId)
+            ->whereBetween('created_at', [$today->copy()->startOfDay(), $today->copy()->endOfDay()])
             ->selectRaw("
                 COALESCE(SUM(CASE WHEN type = 'cash_in' THEN amount ELSE 0 END), 0) as total_cash_in,
                 COALESCE(SUM(CASE WHEN type = 'cash_out' THEN amount ELSE 0 END), 0) as total_cash_out,
@@ -36,6 +49,7 @@ class GcashController extends Controller
                 'transaction_count' => (int) $todayStats->transaction_count,
             ],
             'recentTransactions' => GcashTransaction::with('cashier')
+                ->where('location_id', $locationId)
                 ->orderByDesc('created_at')
                 ->limit(30)
                 ->get(),
@@ -44,6 +58,12 @@ class GcashController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        $locationId = $request->user()->location_id;
+
+        if (!$locationId) {
+            return back()->withErrors(['location' => 'Your account has no assigned branch.']);
+        }
+
         $validated = $request->validate([
             'type' => ['required', 'in:cash_in,cash_out'],
             'amount' => ['required', 'numeric', 'min:1'],
@@ -53,16 +73,16 @@ class GcashController extends Controller
             'notes' => ['nullable', 'string', 'max:500'],
         ]);
 
-        DB::transaction(function () use ($validated, $request) {
-            // Lock the float row so concurrent terminals can't both read the same
-            // stale balance and both succeed, corrupting the running total.
-            $float = GcashFloat::lockForUpdate()->first();
+        DB::transaction(function () use ($validated, $request, $locationId) {
+            // Lock THIS branch's float row only — other branches' floats are untouched
+            $float = GcashFloat::where('location_id', $locationId)->lockForUpdate()->first();
+
+            if (!$float) {
+                $float = GcashFloat::create(['location_id' => $locationId, 'balance' => 0]);
+            }
 
             $amount = $validated['amount'];
             $fee = $validated['fee'] ?? 0;
-
-            // Cash-In: customer's cash comes in, our GCash goes out to them → float decreases.
-            // Cash-Out: customer's GCash comes in to us, our cash goes out to them → float increases.
             $delta = $validated['type'] === 'cash_in' ? -$amount : $amount;
             $newBalance = (float) $float->balance + $delta;
 
@@ -79,6 +99,7 @@ class GcashController extends Controller
                 'customer_name' => $validated['customer_name'] ?? null,
                 'reference_number' => $validated['reference_number'] ?? null,
                 'cashier_id' => $request->user()->id,
+                'location_id' => $locationId,
                 'float_balance_after' => $newBalance,
                 'notes' => $validated['notes'] ?? null,
             ]);
@@ -93,13 +114,19 @@ class GcashController extends Controller
      */
     public function adjustFloat(Request $request): RedirectResponse
     {
+        $locationId = $request->user()->location_id;
+
+        if (!$locationId) {
+            return back()->withErrors(['location' => 'Your account has no assigned branch.']);
+        }
+
         $validated = $request->validate([
             'new_balance' => ['required', 'numeric', 'min:0'],
             'notes' => ['required', 'string', 'max:500'],
         ]);
 
-        DB::transaction(function () use ($validated, $request) {
-            $float = GcashFloat::lockForUpdate()->first();
+        DB::transaction(function () use ($validated, $request, $locationId) {
+            $float = GcashFloat::where('location_id', $locationId)->lockForUpdate()->first();
             $oldBalance = (float) $float->balance;
             $adjustment = $validated['new_balance'] - $oldBalance;
 
@@ -112,6 +139,7 @@ class GcashController extends Controller
                 'customer_name' => null,
                 'reference_number' => null,
                 'cashier_id' => $request->user()->id,
+                'location_id' => $locationId,
                 'float_balance_after' => $validated['new_balance'],
                 'notes' => $validated['notes'] . ' (Adjusted by ' . ($adjustment >= 0 ? '+' : '') . number_format($adjustment, 2) . ')',
             ]);
