@@ -25,6 +25,8 @@ import type { NavItem } from '@/types';
 import { useAuth } from '@/hooks/use-auth';
 import { Wallet } from 'lucide-react';
 import gcash from '@/routes/gcash';
+import { Building2 } from 'lucide-react';
+import locations from '@/routes/locations';
 
 const mainNavItems: NavItem[] = [
     {
@@ -84,6 +86,12 @@ const mainNavItems: NavItem[] = [
         icon: Truck,
         managerOnly: true,
     },
+    {
+        title: 'Branches',
+        href: locations.index(),
+        icon: Building2,
+        ownerOnly: true,
+    },
 ];
 
 const footerNavItems: NavItem[] = [
@@ -100,8 +108,12 @@ const footerNavItems: NavItem[] = [
 ];
 
 export function AppSidebar() {
-    const { isManager } = useAuth();
-    const visibleNavItems = mainNavItems.filter((item) => !item.managerOnly || isManager);
+    const { isManager, isOwner } = useAuth();
+    const visibleNavItems = mainNavItems.filter((item) => {
+        if (item.ownerOnly) return isOwner;
+        if (item.managerOnly) return isManager || isOwner; // Owner can see everything Manager can
+        return true;
+    });
 
     return (
         <Sidebar collapsible="icon" variant="inset">

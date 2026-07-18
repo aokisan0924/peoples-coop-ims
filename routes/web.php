@@ -3,6 +3,7 @@
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GcashController;
+use App\Http\Controllers\LocationController;
 use App\Http\Controllers\PosController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\SaleController;
@@ -73,6 +74,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('sales/{sale}/void', [SaleController::class, 'void'])->name('sales.void');
 
         Route::post('gcash/adjust-float', [GcashController::class, 'adjustFloat'])->name('gcash.adjust-float');
+    });
+
+    Route::middleware('role:Owner')->group(function () {
+        Route::resource('locations', LocationController::class);
     });
 });
 

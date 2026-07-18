@@ -10,7 +10,7 @@ export type User = {
     [key: string]: unknown;
 };
 
-export type Role = 'Manager' | 'Cashier';
+export type Role = 'Owner' | 'Manager' | 'Cashier';
 
 export type Auth = {
     user: User;

@@ -12,6 +12,7 @@ export function useAuth() {
         user: auth.user,
         roles: auth.roles ?? [],
         hasRole,
+        isOwner: hasRole('Owner'),
         isManager: hasRole('Manager'),
     };
 }
