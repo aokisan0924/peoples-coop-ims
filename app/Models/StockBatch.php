@@ -11,7 +11,7 @@ class StockBatch extends Model
     use HasFactory;
 
     protected $fillable = [
-        'product_id', 'supplier_id', 'received_qty', 'remaining_qty',
+        'product_id', 'location_id', 'supplier_id', 'received_qty', 'remaining_qty',
         'cost_price', 'received_date', 'expiry_date',
     ];
 

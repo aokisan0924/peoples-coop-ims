@@ -44,6 +44,14 @@ class SaleController extends Controller
             'items.*.quantity' => ['required', 'integer', 'min:1'],
         ]);
 
+        if (!$request->user()->location_id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Your account has no assigned branch. Only branch-assigned Cashiers/Managers can process sales.',
+            ], 422);
+        }
+
+        // Idempotency check — same as before
         $existing = Sale::where('client_uuid', $validated['client_uuid'])->first();
         if ($existing) {
             return response()->json([
@@ -57,11 +65,11 @@ class SaleController extends Controller
             $sale = DB::transaction(function () use ($validated, $request) {
                 $subtotal = 0;
                 $lineItemsData = [];
+                $locationId = $request->user()->location_id;
 
                 foreach ($validated['items'] as $item) {
                     $product = Product::lockForUpdate()->findOrFail($item['product_id']);
 
-                    // Determine base-unit quantity + unit price based on piece vs pack
                     if ($item['unit_type'] === 'pack') {
                         if (!$product->pack_conversion_factor) {
                             throw new RuntimeException("\"{$product->name}\" has no pack option configured.");
@@ -77,8 +85,7 @@ class SaleController extends Controller
                             : $product->non_member_piece_price;
                     }
 
-                    // FIFO deduction — throws if insufficient stock, which rolls back the whole transaction
-                    $avgCost = $this->stockDeduction->deduct($product, $baseUnitQty);
+                    $avgCost = $this->stockDeduction->deduct($product, $baseUnitQty, $locationId);
 
                     $lineTotal = round($unitPrice * $item['quantity'], 2);
                     $subtotal += $lineTotal;
@@ -94,8 +101,6 @@ class SaleController extends Controller
                     ];
                 }
 
-                // VAT is already baked into non-member unit prices (see Product::calculatePrice),
-                // so we back-calculate the VAT portion here purely for reporting/receipt display.
                 $vatAmount = 0;
                 if (!$validated['is_member']) {
                     $vatRate = config('pricing.vat_rate') / 100;
@@ -116,6 +121,7 @@ class SaleController extends Controller
                     'receipt_number' => $this->generateReceiptNumber(),
                     'client_uuid' => $validated['client_uuid'],
                     'cashier_id' => $request->user()->id,
+                    'location_id' => $locationId,
                     'is_member' => $validated['is_member'],
                     'subtotal' => $subtotal,
                     'vat_amount' => $vatAmount,
@@ -138,11 +144,7 @@ class SaleController extends Controller
                 'sale' => $sale->load('items.product', 'cashier'),
             ]);
         } catch (RuntimeException $e) {
-            // Business-rule failure (insufficient stock, bad tender amount) — safe to show directly to cashier
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage()
-            ], 422);
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
         }
     }
 
@@ -166,7 +168,8 @@ class SaleController extends Controller
                     $item->product_id,
                     $item->base_unit_quantity,
                     $unitCost,
-                    $validated['void_reason']
+                    $validated['void_reason'],
+                    $sale->location_id
                 );
             }
 

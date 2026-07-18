@@ -47,6 +47,11 @@ class Product extends Model
         return $this->stockBatches()->sum('remaining_qty');
     }
 
+    public function totalStockAt(int $locationId): int
+    {
+        return $this->stockBatches()->where('location_id', $locationId)->sum('remaining_qty');
+    }
+
     public function getIsLowStockAttribute(): bool {
         return $this->total_stock <= $this->low_stock_threshold;
     }

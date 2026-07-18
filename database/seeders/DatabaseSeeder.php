@@ -18,8 +18,13 @@ class DatabaseSeeder extends Seeder
         $this->call(RoleSeeder::class);
 
         User::factory()->create([
-            'name' => 'Jeffrae Sapla',
-            'email' => 'jeffraesapla24@gmail.com',
+            'name' => 'Test Owner',
+            'email' => 'owner@example.com',
+        ])->assignRole('Owner');
+
+        User::factory()->create([
+            'name' => 'Test Manager',
+            'email' => 'manager@example.com',
         ])->assignRole('Manager');
 
         User::factory()->create([

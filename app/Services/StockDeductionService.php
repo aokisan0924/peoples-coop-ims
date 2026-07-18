@@ -9,21 +9,22 @@ use RuntimeException;
 class StockDeductionService
 {
     /**
-     * Deduct a quantity (in base units) from a product's stock batches, oldest first (FIFO).
-     * Returns the weighted-average cost of the units actually deducted — used for margin tracking.
+     * Deduct a quantity (in base units) from a product's stock batches, oldest first (FIFO),
+     * scoped to a specific branch. Stock at one branch can never be deducted for a sale at another.
      *
-     * @throws RuntimeException if there isn't enough stock across all batches.
+     * @throws RuntimeException if there isn't enough stock at this branch.
      */
-    public function deduct(Product $product, int $baseUnitQuantity): float
+    public function deduct(Product $product, int $baseUnitQuantity, int $locationId): float
     {
         $remaining = $baseUnitQuantity;
         $totalCost = 0.0;
 
         $batches = StockBatch::where('product_id', $product->id)
+            ->where('location_id', $locationId)
             ->where('remaining_qty', '>', 0)
             ->orderBy('received_date')
             ->orderBy('id')
-            ->lockForUpdate() // prevents race conditions on concurrent sales of the same product
+            ->lockForUpdate()
             ->get();
 
         foreach ($batches as $batch) {
@@ -40,22 +41,22 @@ class StockDeductionService
 
         if ($remaining > 0) {
             throw new RuntimeException(
-                "Insufficient stock for \"{$product->name}\": short by {$remaining} base unit(s)."
+                "Insufficient stock for \"{$product->name}\" at this branch: short by {$remaining} base unit(s)."
             );
         }
 
-        // Weighted-average cost of what was actually consumed, for accurate margin reporting
         return $baseUnitQuantity > 0 ? $totalCost / $baseUnitQuantity : 0.0;
     }
 
     /**
-     * Restore stock for a voided sale item by creating a new batch,
-     * rather than attempting to reverse-deduct the original (possibly since-depleted) batches.
+     * Restore stock for a voided sale — the new batch belongs to the same branch
+     * the original sale happened at, not wherever the manager voiding it is located.
      */
-    public function restore(int $productId, int $baseUnitQuantity, float $unitCost, string $reason): void
+    public function restore(int $productId, int $baseUnitQuantity, float $unitCost, string $reason, int $locationId): void
     {
         StockBatch::create([
             'product_id' => $productId,
+            'location_id' => $locationId,
             'supplier_id' => null,
             'received_qty' => $baseUnitQuantity,
             'remaining_qty' => $baseUnitQuantity,

@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 
+use App\Models\Location;
 use App\Models\Product;
 use App\Models\StockBatch;
 use App\Services\StockDeductionService;
@@ -11,11 +12,14 @@ use Tests\TestCase;
 class StockDeductionServiceTest extends TestCase
 {
     private StockDeductionService $service;
+    private int $locationId;
 
     protected function setUp(): void
     {
         parent::setUp();
+
         $this->service = new StockDeductionService();
+        $this->locationId = Location::factory()->create()->id;
     }
 
     public function test_deducts_from_oldest_batch_first(): void
@@ -24,6 +28,7 @@ class StockDeductionServiceTest extends TestCase
 
         $oldBatch = StockBatch::factory()->create([
             'product_id' => $product->id,
+            'location_id' => $this->locationId,
             'received_qty' => 20,
             'remaining_qty' => 20,
             'cost_price' => 10.00,
@@ -32,20 +37,19 @@ class StockDeductionServiceTest extends TestCase
 
         $newBatch = StockBatch::factory()->create([
             'product_id' => $product->id,
+            'location_id' => $this->locationId,
             'received_qty' => 20,
             'remaining_qty' => 20,
-            'cost_price' => 15.00, // different cost, so we can tell which batch was actually consumed
+            'cost_price' => 15.00,
             'received_date' => now()->subDays(2),
         ]);
 
-        $this->service->deduct($product, 15);
+        $this->service->deduct($product, 15, $this->locationId);
 
         $oldBatch->refresh();
         $newBatch->refresh();
 
-        // The older batch should be depleted first (20 - 15 = 5 remaining)
         $this->assertEquals(5, $oldBatch->remaining_qty);
-        // The newer batch should be untouched
         $this->assertEquals(20, $newBatch->remaining_qty);
     }
 
@@ -55,6 +59,7 @@ class StockDeductionServiceTest extends TestCase
 
         $oldBatch = StockBatch::factory()->create([
             'product_id' => $product->id,
+            'location_id' => $this->locationId,
             'received_qty' => 10,
             'remaining_qty' => 10,
             'cost_price' => 10.00,
@@ -63,14 +68,14 @@ class StockDeductionServiceTest extends TestCase
 
         $newBatch = StockBatch::factory()->create([
             'product_id' => $product->id,
+            'location_id' => $this->locationId,
             'received_qty' => 20,
             'remaining_qty' => 20,
             'cost_price' => 15.00,
             'received_date' => now()->subDays(2),
         ]);
 
-        // Deduct 15 — should fully consume the old batch (10) and take 5 from the new one
-        $this->service->deduct($product, 15);
+        $this->service->deduct($product, 15, $this->locationId);
 
         $oldBatch->refresh();
         $newBatch->refresh();
@@ -85,6 +90,7 @@ class StockDeductionServiceTest extends TestCase
 
         StockBatch::factory()->create([
             'product_id' => $product->id,
+            'location_id' => $this->locationId,
             'received_qty' => 10,
             'remaining_qty' => 10,
             'cost_price' => 10.00,
@@ -93,14 +99,14 @@ class StockDeductionServiceTest extends TestCase
 
         StockBatch::factory()->create([
             'product_id' => $product->id,
+            'location_id' => $this->locationId,
             'received_qty' => 20,
             'remaining_qty' => 20,
             'cost_price' => 20.00,
             'received_date' => now()->subDays(2),
         ]);
 
-        // Deduct 15: 10 units @ ₱10 + 5 units @ ₱20 = ₱100 + ₱100 = ₱200 total / 15 units = ₱13.33 avg
-        $avgCost = $this->service->deduct($product, 15);
+        $avgCost = $this->service->deduct($product, 15, $this->locationId);
 
         $this->assertEqualsWithDelta(13.33, $avgCost, 0.01);
     }
@@ -111,6 +117,7 @@ class StockDeductionServiceTest extends TestCase
 
         StockBatch::factory()->create([
             'product_id' => $product->id,
+            'location_id' => $this->locationId,
             'received_qty' => 5,
             'remaining_qty' => 5,
             'received_date' => now(),
@@ -119,7 +126,7 @@ class StockDeductionServiceTest extends TestCase
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessageMatches('/short by 10/');
 
-        $this->service->deduct($product, 15); // only 5 available, asking for 15
+        $this->service->deduct($product, 15, $this->locationId);
     }
 
     public function test_ignores_fully_depleted_batches(): void
@@ -128,36 +135,57 @@ class StockDeductionServiceTest extends TestCase
 
         StockBatch::factory()->create([
             'product_id' => $product->id,
+            'location_id' => $this->locationId,
             'received_qty' => 10,
-            'remaining_qty' => 0, // already fully sold
+            'remaining_qty' => 0,
             'received_date' => now()->subDays(10),
         ]);
 
         $freshBatch = StockBatch::factory()->create([
             'product_id' => $product->id,
+            'location_id' => $this->locationId,
             'received_qty' => 10,
             'remaining_qty' => 10,
             'received_date' => now(),
         ]);
 
-        $this->service->deduct($product, 5);
+        $this->service->deduct($product, 5, $this->locationId);
 
         $freshBatch->refresh();
         $this->assertEquals(5, $freshBatch->remaining_qty);
     }
 
-    public function test_restore_creates_a_new_batch_rather_than_reversing_old_ones(): void
+    public function test_ignores_batches_from_other_locations(): void
+    {
+        $product = Product::factory()->create();
+        $otherLocationId = Location::factory()->create()->id;
+
+        StockBatch::factory()->create([
+            'product_id' => $product->id,
+            'location_id' => $otherLocationId,
+            'received_qty' => 50,
+            'remaining_qty' => 50,
+            'received_date' => now()->subDays(10),
+        ]);
+
+        $this->expectException(RuntimeException::class);
+
+        $this->service->deduct($product, 5, $this->locationId);
+    }
+
+    public function test_restore_creates_a_new_batch_at_the_correct_location(): void
     {
         $product = Product::factory()->create();
 
-        $this->service->restore($product->id, 20, 12.50, 'Test void');
+        $this->service->restore($product->id, 20, 12.50, 'Test void', $this->locationId);
 
         $batch = StockBatch::where('product_id', $product->id)->first();
 
         $this->assertNotNull($batch);
+        $this->assertEquals($this->locationId, $batch->location_id);
         $this->assertEquals(20, $batch->remaining_qty);
         $this->assertEquals(20, $batch->received_qty);
         $this->assertEquals(12.50, $batch->cost_price);
-        $this->assertNull($batch->supplier_id); // restored stock has no supplier
+        $this->assertNull($batch->supplier_id);
     }
 }

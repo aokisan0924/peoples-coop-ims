@@ -42,6 +42,10 @@ class StockBatchController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        if (!$request->user()->location_id) {
+            return back()->withErrors(['location' => 'Your account has no assigned branch. Stock receiving must be done by a branch Manager.']);
+        }
+
         $validated = $request->validate([
             'product_id' => ['required', 'exists:products,id'],
             'supplier_id' => ['nullable', 'exists:suppliers,id'],
@@ -52,17 +56,15 @@ class StockBatchController extends Controller
         ]);
 
         $validated['remaining_qty'] = $validated['received_qty'];
+        $validated['location_id'] = $request->user()->location_id;
 
         StockBatch::create($validated);
 
-        // Keep Product.cost_price in sync with the most recent batch received —
-        // this is what powers the pricing preview on the product form.
         Product::where('id', $validated['product_id'])
             ->update(['cost_price' => $validated['cost_price']]);
 
         return redirect()->route('stock-batches.index')->with('success', 'Stock received.');
     }
-
     /**
      * Display the specified resource.
      */
