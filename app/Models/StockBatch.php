@@ -23,11 +23,18 @@ class StockBatch extends Model
         ];
     }
 
-    public function product(): BelongsTo {
+    public function product(): BelongsTo
+    {
         return $this->belongsTo(Product::class);
     }
 
-    public function supplier(): BelongsTo {
+    public function supplier(): BelongsTo
+    {
         return $this->belongsTo(Supplier::class);
+    }
+
+    public function location(): BelongsTo
+    {
+        return $this->belongsTo(Location::class);
     }
 }

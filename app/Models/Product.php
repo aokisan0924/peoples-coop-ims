@@ -18,7 +18,8 @@ class Product extends Model
         'low_stock_threshold', 'is_active',
     ];
 
-    protected function casts(): array {
+    protected function casts(): array
+    {
         return [
             'cost_price' => 'decimal:2',
             'markup_percentage' => 'decimal:2',
@@ -26,15 +27,18 @@ class Product extends Model
         ];
     }
 
-    public function category(): BelongsTo {
+    public function category(): BelongsTo
+    {
         return $this->belongsTo(Category::class);
     }
 
-    public function baseUnit(): BelongsTo {
+    public function baseUnit(): BelongsTo
+    {
         return $this->belongsTo(Unit::class, 'base_unit_id');
     }
 
-        public function packUnit(): BelongsTo {
+    public function packUnit(): BelongsTo
+    {
         return $this->belongsTo(Unit::class, 'pack_unit_id');
     }
 
@@ -43,7 +47,8 @@ class Product extends Model
     }
 
     // Total stock on hand, summed across all FIFO batches, in base units
-    public function getTotalStockAttribute(): int {
+    public function getTotalStockAttribute(): int
+    {
         return $this->stockBatches()->sum('remaining_qty');
     }
 
@@ -52,14 +57,16 @@ class Product extends Model
         return $this->stockBatches()->where('location_id', $locationId)->sum('remaining_qty');
     }
 
-    public function getIsLowStockAttribute(): bool {
+    public function getIsLowStockAttribute(): bool
+    {
         return $this->total_stock <= $this->low_stock_threshold;
     }
 
     /**
      * Core pricing calculation, reused for piece and pack, member and non-member.
      */
-    public function calculatePrice(float $baseCost, bool $isMember = true): float {
+    public function calculatePrice(float $baseCost, bool $isMember = true): float
+    {
         $markup = (float) ($this->markup_percentage ?? config('pricing.default_markup'));
         $memberPrice = $baseCost * (1 + $markup / 100);
 
@@ -71,15 +78,18 @@ class Product extends Model
         return round($memberPrice * (1 + $vatRate / 100), 2);
     }
 
-    public function getMemberPiecePriceAttribute(): float {
+    public function getMemberPiecePriceAttribute(): float
+    {
         return $this->calculatePrice((float) $this->cost_price, isMember: true);
     }
 
-    public function getNonMemberPiecePriceAttribute(): float {
+    public function getNonMemberPiecePriceAttribute(): float
+    {
         return $this->calculatePrice((float) $this->cost_price, isMember: false);
     }
 
-    public function getMemberPackPriceAttribute(): ?float {
+    public function getMemberPackPriceAttribute(): ?float
+    {
         if (!$this->pack_conversion_factor) {
             return null;
         }
@@ -88,7 +98,8 @@ class Product extends Model
         return $this->calculatePrice($packCost, isMember: true);
     }
 
-    public function getNonMemberPackPriceAttribute(): ?float {
+    public function getNonMemberPackPriceAttribute(): ?float
+    {
         if (!$this->pack_conversion_factor) {
             return null;
         }

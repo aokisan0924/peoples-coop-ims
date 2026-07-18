@@ -14,7 +14,8 @@ class Supplier extends Model
         'name', 'contact_person', 'phone', 'email', 'address', 'payment_terms'
     ];
 
-    public function stockBatches(): HasMany {
+    public function stockBatches(): HasMany
+    {
         return $this->hasMany(StockBatch::class);
     }
 }

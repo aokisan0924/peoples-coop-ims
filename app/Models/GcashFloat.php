@@ -8,7 +8,7 @@ class GcashFloat extends Model
 {
     protected $table = 'gcash_float';
 
-    protected $fillable = ['balance'];
+    protected $fillable = ['balance', 'location_id'];
 
     protected function casts(): array
     {

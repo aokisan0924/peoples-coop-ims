@@ -9,7 +9,7 @@ class GcashTransaction extends Model
 {
     protected $fillable = [
         'type', 'amount', 'fee', 'customer_name', 'reference_number',
-        'cashier_id', 'float_balance_after', 'notes',
+        'cashier_id', 'location_id', 'float_balance_after', 'notes',
     ];
 
     protected function casts(): array
@@ -24,5 +24,10 @@ class GcashTransaction extends Model
     public function cashier(): BelongsTo
     {
         return $this->belongsTo(User::class, 'cashier_id');
+    }
+
+    public function location(): BelongsTo
+    {
+        return $this->belongsTo(Location::class);
     }
 }
