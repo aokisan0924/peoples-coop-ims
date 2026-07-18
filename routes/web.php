@@ -41,6 +41,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->middleware('throttle:30,1')
         ->name('sales.store');
     Route::get('sales/{sale}/receipt', [SaleController::class, 'show'])->name('sales.receipt');
+    // My Sales — every cashier can view their own shift history (not other cashiers' sales)
+    Route::get('my-sales', [SaleController::class, 'mySales'])->name('sales.mine');
 
     // GCash — cashiers can transact, but float reconciliation is manager-only
     Route::get('gcash', [GcashController::class, 'index'])->name('gcash.index');

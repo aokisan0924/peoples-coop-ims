@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react';
-import { BookOpen, FolderGit2, LayoutGrid, Truck, Ruler, Tags, Package, Boxes, ShoppingCart, Receipt } from 'lucide-react';
+import { BookOpen, FolderGit2, LayoutGrid, Truck, Ruler, Tags, Package, Boxes, ShoppingCart, Receipt, ReceiptIcon } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -47,6 +47,12 @@ const mainNavItems: NavItem[] = [
         title: 'GCash Monitor',
         href: gcash.index(),
         icon: Wallet,
+    },
+
+    {
+        title: 'My Sales',
+        href: '/my-sales',
+        icon: ReceiptIcon,
     },
     {
         title: 'Products',

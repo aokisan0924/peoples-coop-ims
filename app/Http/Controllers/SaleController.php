@@ -206,4 +206,28 @@ class SaleController extends Controller
 
         return $prefix . str_pad((string) $nextSeq, 4, '0', STR_PAD_LEFT);
     }
+
+    public function mySales(Request $request): \Inertia\Response
+    {
+        $date = $request->query('date', now()->toDateString());
+
+        $sales = Sale::where('cashier_id', $request->user()->id)
+            ->whereDate('created_at', $date)
+            ->orderByDesc('created_at')
+            ->get();
+
+        $summary = [
+            'total_sales' => (float) $sales->where('voided_at', null)->sum('total'),
+            'cash_total' => (float) $sales->where('voided_at', null)->where('payment_method', 'cash')->sum('total'),
+            'gcash_total' => (float) $sales->where('voided_at', null)->where('payment_method', 'gcash')->sum('total'),
+            'transaction_count' => $sales->where('voided_at', null)->count(),
+            'voided_count' => $sales->whereNotNull('voided_at')->count(),
+        ];
+
+        return Inertia::render('sales/my-sales', [
+            'sales' => $sales,
+            'summary' => $summary,
+            'selectedDate' => $date,
+        ]);
+    }
 }
