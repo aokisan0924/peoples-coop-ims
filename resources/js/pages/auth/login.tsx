@@ -53,7 +53,7 @@ export default function Login({ status, canResetPassword }: Props) {
                                     {canResetPassword && (
                                         <TextLink
                                             href={request()}
-                                            className="ml-auto text-sm"
+                                            className="ml-auto text-sm text-[#00a79b] decoration-[#00a79b]/40"
                                             tabIndex={5}
                                         >
                                             Forgot your password?
@@ -82,7 +82,7 @@ export default function Login({ status, canResetPassword }: Props) {
 
                             <Button
                                 type="submit"
-                                className="mt-4 w-full"
+                                className="mt-4 w-full bg-[#00a79b] text-white hover:bg-[#00a79b]/90"
                                 tabIndex={4}
                                 disabled={processing}
                                 data-test="login-button"
