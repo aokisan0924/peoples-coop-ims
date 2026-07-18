@@ -23,6 +23,8 @@ import pos from '@/routes/pos';
 import sales from '@/routes/sales';
 import type { NavItem } from '@/types';
 import { useAuth } from '@/hooks/use-auth';
+import { Wallet } from 'lucide-react';
+import gcash from '@/routes/gcash';
 
 const mainNavItems: NavItem[] = [
     {
@@ -40,6 +42,11 @@ const mainNavItems: NavItem[] = [
         href: sales.index(),
         icon: Receipt,
         managerOnly: true,
+    },
+    {
+        title: 'GCash Monitor',
+        href: gcash.index(),
+        icon: Wallet,
     },
     {
         title: 'Products',

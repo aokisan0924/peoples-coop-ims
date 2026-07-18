@@ -2,9 +2,9 @@
 
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\GcashController;
 use App\Http\Controllers\PosController;
 use App\Http\Controllers\ProductController;
-use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SaleController;
 use App\Http\Controllers\StockBatchController;
 use App\Http\Controllers\SupplierController;
@@ -42,6 +42,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('sales.store');
     Route::get('sales/{sale}/receipt', [SaleController::class, 'show'])->name('sales.receipt');
 
+    // GCash — cashiers can transact, but float reconciliation is manager-only
+    Route::get('gcash', [GcashController::class, 'index'])->name('gcash.index');
+    Route::post('gcash', [GcashController::class, 'store'])->name('gcash.store');
+
     // Everything below changes prices, stock records, or exposes financial reports —
     // manager only.
     Route::middleware('role:Manager')->group(function () {
@@ -65,6 +69,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         Route::get('sales', [SaleController::class, 'index'])->name('sales.index');
         Route::post('sales/{sale}/void', [SaleController::class, 'void'])->name('sales.void');
+
+        Route::post('gcash/adjust-float', [GcashController::class, 'adjustFloat'])->name('gcash.adjust-float');
     });
 });
 

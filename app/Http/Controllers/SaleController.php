@@ -21,7 +21,7 @@ class SaleController extends Controller
     {
     }
 
-    public function index(): \Inertia\Response
+    public function index(): Response
     {
         return Inertia::render('sales/index', [
             'sales' => Sale::with('cashier')
@@ -114,6 +114,7 @@ class SaleController extends Controller
 
                 $sale = Sale::create([
                     'receipt_number' => $this->generateReceiptNumber(),
+                    'client_uuid' => $validated['client_uuid'],
                     'cashier_id' => $request->user()->id,
                     'is_member' => $validated['is_member'],
                     'subtotal' => $subtotal,
@@ -185,8 +186,6 @@ class SaleController extends Controller
             'sale' => $sale->load('items.product', 'cashier'),
         ]);
     }
-
-
 
     /**
      * Collision-safe across concurrent terminals: DB-generated sequence number

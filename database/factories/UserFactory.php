@@ -57,4 +57,26 @@ class UserFactory extends Factory
             'two_factor_confirmed_at' => now(),
         ]);
     }
+
+    /**
+     * Create a user with the Manager role assigned, for tests that need
+     * manager-only actions (void sale, float reconciliation, receiving stock).
+     */
+    public function manager(): static
+    {
+        return $this->afterCreating(function (User $user) {
+            $user->assignRole('Manager');
+        });
+    }
+
+    /**
+     * Create a user with the Cashier role assigned, for tests that verify
+     * role-restricted routes correctly reject non-manager actions.
+     */
+    public function cashier(): static
+    {
+        return $this->afterCreating(function (User $user) {
+            $user->assignRole('Cashier');
+        });
+    }
 }
