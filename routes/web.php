@@ -27,6 +27,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return Inertia::render('pos/queued-receipt', ['uuid' => $uuid]);
     })->name('pos.queued-receipt');
 
+    Route::get('pos/sync-review', function () {
+        return Inertia::render('pos/sync-review');
+    })->name('pos.sync-review');
+
     // Product lookup — cashiers need this to ring up sales
     Route::get('products/search', [ProductController::class, 'search'])->name('products.search');
 
@@ -49,6 +53,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // GCash — cashiers can transact, but float reconciliation is manager-only
     Route::get('gcash', [GcashController::class, 'index'])->name('gcash.index');
     Route::post('gcash', [GcashController::class, 'store'])->name('gcash.store');
+
+
 
     // Everything below changes prices, stock records, or exposes financial reports —
     // manager only.
@@ -82,6 +88,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('users/{user}', [UserManagementController::class, 'destroy'])->name('users.destroy');
     });
 
+
+    
     Route::middleware('role:Owner')->group(function () {
         Route::resource('locations', LocationController::class);
     });

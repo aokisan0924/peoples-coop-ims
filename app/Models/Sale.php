@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Sale extends Model
 {
+    use HasFactory;
+    
     protected $fillable = [
         'receipt_number', 'client_uuid', 'cashier_id', 'location_id', 'is_member',
         'subtotal', 'vat_amount', 'total',

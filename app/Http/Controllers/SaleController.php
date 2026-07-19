@@ -21,12 +21,16 @@ class SaleController extends Controller
     {
     }
 
-    public function index(): Response
+    public function index(Request $request): Response
     {
+        $query = Sale::with('cashier')->orderByDesc('created_at');
+
+        if (!$request->user()->seesAllLocations()) {
+            $query->where('location_id', $request->user()->location_id);
+        }
+
         return Inertia::render('sales/index', [
-            'sales' => Sale::with('cashier')
-                ->orderByDesc('created_at')
-                ->paginate(30),
+            'sales' => $query->paginate(30),
         ]);
     }
 
