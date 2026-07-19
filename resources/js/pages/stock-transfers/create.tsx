@@ -3,13 +3,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ArrowLeft, ArrowRight, ArrowRightLeft, Hash, Info, MapPin, Package, StickyNote } from 'lucide-react';
 
 interface Product {
     id: number;
@@ -43,105 +38,203 @@ export default function CreateStockTransfer({ products, sourceBranches, destinat
         post('/stock-transfers');
     }
 
+    const selectedProduct = products.find((p) => p.id === data.product_id);
+    const fromName = isOwner ? sourceBranches.find((l) => l.id === data.from_location_id)?.name : 'Your branch';
+    const toName = destinationBranches.find((l) => l.id === data.to_location_id)?.name;
+
     return (
-        <>
+        <div style={{ '--pos-teal': '#00a79b', '--pos-green': '#8dc645' } as React.CSSProperties}>
             <Head title="New Stock Transfer" />
 
-            <div className="max-w-xl p-4">
-                <h1 className="text-xl font-semibold mb-4">New Stock Transfer</h1>
-                <p className="text-sm text-muted-foreground mb-4">
-                    Stock is deducted from the source branch immediately and marked "in transit" until the receiving branch confirms it arrived.
-                </p>
-
-                <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="mx-auto max-w-5xl space-y-4 p-3 pb-24 sm:p-6 sm:pb-6">
+                {/* Header */}
+                <div className="flex items-center gap-3">
+                    <Button variant="outline" size="icon" asChild className="size-9 shrink-0">
+                        <Link href="/stock-transfers">
+                            <ArrowLeft className="size-4" />
+                        </Link>
+                    </Button>
                     <div>
-                        <Label htmlFor="product_id">Product *</Label>
-                        <Select
-                            value={data.product_id ? String(data.product_id) : ''}
-                            onValueChange={(v) => setData('product_id', Number(v))}
-                        >
-                            <SelectTrigger id="product_id">
-                                <SelectValue placeholder="Select product" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {products.map((p) => (
-                                    <SelectItem key={p.id} value={String(p.id)}>
-                                        {p.name} ({p.sku})
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                        {errors.product_id && <p className="text-sm text-red-600 mt-1">{errors.product_id}</p>}
-                    </div>
-
-                    {isOwner && (
-                        <div>
-                            <Label htmlFor="from_location_id">Source Branch *</Label>
-                            <Select
-                                value={data.from_location_id ? String(data.from_location_id) : ''}
-                                onValueChange={(v) => setData('from_location_id', Number(v))}
-                            >
-                                <SelectTrigger id="from_location_id">
-                                    <SelectValue placeholder="Select source branch" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {sourceBranches.map((loc) => (
-                                        <SelectItem key={loc.id} value={String(loc.id)}>
-                                            {loc.name}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                            {errors.from_location_id && <p className="text-sm text-red-600 mt-1">{errors.from_location_id}</p>}
+                        <div className="flex items-center gap-2">
+                            <div className="flex size-8 items-center justify-center rounded-lg bg-[var(--pos-teal)]/10 text-[var(--pos-teal)]">
+                                <ArrowRightLeft className="size-4" />
+                            </div>
+                            <h1 className="text-xl font-semibold tracking-tight">New Stock Transfer</h1>
                         </div>
-                    )}
+                        <p className="mt-0.5 text-sm text-muted-foreground">Move stock from one branch to another.</p>
+                    </div>
+                </div>
 
-                    <div>
-                        <Label htmlFor="to_location_id">Destination Branch *</Label>
-                        <Select
-                            value={data.to_location_id ? String(data.to_location_id) : ''}
-                            onValueChange={(v) => setData('to_location_id', Number(v))}
+                <form onSubmit={handleSubmit}>
+                    <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:items-start">
+                        {/* Form card */}
+                        <div className="space-y-5 rounded-xl border bg-card p-4 sm:p-5 lg:col-span-2">
+                            <div className="grid gap-2">
+                                <Label htmlFor="product_id">Product *</Label>
+                                <div className="relative">
+                                    <Package className="pointer-events-none absolute top-1/2 left-3 z-10 size-4 -translate-y-1/2 text-muted-foreground" />
+                                    <Select value={data.product_id ? String(data.product_id) : ''} onValueChange={(v) => setData('product_id', Number(v))}>
+                                        <SelectTrigger id="product_id" className="pl-9">
+                                            <SelectValue placeholder="Select product" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {products.map((p) => (
+                                                <SelectItem key={p.id} value={String(p.id)}>
+                                                    {p.name} ({p.sku})
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                {errors.product_id && <p className="text-sm text-red-600">{errors.product_id}</p>}
+                            </div>
+
+                            <div className="grid gap-5 sm:grid-cols-2">
+                                {isOwner && (
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="from_location_id">Source Branch *</Label>
+                                        <div className="relative">
+                                            <MapPin className="pointer-events-none absolute top-1/2 left-3 z-10 size-4 -translate-y-1/2 text-muted-foreground" />
+                                            <Select
+                                                value={data.from_location_id ? String(data.from_location_id) : ''}
+                                                onValueChange={(v) => setData('from_location_id', Number(v))}
+                                            >
+                                                <SelectTrigger id="from_location_id" className="pl-9">
+                                                    <SelectValue placeholder="Select source branch" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {sourceBranches.map((loc) => (
+                                                        <SelectItem key={loc.id} value={String(loc.id)}>
+                                                            {loc.name}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                        {errors.from_location_id && <p className="text-sm text-red-600">{errors.from_location_id}</p>}
+                                    </div>
+                                )}
+
+                                <div className="grid gap-2">
+                                    <Label htmlFor="to_location_id">Destination Branch *</Label>
+                                    <div className="relative">
+                                        <MapPin className="pointer-events-none absolute top-1/2 left-3 z-10 size-4 -translate-y-1/2 text-muted-foreground" />
+                                        <Select
+                                            value={data.to_location_id ? String(data.to_location_id) : ''}
+                                            onValueChange={(v) => setData('to_location_id', Number(v))}
+                                        >
+                                            <SelectTrigger id="to_location_id" className="pl-9">
+                                                <SelectValue placeholder="Select destination branch" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {destinationBranches.map((loc) => (
+                                                    <SelectItem key={loc.id} value={String(loc.id)}>
+                                                        {loc.name}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    {errors.to_location_id && <p className="text-sm text-red-600">{errors.to_location_id}</p>}
+                                </div>
+                            </div>
+
+                            {/* Route preview */}
+                            {(fromName || toName) && (
+                                <div className="flex items-center gap-2 rounded-lg bg-muted/60 px-3 py-2 text-sm">
+                                    <span className="min-w-0 truncate font-medium">{fromName ?? '—'}</span>
+                                    <ArrowRight className="size-4 shrink-0 text-[var(--pos-teal)]" />
+                                    <span className="min-w-0 truncate font-medium">{toName ?? '—'}</span>
+                                </div>
+                            )}
+
+                            <div className="grid gap-2">
+                                <Label htmlFor="quantity">Quantity (base units) *</Label>
+                                <div className="relative max-w-[10rem]">
+                                    <Hash className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+                                    <Input
+                                        id="quantity"
+                                        type="number"
+                                        min={1}
+                                        value={data.quantity}
+                                        onChange={(e) => setData('quantity', Number(e.target.value))}
+                                        className="pl-9"
+                                    />
+                                </div>
+                                {errors.quantity && <p className="text-sm text-red-600">{errors.quantity}</p>}
+                            </div>
+
+                            <div className="grid gap-2">
+                                <Label htmlFor="notes">Notes</Label>
+                                <div className="relative">
+                                    <StickyNote className="pointer-events-none absolute top-3 left-3 size-4 text-muted-foreground" />
+                                    <Textarea
+                                        id="notes"
+                                        value={data.notes}
+                                        onChange={(e) => setData('notes', e.target.value)}
+                                        className="min-h-24 pl-9"
+                                        placeholder="Optional context for this transfer…"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Desktop actions, inline with the form card */}
+                            <div className="hidden gap-2 border-t pt-4 sm:flex">
+                                <Button
+                                    type="submit"
+                                    disabled={processing}
+                                    className="gap-1.5 bg-[var(--pos-teal)] text-white hover:bg-[var(--pos-teal)]/90"
+                                >
+                                    <ArrowRightLeft className="size-4" />
+                                    {processing ? 'Initiating…' : 'Initiate Transfer'}
+                                </Button>
+                                <Button type="button" variant="outline" asChild disabled={processing}>
+                                    <Link href="/stock-transfers">Cancel</Link>
+                                </Button>
+                            </div>
+                        </div>
+
+                        {/* Helper sidebar */}
+                        <div className="space-y-3">
+                            <div className="rounded-xl border bg-[var(--pos-teal)]/5 p-4">
+                                <div className="flex items-center gap-2 text-[var(--pos-teal)]">
+                                    <Info className="size-4 shrink-0" />
+                                    <p className="text-sm font-medium">How transfers work</p>
+                                </div>
+                                <ul className="mt-2 space-y-1.5 text-xs text-muted-foreground">
+                                    <li>• Stock is deducted from the source branch immediately.</li>
+                                    <li>• The transfer is marked "in transit" until confirmed.</li>
+                                    <li>• The destination branch (or an owner) confirms receipt to add it to their stock.</li>
+                                    <li>• A pending transfer can be cancelled to restore stock to the source branch.</li>
+                                </ul>
+                            </div>
+
+                            {selectedProduct && (
+                                <div className="rounded-xl border p-4 text-xs text-muted-foreground">
+                                    <p className="font-medium text-foreground">{selectedProduct.name}</p>
+                                    <p className="mt-0.5 font-mono">{selectedProduct.sku}</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Mobile sticky action bar */}
+                    <div className="fixed inset-x-0 bottom-0 z-20 flex gap-2 border-t bg-background p-3 sm:hidden">
+                        <Button
+                            type="submit"
+                            disabled={processing}
+                            className="flex-1 gap-1.5 bg-[var(--pos-teal)] text-white hover:bg-[var(--pos-teal)]/90"
                         >
-                            <SelectTrigger id="to_location_id">
-                                <SelectValue placeholder="Select destination branch" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {destinationBranches.map((loc) => (
-                                    <SelectItem key={loc.id} value={String(loc.id)}>
-                                        {loc.name}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                        {errors.to_location_id && <p className="text-sm text-red-600 mt-1">{errors.to_location_id}</p>}
-                    </div>
-
-                    <div>
-                        <Label htmlFor="quantity">Quantity (base units) *</Label>
-                        <Input
-                            id="quantity"
-                            type="number"
-                            min={1}
-                            value={data.quantity}
-                            onChange={(e) => setData('quantity', Number(e.target.value))}
-                        />
-                        {errors.quantity && <p className="text-sm text-red-600 mt-1">{errors.quantity}</p>}
-                    </div>
-
-                    <div>
-                        <Label htmlFor="notes">Notes</Label>
-                        <Textarea id="notes" value={data.notes} onChange={(e) => setData('notes', e.target.value)} />
-                    </div>
-
-                    <div className="flex gap-2">
-                        <Button type="submit" disabled={processing}>Initiate Transfer</Button>
-                        <Button type="button" variant="outline" asChild>
+                            <ArrowRightLeft className="size-4" />
+                            {processing ? 'Initiating…' : 'Initiate Transfer'}
+                        </Button>
+                        <Button type="button" variant="outline" asChild disabled={processing} className="flex-1">
                             <Link href="/stock-transfers">Cancel</Link>
                         </Button>
                     </div>
                 </form>
             </div>
-        </>
+        </div>
     );
 }
 

@@ -9,6 +9,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import CameraBarcodeScanner from '@/components/shared/camera-barcode-scanner';
 
 interface ProductFormData {
     name: string;
@@ -94,6 +95,12 @@ export default function ProductFormFields({ data, setData, errors, categories, u
                     placeholder="Scan with barcode reader, or leave blank to auto-generate"
                     autoComplete="off"
                 />
+                <div className="mt-2">
+                    <CameraBarcodeScanner
+                        onScan={(barcode) => setData('barcode', barcode)}
+                        buttonLabel="Scan Manufacturer Barcode"
+                    />
+                </div>
                 {errors.barcode && <p className="text-sm text-red-600 mt-1">{errors.barcode}</p>}
                 <p className="text-xs text-muted-foreground mt-1">
                     Leave blank if this product has no manufacturer barcode — the system will generate one you can print as a label.

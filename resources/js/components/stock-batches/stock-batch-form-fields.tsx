@@ -10,6 +10,7 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import stockBatches from '@/routes/stock-batches';
+import CameraBarcodeScanner from '@/components/shared/camera-barcode-scanner';
 
 interface Product {
     id: number;
@@ -113,6 +114,20 @@ export default function StockBatchFormFields({ data, setData, errors, products, 
                     placeholder="Scan or type barcode, then press Enter"
                     autoComplete="off"
                 />
+
+                <div className="mt-2">
+                    <CameraBarcodeScanner
+                        onScan={(barcode) => {
+                            setBarcodeInput(barcode);
+                            const localMatch = products.find((p) => p.barcode === barcode);
+                            if (localMatch) {
+                                setData('product_id', localMatch.id);
+                                setMatchedProduct(localMatch);
+                                setLookupError('');
+                            }
+                        }}
+                    />
+                </div>
                 {matchedProduct && (
                     <p className="text-sm text-green-600 mt-2">
                         ✓ Matched: {matchedProduct.name} ({matchedProduct.sku})

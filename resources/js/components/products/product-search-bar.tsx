@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Input } from '@/components/ui/input';
 import { Search } from 'lucide-react';
+import CameraBarcodeScanner from '@/components/shared/camera-barcode-scanner';
 
 interface ProductResult {
     id: number;
@@ -92,6 +93,18 @@ export default function ProductSearchBar({ onSelect, placeholder, autoFocus }: P
                     className="pl-9"
                     autoComplete="off"
                 />
+                <div className="flex gap-2 mt-2">
+                    <CameraBarcodeScanner
+                        onScan={(barcode) => {
+                            setQuery(barcode);
+                            // Reuse the existing Enter-key auto-select logic by simulating the lookup directly
+                            const exactMatch = results.find((p) => p.barcode === barcode);
+                            if (exactMatch) {
+                                handleSelect(exactMatch);
+                            }
+                        }}
+                    />
+                </div>
             </div>
 
             {showDropdown && (
