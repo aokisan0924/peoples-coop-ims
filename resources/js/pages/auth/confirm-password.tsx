@@ -1,4 +1,5 @@
 import { Form, Head } from '@inertiajs/react';
+import { motion } from 'framer-motion';
 import {
     index as confirmOptions,
     store as confirmStore,
@@ -10,6 +11,21 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import { store } from '@/routes/password/confirm';
+
+const easeOut = [0.16, 1, 0.3, 1] as const;
+
+const container = {
+    hidden: { opacity: 0 },
+    visible: {
+        opacity: 1,
+        transition: { staggerChildren: 0.08, delayChildren: 0.05 },
+    },
+};
+
+const item = {
+    hidden: { opacity: 0, y: 10 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: easeOut } },
+};
 
 export default function ConfirmPassword() {
     return (
@@ -28,8 +44,8 @@ export default function ConfirmPassword() {
 
             <Form {...store.form()} resetOnSuccess={['password']}>
                 {({ processing, errors }) => (
-                    <div className="space-y-6">
-                        <div className="grid gap-2">
+                    <motion.div className="space-y-6" variants={container} initial="hidden" animate="visible">
+                        <motion.div variants={item} className="grid gap-2">
                             <Label htmlFor="password">Password</Label>
                             <PasswordInput
                                 id="password"
@@ -40,9 +56,14 @@ export default function ConfirmPassword() {
                             />
 
                             <InputError message={errors.password} />
-                        </div>
+                        </motion.div>
 
-                        <div className="flex items-center">
+                        <motion.div
+                            variants={item}
+                            className="flex items-center"
+                            whileHover={{ scale: 1.01 }}
+                            whileTap={{ scale: 0.98 }}
+                        >
                             <Button
                                 className="w-full"
                                 disabled={processing}
@@ -51,8 +72,8 @@ export default function ConfirmPassword() {
                                 {processing && <Spinner />}
                                 Confirm password
                             </Button>
-                        </div>
-                    </div>
+                        </motion.div>
+                    </motion.div>
                 )}
             </Form>
         </>

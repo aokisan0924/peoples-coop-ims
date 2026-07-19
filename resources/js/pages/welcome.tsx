@@ -2,6 +2,7 @@ import { Head, Link, usePage } from '@inertiajs/react';
 import { dashboard, login } from '@/routes';
 import { Boxes, Building2, Home, Receipt, ShieldCheck, ShoppingCart, Users, Wallet, WifiOff } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { motion, useReducedMotion, type Variants } from 'framer-motion';
 
 const modules = [
     { icon: ShoppingCart, title: 'Point of Sale', body: 'Ring up sales at the counter — barcode scan or search.' },
@@ -17,6 +18,35 @@ const pillars = [
     { icon: ShoppingCart, title: 'Your Store.', body: 'Better choices, everyday.' },
     { icon: Home, title: 'Your Community.', body: 'Growing for a better tomorrow.' },
 ];
+
+// ---------- Motion variants ----------
+const easeOut = [0.16, 1, 0.3, 1] as const;
+
+const heroContainer: Variants = {
+    hidden: { opacity: 0 },
+    visible: {
+        opacity: 1,
+        transition: { staggerChildren: 0.09, delayChildren: 0.05 },
+    },
+};
+
+const heroItem: Variants = {
+    hidden: { opacity: 0, y: 14 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: easeOut } },
+};
+
+const gridContainer: Variants = {
+    hidden: { opacity: 0 },
+    visible: {
+        opacity: 1,
+        transition: { staggerChildren: 0.08 },
+    },
+};
+
+const gridItem: Variants = {
+    hidden: { opacity: 0, y: 18 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: easeOut } },
+};
 
 function useGreeting() {
     const [now, setNow] = useState<Date | null>(null);
@@ -38,6 +68,7 @@ function useGreeting() {
 export default function Welcome() {
     const { auth } = usePage().props;
     const { greeting, time } = useGreeting();
+    const prefersReducedMotion = useReducedMotion();
 
     return (
         <>
@@ -84,7 +115,12 @@ export default function Welcome() {
                 `}</style>
 
                 {/* ---------- NAV ---------- */}
-                <header className="border-b border-[var(--ink-line)]">
+                <motion.header
+                    initial={{ opacity: 0, y: -12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, ease: easeOut }}
+                    className="border-b border-[var(--ink-line)]"
+                >
                     <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
                         <div className="flex items-center gap-3">
                             <img src="/images/pcgm_logo.png" alt="People's Coop Gen. Mdse." className="h-10 w-10 object-contain" />
@@ -97,14 +133,16 @@ export default function Welcome() {
                                 </p>
                             </div>
                         </div>
-                        <Link
-                            href={auth.user ? dashboard() : login()}
-                            className="rounded-sm bg-[var(--teal)] px-5 py-2 text-sm font-semibold text-[var(--ink)] transition-opacity hover:opacity-90"
-                        >
-                            {auth.user ? 'Go to dashboard' : 'Log in'}
-                        </Link>
+                        <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+                            <Link
+                                href={auth.user ? dashboard() : login()}
+                                className="rounded-sm bg-[var(--teal)] px-5 py-2 text-sm font-semibold text-[var(--ink)] transition-opacity hover:opacity-90"
+                            >
+                                {auth.user ? 'Go to dashboard' : 'Log in'}
+                            </Link>
+                        </motion.div>
                     </nav>
-                </header>
+                </motion.header>
 
                 {/* ---------- HERO ---------- */}
                 <section className="relative overflow-hidden border-b border-[var(--ink-line)]">
@@ -125,50 +163,69 @@ export default function Welcome() {
                     </div>
 
                     <div className="relative mx-auto grid max-w-6xl gap-12 px-6 py-20 md:grid-cols-2 md:items-center md:py-28">
-                    <div>
-                        <p className="font-mono text-xs tracking-[0.2em] text-[var(--green)] uppercase">
+                    <motion.div variants={heroContainer} initial="hidden" animate="visible">
+                        <motion.p variants={heroItem} className="font-mono text-xs tracking-[0.2em] text-[var(--green)] uppercase">
                             {greeting}{time ? ` · ${time}` : ''}
-                        </p>
-                        <h1 className="font-display mt-4 text-4xl leading-[1.05] font-extrabold tracking-tight sm:text-5xl">
+                        </motion.p>
+                        <motion.h1 variants={heroItem} className="font-display mt-4 text-4xl leading-[1.05] font-extrabold tracking-tight sm:text-5xl">
                             Isang sistema.
                             <br />
                             Lahat ng sangay.
-                        </h1>
-                        <p className="mt-6 max-w-md text-[15px] leading-relaxed text-[var(--paper-dim)]">
+                        </motion.h1>
+                        <motion.p variants={heroItem} className="mt-6 max-w-md text-[15px] leading-relaxed text-[var(--paper-dim)]">
                             The point-of-sale, inventory, and branch system of People&rsquo;s Coop General Merchandise, under
                             People&rsquo;s Multi-Purpose Cooperative. Log in with your staff account to open the counter,
                             check stock, or review sales — whatever your role covers.
-                        </p>
-                        <div className="mt-8 flex flex-wrap items-center gap-4">
-                            <Link
-                                href={auth.user ? dashboard() : login()}
-                                className="inline-flex items-center gap-2 rounded-sm bg-[var(--teal)] px-6 py-3 text-sm font-semibold text-[var(--ink)] transition-transform hover:-translate-y-0.5"
-                            >
-                                {auth.user ? 'Go to dashboard' : 'Log in to continue'}
-                            </Link>
+                        </motion.p>
+                        <motion.div variants={heroItem} className="mt-8 flex flex-wrap items-center gap-4">
+                            <motion.div whileHover={{ scale: 1.03, y: -2 }} whileTap={{ scale: 0.97 }}>
+                                <Link
+                                    href={auth.user ? dashboard() : login()}
+                                    className="inline-flex items-center gap-2 rounded-sm bg-[var(--teal)] px-6 py-3 text-sm font-semibold text-[var(--ink)]"
+                                >
+                                    {auth.user ? 'Go to dashboard' : 'Log in to continue'}
+                                </Link>
+                            </motion.div>
                             <span className="flex items-center gap-2 text-xs text-[var(--paper-dim)] opacity-70">
                                 <WifiOff className="h-3.5 w-3.5" />
                                 Works at the counter even when the signal doesn't
                             </span>
-                        </div>
-                        <p className="font-mono mt-10 text-xs text-[var(--paper-dim)] opacity-50">
+                        </motion.div>
+                        <motion.p variants={heroItem} className="font-mono mt-10 text-xs text-[var(--paper-dim)] opacity-50">
                             No account yet? Ask your branch manager to set one up for you.
-                        </p>
-                        <p className="font-mono mt-2 text-[11px] tracking-[0.15em] text-[var(--green)] opacity-70 uppercase">
+                        </motion.p>
+                        <motion.p variants={heroItem} className="font-mono mt-2 text-[11px] tracking-[0.15em] text-[var(--green)] opacity-70 uppercase">
                             One Coop. One Store. One Community. One Future.
-                        </p>
-                    </div>
+                        </motion.p>
+                    </motion.div>
 
                     {/* Signature: hub + branch diagram, receipt-tab styled */}
-                    <div className="drift relative">
+                    <motion.div
+                        className="drift relative"
+                        initial={{ opacity: 0, scale: 0.94 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.7, ease: easeOut, delay: 0.2 }}
+                    >
                         <svg viewBox="0 0 420 320" className="w-full" role="img" aria-label="Dashboard connected to three branch tills">
-                            <line x1="120" y1="160" x2="330" y2="60" stroke="var(--green)" strokeWidth="1.5" className="hub-line" />
-                            <line x1="120" y1="160" x2="330" y2="160" stroke="var(--green)" strokeWidth="1.5" className="hub-line" />
-                            <line x1="120" y1="160" x2="330" y2="260" stroke="var(--green)" strokeWidth="1.5" className="hub-line" />
-                            <circle cx="120" cy="160" r="5" fill="var(--green)" className="hub-pulse" />
-                            <circle cx="330" cy="60" r="4" fill="var(--teal)" />
-                            <circle cx="330" cy="160" r="4" fill="var(--teal)" />
-                            <circle cx="330" cy="260" r="4" fill="var(--teal)" />
+                            <motion.line
+                                x1="120" y1="160" x2="330" y2="60" stroke="var(--green)" strokeWidth="1.5" className="hub-line"
+                                initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.8, delay: 0.5, ease: easeOut }}
+                            />
+                            <motion.line
+                                x1="120" y1="160" x2="330" y2="160" stroke="var(--green)" strokeWidth="1.5" className="hub-line"
+                                initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.8, delay: 0.65, ease: easeOut }}
+                            />
+                            <motion.line
+                                x1="120" y1="160" x2="330" y2="260" stroke="var(--green)" strokeWidth="1.5" className="hub-line"
+                                initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.8, delay: 0.8, ease: easeOut }}
+                            />
+                            <motion.circle
+                                cx="120" cy="160" r="5" fill="var(--green)" className="hub-pulse"
+                                initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ duration: 0.4, delay: 0.4 }}
+                            />
+                            <motion.circle cx="330" cy="60" r="4" fill="var(--teal)" initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ duration: 0.4, delay: 1.1 }} />
+                            <motion.circle cx="330" cy="160" r="4" fill="var(--teal)" initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ duration: 0.4, delay: 1.25 }} />
+                            <motion.circle cx="330" cy="260" r="4" fill="var(--teal)" initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ duration: 0.4, delay: 1.4 }} />
 
                             <g fontFamily="IBM Plex Mono, ui-monospace, monospace">
                                 <rect x="20" y="118" width="180" height="84" rx="2" fill="var(--paper)" />
@@ -195,45 +252,82 @@ export default function Welcome() {
                                 <text x="302" y="270" fontSize="13" fontWeight="700" fill="var(--ink)">₱16,310.00</text>
                             </g>
                         </svg>
-                    </div>
+                    </motion.div>
                     </div>
                 </section>
 
                 {/* ---------- PILLARS ---------- */}
                 <section className="mx-auto max-w-6xl px-6 py-16">
-                    <div className="grid gap-8 sm:grid-cols-3">
+                    <motion.div
+                        className="grid gap-8 sm:grid-cols-3"
+                        variants={gridContainer}
+                        initial="hidden"
+                        whileInView="visible"
+                        viewport={{ once: true, amount: 0.4 }}
+                    >
                         {pillars.map((p) => (
-                            <div key={p.title} className="text-center sm:text-left">
+                            <motion.div key={p.title} variants={gridItem} className="text-center sm:text-left">
                                 <p.icon className="mx-auto h-6 w-6 text-[var(--teal)] sm:mx-0" strokeWidth={1.75} />
                                 <h3 className="font-display mt-3 text-lg font-bold">{p.title}</h3>
                                 <p className="mt-1 text-sm text-[var(--paper-dim)] opacity-80">{p.body}</p>
-                            </div>
+                            </motion.div>
                         ))}
-                    </div>
+                    </motion.div>
                 </section>
 
                 {/* ---------- MODULES ---------- */}
                 <section className="border-t border-[var(--ink-line)] bg-[var(--ink-2)]">
                     <div className="mx-auto max-w-6xl px-6 py-16">
-                        <p className="font-mono text-xs tracking-[0.2em] text-[var(--green)] uppercase">What's inside</p>
-                        <h2 className="font-display mt-3 text-2xl font-extrabold tracking-tight sm:text-3xl">
+                        <motion.p
+                            className="font-mono text-xs tracking-[0.2em] text-[var(--green)] uppercase"
+                            initial={{ opacity: 0, y: 10 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true, amount: 0.6 }}
+                            transition={{ duration: 0.4 }}
+                        >
+                            What's inside
+                        </motion.p>
+                        <motion.h2
+                            className="font-display mt-3 text-2xl font-extrabold tracking-tight sm:text-3xl"
+                            initial={{ opacity: 0, y: 10 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true, amount: 0.6 }}
+                            transition={{ duration: 0.4, delay: 0.05 }}
+                        >
                             One login, every part of the job.
-                        </h2>
+                        </motion.h2>
 
-                        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                        <motion.div
+                            className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+                            variants={gridContainer}
+                            initial="hidden"
+                            whileInView="visible"
+                            viewport={{ once: true, amount: 0.2 }}
+                        >
                             {modules.map((m) => (
-                                <div key={m.title} className="perforated rounded-sm bg-[var(--paper)] p-6 pt-8 text-[var(--ink)] shadow-sm">
+                                <motion.div
+                                    key={m.title}
+                                    variants={gridItem}
+                                    whileHover={prefersReducedMotion ? undefined : { y: -4, boxShadow: '0 12px 28px rgba(0,0,0,0.25)' }}
+                                    className="perforated rounded-sm bg-[var(--paper)] p-6 pt-8 text-[var(--ink)] shadow-sm"
+                                >
                                     <m.icon className="h-6 w-6 text-[var(--teal)]" strokeWidth={1.75} />
                                     <h3 className="font-display mt-4 text-base font-bold">{m.title}</h3>
                                     <p className="mt-2 text-sm leading-relaxed opacity-75">{m.body}</p>
-                                </div>
+                                </motion.div>
                             ))}
-                        </div>
+                        </motion.div>
                     </div>
                 </section>
 
                 {/* ---------- FOOTER ---------- */}
-                <footer className="border-t border-[var(--ink-line)]">
+                <motion.footer
+                    className="border-t border-[var(--ink-line)]"
+                    initial={{ opacity: 0 }}
+                    whileInView={{ opacity: 1 }}
+                    viewport={{ once: true, amount: 0.8 }}
+                    transition={{ duration: 0.5 }}
+                >
                     <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-4 px-6 py-8 text-sm md:flex-row md:items-center">
                         <div className="flex items-center gap-3">
                             <img src="/images/pcgm_logo.png" alt="People's Coop Gen. Mdse." className="h-6 w-6 object-contain" />
@@ -245,7 +339,7 @@ export default function Welcome() {
                             Having trouble logging in? Contact the IT department.
                         </span>
                     </div>
-                </footer>
+                </motion.footer>
             </div>
         </>
     );

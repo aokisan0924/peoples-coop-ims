@@ -1,4 +1,5 @@
 import { Form, Head } from '@inertiajs/react';
+import { motion } from 'framer-motion';
 import InputError from '@/components/input-error';
 import PasswordInput from '@/components/password-input';
 import { Button } from '@/components/ui/button';
@@ -13,6 +14,21 @@ type Props = {
     passwordRules: string;
 };
 
+const easeOut = [0.16, 1, 0.3, 1] as const;
+
+const container = {
+    hidden: { opacity: 0 },
+    visible: {
+        opacity: 1,
+        transition: { staggerChildren: 0.08, delayChildren: 0.05 },
+    },
+};
+
+const item = {
+    hidden: { opacity: 0, y: 10 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: easeOut } },
+};
+
 export default function ResetPassword({ token, email, passwordRules }: Props) {
     return (
         <>
@@ -24,8 +40,8 @@ export default function ResetPassword({ token, email, passwordRules }: Props) {
                 resetOnSuccess={['password', 'password_confirmation']}
             >
                 {({ processing, errors }) => (
-                    <div className="grid gap-6">
-                        <div className="grid gap-2">
+                    <motion.div className="grid gap-6" variants={container} initial="hidden" animate="visible">
+                        <motion.div variants={item} className="grid gap-2">
                             <Label htmlFor="email">Email</Label>
                             <Input
                                 id="email"
@@ -40,9 +56,9 @@ export default function ResetPassword({ token, email, passwordRules }: Props) {
                                 message={errors.email}
                                 className="mt-2"
                             />
-                        </div>
+                        </motion.div>
 
-                        <div className="grid gap-2">
+                        <motion.div variants={item} className="grid gap-2">
                             <Label htmlFor="password">Password</Label>
                             <PasswordInput
                                 id="password"
@@ -54,9 +70,9 @@ export default function ResetPassword({ token, email, passwordRules }: Props) {
                                 passwordrules={passwordRules}
                             />
                             <InputError message={errors.password} />
-                        </div>
+                        </motion.div>
 
-                        <div className="grid gap-2">
+                        <motion.div variants={item} className="grid gap-2">
                             <Label htmlFor="password_confirmation">
                                 Confirm password
                             </Label>
@@ -72,18 +88,24 @@ export default function ResetPassword({ token, email, passwordRules }: Props) {
                                 message={errors.password_confirmation}
                                 className="mt-2"
                             />
-                        </div>
+                        </motion.div>
 
-                        <Button
-                            type="submit"
-                            className="mt-4 w-full"
-                            disabled={processing}
-                            data-test="reset-password-button"
+                        <motion.div
+                            variants={item}
+                            whileHover={{ scale: 1.01 }}
+                            whileTap={{ scale: 0.98 }}
                         >
-                            {processing && <Spinner />}
-                            Reset password
-                        </Button>
-                    </div>
+                            <Button
+                                type="submit"
+                                className="mt-4 w-full"
+                                disabled={processing}
+                                data-test="reset-password-button"
+                            >
+                                {processing && <Spinner />}
+                                Reset password
+                            </Button>
+                        </motion.div>
+                    </motion.div>
                 )}
             </Form>
         </>

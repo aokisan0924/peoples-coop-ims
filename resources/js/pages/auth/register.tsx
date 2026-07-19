@@ -1,4 +1,5 @@
 import { Form, Head } from '@inertiajs/react';
+import { motion } from 'framer-motion';
 import InputError from '@/components/input-error';
 import PasswordInput from '@/components/password-input';
 import TextLink from '@/components/text-link';
@@ -13,6 +14,21 @@ type Props = {
     passwordRules: string;
 };
 
+const easeOut = [0.16, 1, 0.3, 1] as const;
+
+const container = {
+    hidden: { opacity: 0 },
+    visible: {
+        opacity: 1,
+        transition: { staggerChildren: 0.07, delayChildren: 0.05 },
+    },
+};
+
+const item = {
+    hidden: { opacity: 0, y: 10 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: easeOut } },
+};
+
 export default function Register({ passwordRules }: Props) {
     return (
         <>
@@ -25,8 +41,13 @@ export default function Register({ passwordRules }: Props) {
             >
                 {({ processing, errors }) => (
                     <>
-                        <div className="grid gap-6">
-                            <div className="grid gap-2">
+                        <motion.div
+                            className="grid gap-6"
+                            variants={container}
+                            initial="hidden"
+                            animate="visible"
+                        >
+                            <motion.div variants={item} className="grid gap-2">
                                 <Label htmlFor="name">Name</Label>
                                 <Input
                                     id="name"
@@ -42,9 +63,9 @@ export default function Register({ passwordRules }: Props) {
                                     message={errors.name}
                                     className="mt-2"
                                 />
-                            </div>
+                            </motion.div>
 
-                            <div className="grid gap-2">
+                            <motion.div variants={item} className="grid gap-2">
                                 <Label htmlFor="email">Email address</Label>
                                 <Input
                                     id="email"
@@ -56,9 +77,9 @@ export default function Register({ passwordRules }: Props) {
                                     placeholder="email@example.com"
                                 />
                                 <InputError message={errors.email} />
-                            </div>
+                            </motion.div>
 
-                            <div className="grid gap-2">
+                            <motion.div variants={item} className="grid gap-2">
                                 <Label htmlFor="password">Password</Label>
                                 <PasswordInput
                                     id="password"
@@ -70,9 +91,9 @@ export default function Register({ passwordRules }: Props) {
                                     passwordrules={passwordRules}
                                 />
                                 <InputError message={errors.password} />
-                            </div>
+                            </motion.div>
 
-                            <div className="grid gap-2">
+                            <motion.div variants={item} className="grid gap-2">
                                 <Label htmlFor="password_confirmation">
                                     Confirm password
                                 </Label>
@@ -88,25 +109,36 @@ export default function Register({ passwordRules }: Props) {
                                 <InputError
                                     message={errors.password_confirmation}
                                 />
-                            </div>
+                            </motion.div>
 
-                            <Button
-                                type="submit"
-                                className="mt-2 w-full"
-                                tabIndex={5}
-                                data-test="register-user-button"
+                            <motion.div
+                                variants={item}
+                                whileHover={{ scale: 1.01 }}
+                                whileTap={{ scale: 0.98 }}
                             >
-                                {processing && <Spinner />}
-                                Create account
-                            </Button>
-                        </div>
+                                <Button
+                                    type="submit"
+                                    className="mt-2 w-full"
+                                    tabIndex={5}
+                                    data-test="register-user-button"
+                                >
+                                    {processing && <Spinner />}
+                                    Create account
+                                </Button>
+                            </motion.div>
+                        </motion.div>
 
-                        <div className="text-center text-sm text-muted-foreground">
+                        <motion.div
+                            className="text-center text-sm text-muted-foreground"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ duration: 0.4, delay: 0.35 }}
+                        >
                             Already have an account?{' '}
                             <TextLink href={login()} tabIndex={6}>
                                 Log in
                             </TextLink>
-                        </div>
+                        </motion.div>
                     </>
                 )}
             </Form>

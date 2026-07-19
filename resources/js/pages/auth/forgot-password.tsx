@@ -1,6 +1,7 @@
 // Components
 import { Form, Head } from '@inertiajs/react';
 import { LoaderCircle } from 'lucide-react';
+import { motion } from 'framer-motion';
 import InputError from '@/components/input-error';
 import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
@@ -9,22 +10,42 @@ import { Label } from '@/components/ui/label';
 import { login } from '@/routes';
 import { email } from '@/routes/password';
 
+const easeOut = [0.16, 1, 0.3, 1] as const;
+
+const container = {
+    hidden: { opacity: 0 },
+    visible: {
+        opacity: 1,
+        transition: { staggerChildren: 0.08, delayChildren: 0.05 },
+    },
+};
+
+const item = {
+    hidden: { opacity: 0, y: 10 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: easeOut } },
+};
+
 export default function ForgotPassword({ status }: { status?: string }) {
     return (
         <>
             <Head title="Forgot password" />
 
             {status && (
-                <div className="mb-4 text-center text-sm font-medium text-green-600">
+                <motion.div
+                    initial={{ opacity: 0, y: -6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.35 }}
+                    className="mb-4 text-center text-sm font-medium text-green-600"
+                >
                     {status}
-                </div>
+                </motion.div>
             )}
 
             <div className="space-y-6">
                 <Form {...email.form()}>
                     {({ processing, errors }) => (
-                        <>
-                            <div className="grid gap-2">
+                        <motion.div variants={container} initial="hidden" animate="visible">
+                            <motion.div variants={item} className="grid gap-2">
                                 <Label htmlFor="email">Email address</Label>
                                 <Input
                                     id="email"
@@ -36,28 +57,39 @@ export default function ForgotPassword({ status }: { status?: string }) {
                                 />
 
                                 <InputError message={errors.email} />
-                            </div>
+                            </motion.div>
 
-                            <div className="my-6 flex items-center justify-start">
-                                <Button
+                            <motion.div variants={item} className="my-6 flex items-center justify-start">
+                                <motion.div
                                     className="w-full"
-                                    disabled={processing}
-                                    data-test="email-password-reset-link-button"
+                                    whileHover={{ scale: 1.01 }}
+                                    whileTap={{ scale: 0.98 }}
                                 >
-                                    {processing && (
-                                        <LoaderCircle className="h-4 w-4 animate-spin" />
-                                    )}
-                                    Email password reset link
-                                </Button>
-                            </div>
-                        </>
+                                    <Button
+                                        className="w-full"
+                                        disabled={processing}
+                                        data-test="email-password-reset-link-button"
+                                    >
+                                        {processing && (
+                                            <LoaderCircle className="h-4 w-4 animate-spin" />
+                                        )}
+                                        Email password reset link
+                                    </Button>
+                                </motion.div>
+                            </motion.div>
+                        </motion.div>
                     )}
                 </Form>
 
-                <div className="space-x-1 text-center text-sm text-muted-foreground">
+                <motion.div
+                    className="space-x-1 text-center text-sm text-muted-foreground"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.4, delay: 0.3 }}
+                >
                     <span>Or, return to</span>
                     <TextLink href={login()}>log in</TextLink>
-                </div>
+                </motion.div>
             </div>
         </>
     );
