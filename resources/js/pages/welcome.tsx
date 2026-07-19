@@ -1,8 +1,9 @@
 import { Head, Link, usePage } from '@inertiajs/react';
-import { dashboard, login } from '@/routes';
+import { motion, useReducedMotion } from 'framer-motion';
+import type { Variants } from 'framer-motion';
 import { Boxes, Building2, Home, Receipt, ShieldCheck, ShoppingCart, Users, Wallet, WifiOff } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { motion, useReducedMotion, type Variants } from 'framer-motion';
+import { dashboard, login } from '@/routes';
 
 const modules = [
     { icon: ShoppingCart, title: 'Point of Sale', body: 'Ring up sales at the counter — barcode scan or search.' },
@@ -52,16 +53,24 @@ function useGreeting() {
     const [now, setNow] = useState<Date | null>(null);
 
     useEffect(() => {
+        // Render null on first paint (matches a possible SSR pass with no
+        // client clock), then set the real time once mounted client-side.
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setNow(new Date());
+
         const id = setInterval(() => setNow(new Date()), 1000 * 30);
+
         return () => clearInterval(id);
     }, []);
 
-    if (!now) return { greeting: 'Magandang araw', time: '' };
+    if (!now) {
+        return { greeting: 'Magandang araw', time: '' };
+    }
 
     const hour = now.getHours();
-    const greeting = hour < 12 ? 'Magandang umaga' : hour < 18 ? 'Magandang hapon' : 'Magandang gabi';
+    const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
     const time = now.toLocaleTimeString('en-PH', { hour: '2-digit', minute: '2-digit' });
+
     return { greeting, time };
 }
 
@@ -168,9 +177,9 @@ export default function Welcome() {
                             {greeting}{time ? ` · ${time}` : ''}
                         </motion.p>
                         <motion.h1 variants={heroItem} className="font-display mt-4 text-4xl leading-[1.05] font-extrabold tracking-tight sm:text-5xl">
-                            Isang sistema.
+                            One system.
                             <br />
-                            Lahat ng sangay.
+                            Every branch, in sync.
                         </motion.h1>
                         <motion.p variants={heroItem} className="mt-6 max-w-md text-[15px] leading-relaxed text-[var(--paper-dim)]">
                             The point-of-sale, inventory, and branch system of People&rsquo;s Coop General Merchandise, under
