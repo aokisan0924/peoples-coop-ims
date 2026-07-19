@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react';
-import { BookOpen, FolderGit2, LayoutGrid, Truck, Ruler, Tags, Package, Boxes, ShoppingCart, Receipt, ReceiptIcon } from 'lucide-react';
+import { BookOpen, FolderGit2, LayoutGrid, Truck, Ruler, Tags, Package, Boxes, ShoppingCart, Receipt, ReceiptIcon, ArrowLeftRight } from 'lucide-react';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
@@ -85,6 +85,12 @@ const mainNavItems: NavItem[] = [
         title: 'Suppliers',
         href: suppliers.index(),
         icon: Truck,
+        managerOnly: true,
+    },
+    {
+        title: 'Stock Transfers',
+        href: '/stock-transfers',
+        icon: ArrowLeftRight,
         managerOnly: true,
     },
     {

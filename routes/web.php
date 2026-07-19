@@ -8,6 +8,7 @@ use App\Http\Controllers\PosController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\SaleController;
 use App\Http\Controllers\StockBatchController;
+use App\Http\Controllers\StockTransferController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\UnitController;
 use App\Http\Controllers\UserManagementController;
@@ -86,10 +87,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('users/create', [UserManagementController::class, 'create'])->name('users.create');
         Route::post('users', [UserManagementController::class, 'store'])->name('users.store');
         Route::delete('users/{user}', [UserManagementController::class, 'destroy'])->name('users.destroy');
+
+        Route::get('stock-transfers', [StockTransferController::class, 'index'])->name('stock-transfers.index');
+        Route::get('stock-transfers/create', [StockTransferController::class, 'create'])->name('stock-transfers.create');
+        Route::post('stock-transfers', [StockTransferController::class, 'store'])->name('stock-transfers.store');
+        Route::post('stock-transfers/{transfer}/confirm', [StockTransferController::class, 'confirmReceipt'])->name('stock-transfers.confirm');
+        Route::post('stock-transfers/{transfer}/cancel', [StockTransferController::class, 'cancel'])->name('stock-transfers.cancel');
     });
 
 
-    
+
     Route::middleware('role:Owner')->group(function () {
         Route::resource('locations', LocationController::class);
     });
