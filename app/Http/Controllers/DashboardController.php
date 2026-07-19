@@ -23,6 +23,8 @@ class DashboardController extends Controller
         // Owner sees everything (no location filter); everyone else scoped to their branch
         $locationId = $isOwner ? null : $user->location_id;
 
+        $canSeeAnalytics = $user->hasRole('Manager') || $isOwner;
+
         return Inertia::render('dashboard', [
             'isOwner' => $isOwner,
             'todaySales' => $this->totalForRange($today->copy()->startOfDay(), $today->copy()->endOfDay(), $locationId),
@@ -35,10 +37,12 @@ class DashboardController extends Controller
             'lowStockProducts' => $this->lowStockProducts($locationId),
             'expiringSoon' => $this->expiringSoon($today, $locationId),
 
-            'trend' => $this->trend($today, 30, $locationId),
-            'paymentBreakdown' => $this->paymentBreakdown($today, $locationId),
-            'cashierBreakdown' => $this->cashierBreakdown($today, $locationId),
-            'bestSellers' => $this->bestSellers($today, $locationId),
+            // Manager/Owner only — a Cashier's response must never contain revenue
+            // trends or coworkers' individual sales figures, even hidden in the DOM.
+            'trend' => $canSeeAnalytics ? $this->trend($today, 30, $locationId) : null,
+            'paymentBreakdown' => $canSeeAnalytics ? $this->paymentBreakdown($today, $locationId) : null,
+            'cashierBreakdown' => $canSeeAnalytics ? $this->cashierBreakdown($today, $locationId) : null,
+            'bestSellers' => $canSeeAnalytics ? $this->bestSellers($today, $locationId) : null,
 
             // Owner-only: per-branch comparison table
             'branchBreakdown' => $isOwner ? $this->branchBreakdown($today) : null,

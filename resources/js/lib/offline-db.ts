@@ -13,6 +13,11 @@ export interface PendingSale {
             quantity: number;
         }[];
     };
+    // Computed client-side from cached prices at queue time, for display ONLY —
+    // the authoritative total is always computed server-side on sync (never trust
+    // a client-supplied price), so this may drift slightly (e.g. a price change
+    // that hasn't synced to this device yet) and should be shown as an estimate.
+    estimated_total: number;
     created_at: string; // ISO timestamp, for display + FIFO ordering of sync
     status: 'pending' | 'syncing' | 'synced' | 'failed';
     error_message?: string;

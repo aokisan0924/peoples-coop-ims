@@ -56,7 +56,10 @@ export default function QueuedReceipt({ uuid }: { uuid: string }) {
                             (sale.error_message ?? 'This sale needs manager review before it can sync.')}
                     </p>
                     <p className="text-3xl font-bold">
-                        ₱{sale.payload.items.length > 0 ? '—' : '0.00'}
+                        ≈ ₱{(sale.estimated_total ?? 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                        {sale.status === 'pending' && 'Final total confirmed once this syncs'}
                     </p>
                     <p className="text-xs text-muted-foreground mt-1">
                         Recorded at {new Date(sale.created_at).toLocaleString()}

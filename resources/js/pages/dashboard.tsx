@@ -32,10 +32,10 @@ interface Props {
     activeProductsCount: number;
     lowStockProducts: LowStockProduct[];
     expiringSoon: ExpiringBatch[];
-    trend: TrendPoint[];
-    paymentBreakdown: PaymentBreakdown[];
-    cashierBreakdown: CashierBreakdown[];
-    bestSellers: BestSeller[];
+    trend: TrendPoint[] | null;
+    paymentBreakdown: PaymentBreakdown[] | null;
+    cashierBreakdown: CashierBreakdown[] | null;
+    bestSellers: BestSeller[] | null;
     isOwner: boolean;
     branchBreakdown: BranchStat[] | null;
 }
@@ -149,7 +149,7 @@ export default function Dashboard({
                     <div className="border rounded-lg p-4">
                         <h2 className="text-sm font-medium mb-4">Last 30 Days</h2>
                         <ResponsiveContainer width="100%" height={260}>
-                            <LineChart data={trend}>
+                            <LineChart data={trend ?? []}>
                                 <CartesianGrid strokeDasharray="3 3" className="opacity-20" />
                                 <XAxis dataKey="date" tickFormatter={(d) => new Date(d).toLocaleDateString('en-PH', { month: 'short', day: 'numeric' })} fontSize={12} />
                                 <YAxis fontSize={12} tickFormatter={(v) => `₱${v}`} />
@@ -168,9 +168,9 @@ export default function Dashboard({
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div className="border rounded-lg p-4">
                             <h2 className="text-sm font-medium mb-3">Payment Methods (This Month)</h2>
-                            {paymentBreakdown.length === 0 ? (
+                            {(paymentBreakdown ?? []).length === 0 ? (
                                 <p className="text-sm text-muted-foreground">No sales yet.</p>
-                            ) : paymentBreakdown.map((p) => (
+                            ) : (paymentBreakdown ?? []).map((p) => (
                                 <div key={p.payment_method} className="flex justify-between text-sm mb-1">
                                     <span className="capitalize">{p.payment_method} ({p.count})</span>
                                     <span className="font-medium">{peso(p.total)}</span>
@@ -180,9 +180,9 @@ export default function Dashboard({
 
                         <div className="border rounded-lg p-4">
                             <h2 className="text-sm font-medium mb-3">By Cashier (This Month)</h2>
-                            {cashierBreakdown.length === 0 ? (
+                            {(cashierBreakdown ?? []).length === 0 ? (
                                 <p className="text-sm text-muted-foreground">No sales yet.</p>
-                            ) : cashierBreakdown.map((c) => (
+                            ) : (cashierBreakdown ?? []).map((c) => (
                                 <div key={c.name} className="flex justify-between text-sm mb-1">
                                     <span>{c.name} ({c.count})</span>
                                     <span className="font-medium">{peso(c.total)}</span>
@@ -192,9 +192,9 @@ export default function Dashboard({
 
                         <div className="border rounded-lg p-4">
                             <h2 className="text-sm font-medium mb-3">Best Sellers (This Month)</h2>
-                            {bestSellers.length === 0 ? (
+                            {(bestSellers ?? []).length === 0 ? (
                                 <p className="text-sm text-muted-foreground">No sales yet.</p>
-                            ) : bestSellers.map((b) => (
+                            ) : (bestSellers ?? []).map((b) => (
                                 <div key={b.name} className="flex justify-between text-sm mb-1">
                                     <span className="truncate mr-2">{b.name} ({b.units_sold})</span>
                                     <span className="font-medium whitespace-nowrap">{peso(b.revenue)}</span>

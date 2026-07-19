@@ -58,10 +58,12 @@ class SyncEngine {
      */
     async queueSale(payload: PendingSale['payload']): Promise<string> {
         const uuid = crypto.randomUUID();
+        const estimatedTotal = await this.estimateTotal(payload);
 
         await offlineDb.pendingSales.add({
             uuid,
             payload,
+            estimated_total: estimatedTotal,
             created_at: new Date().toISOString(),
             status: 'pending',
         });
@@ -73,6 +75,27 @@ class SyncEngine {
         }
 
         return uuid;
+    }
+
+    /**
+     * Best-effort total from whatever's cached locally — display only. The
+     * server always recomputes the authoritative total from live prices on sync.
+     */
+    private async estimateTotal(payload: PendingSale['payload']): Promise<number> {
+        let total = 0;
+
+        for (const item of payload.items) {
+            const product = await offlineDb.cachedProducts.get(item.product_id);
+            if (!product) continue;
+
+            const unitPrice = item.unit_type === 'pack'
+                ? (payload.is_member ? product.member_pack_price : product.non_member_pack_price)
+                : (payload.is_member ? product.member_piece_price : product.non_member_piece_price);
+
+            total += (unitPrice ?? 0) * item.quantity;
+        }
+
+        return Math.round(total * 100) / 100;
     }
 
     /**
