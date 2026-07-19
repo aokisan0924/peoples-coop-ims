@@ -1,6 +1,20 @@
 import { Link } from '@inertiajs/react';
-import { BookOpen, FolderGit2, LayoutGrid, Truck, Ruler, Tags, Package, Boxes, ShoppingCart, Receipt, ReceiptIcon, ArrowLeftRight } from 'lucide-react';
-import { NavFooter } from '@/components/nav-footer';
+import {
+    ArrowLeftRight,
+    Boxes,
+    Building2,
+    History,
+    LayoutGrid,
+    Package,
+    Receipt,
+    Ruler,
+    ShoppingCart,
+    Tags,
+    Truck,
+    UserPlus,
+    Wallet,
+} from 'lucide-react';
+import AppLogo from '@/components/app-logo';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
 import {
@@ -11,34 +25,41 @@ import {
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
+    SidebarSeparator,
 } from '@/components/ui/sidebar';
-import { dashboard } from '@/routes';
 import { useAuth } from '@/hooks/use-auth';
-import { Wallet } from 'lucide-react';
-import { Building2 } from 'lucide-react';
-import { UserPlus } from 'lucide-react';
 import type { NavItem } from '@/types';
-import suppliers from '@/routes/suppliers';
-import units from '@/routes/units';
+import { dashboard } from '@/routes';
 import categories from '@/routes/categories';
-import products from '@/routes/products';
-import stockBatches from '@/routes/stock-batches';
-import pos from '@/routes/pos';
-import sales from '@/routes/sales';
 import gcash from '@/routes/gcash';
 import locations from '@/routes/locations';
-import AppLogo from '@/components/app-logo';
+import pos from '@/routes/pos';
+import products from '@/routes/products';
+import sales from '@/routes/sales';
+import stockBatches from '@/routes/stock-batches';
+import suppliers from '@/routes/suppliers';
+import units from '@/routes/units';
 
-const mainNavItems: NavItem[] = [
+// ---------- Overview ----------
+const overviewNavItems: NavItem[] = [
     {
         title: 'Dashboard',
         href: dashboard(),
         icon: LayoutGrid,
     },
+];
+
+// ---------- Sales & Payments ----------
+const salesNavItems: NavItem[] = [
     {
         title: 'Point of Sale',
         href: pos.index(),
         icon: ShoppingCart,
+    },
+    {
+        title: 'My Sales',
+        href: '/my-sales',
+        icon: History,
     },
     {
         title: 'Sales History',
@@ -51,12 +72,10 @@ const mainNavItems: NavItem[] = [
         href: gcash.index(),
         icon: Wallet,
     },
+];
 
-    {
-        title: 'My Sales',
-        href: '/my-sales',
-        icon: ReceiptIcon,
-    },
+// ---------- Inventory ----------
+const inventoryNavItems: NavItem[] = [
     {
         title: 'Products',
         href: products.index(),
@@ -67,6 +86,12 @@ const mainNavItems: NavItem[] = [
         title: 'Stock Batch',
         href: stockBatches.index(),
         icon: Boxes,
+        managerOnly: true,
+    },
+    {
+        title: 'Stock Transfers',
+        href: '/stock-transfers',
+        icon: ArrowLeftRight,
         managerOnly: true,
     },
     {
@@ -87,19 +112,17 @@ const mainNavItems: NavItem[] = [
         icon: Truck,
         managerOnly: true,
     },
-    {
-        title: 'Stock Transfers',
-        href: '/stock-transfers',
-        icon: ArrowLeftRight,
-        managerOnly: true,
-    },
+];
+
+// ---------- Administration ----------
+const adminNavItems: NavItem[] = [
     {
         title: 'Branches',
         href: locations.index(),
         icon: Building2,
         ownerOnly: true,
     },
-        {
+    {
         title: 'Users',
         href: '/users',
         icon: UserPlus,
@@ -107,26 +130,28 @@ const mainNavItems: NavItem[] = [
     },
 ];
 
-const footerNavItems: NavItem[] = [
-    {
-        title: 'Repository',
-        href: 'https://github.com/laravel/react-starter-kit',
-        icon: FolderGit2,
-    },
-    {
-        title: 'Documentation',
-        href: 'https://laravel.com/docs/starter-kits#react',
-        icon: BookOpen,
-    },
-];
+function visibleFor(items: NavItem[], isManager: boolean, isOwner: boolean): NavItem[] {
+    return items.filter((item) => {
+        if (item.ownerOnly) {
+            return isOwner;
+        }
+
+        // Owner can see everything Manager can.
+        if (item.managerOnly) {
+            return isManager || isOwner;
+        }
+
+        return true;
+    });
+}
 
 export function AppSidebar() {
     const { isManager, isOwner } = useAuth();
-    const visibleNavItems = mainNavItems.filter((item) => {
-        if (item.ownerOnly) return isOwner;
-        if (item.managerOnly) return isManager || isOwner; // Owner can see everything Manager can
-        return true;
-    });
+
+    const overviewItems = visibleFor(overviewNavItems, isManager, isOwner);
+    const salesItems = visibleFor(salesNavItems, isManager, isOwner);
+    const inventoryItems = visibleFor(inventoryNavItems, isManager, isOwner);
+    const adminItems = visibleFor(adminNavItems, isManager, isOwner);
 
     return (
         <Sidebar collapsible="icon" variant="inset">
@@ -141,11 +166,16 @@ export function AppSidebar() {
                     </SidebarMenuItem>
                 </SidebarMenu>
             </SidebarHeader>
-            <SidebarContent>
-                <NavMain items={visibleNavItems} />
+            <SidebarContent className="overflow-x-hidden">
+                <NavMain items={overviewItems} label="Overview" />
+                <SidebarSeparator />
+                <NavMain items={salesItems} label="Sales & Payments" />
+                {inventoryItems.length > 0 && <SidebarSeparator />}
+                <NavMain items={inventoryItems} label="Inventory" />
+                {adminItems.length > 0 && <SidebarSeparator />}
+                <NavMain items={adminItems} label="Administration" />
             </SidebarContent>
             <SidebarFooter>
-                <NavFooter items={footerNavItems} className="mt-auto" />
                 <NavUser />
             </SidebarFooter>
         </Sidebar>
