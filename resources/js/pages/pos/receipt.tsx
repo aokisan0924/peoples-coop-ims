@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { Head, Link } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
+import { CheckCircle2, Printer } from 'lucide-react';
 
 interface SaleItem {
     id: number;
@@ -38,27 +39,35 @@ export default function Receipt({ sale }: { sale: Sale }) {
         <>
             <Head title={`Receipt - ${sale.receipt_number}`} />
 
-            <div className="p-4 flex flex-col items-center">
-                <div className="w-full max-w-sm print:hidden flex justify-between mb-4">
+            <div className="flex flex-col items-center px-4 py-8 print:p-0">
+                <div className="mb-5 flex w-full max-w-sm items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-emerald-700 print:hidden dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-400">
+                    <CheckCircle2 className="size-5 shrink-0" />
+                    <p className="text-sm font-medium">Sale completed — {sale.receipt_number}</p>
+                </div>
+
+                <div className="mb-4 flex w-full max-w-sm justify-between gap-2 print:hidden">
                     <Button variant="outline" asChild>
                         <Link href="/pos">← New Sale</Link>
                     </Button>
-                    <Button onClick={() => window.print()}>Print Again</Button>
+                    <Button onClick={() => window.print()} className="gap-1.5 bg-[#00a79b] text-white hover:bg-[#00a79b]/90">
+                        <Printer className="size-4" />
+                        Print Again
+                    </Button>
                 </div>
 
-                <div className="receipt w-full max-w-sm bg-white text-black p-4 font-mono text-sm border">
-                    <div className="text-center mb-3">
-                        <p className="font-bold text-base">PEOPLE'S COOP</p>
+                <div className="receipt w-full max-w-sm rounded-lg border bg-white p-4 font-mono text-sm text-black shadow-sm print:rounded-none print:border-0 print:shadow-none">
+                    <div className="mb-3 text-center">
+                        <p className="text-base font-bold">PEOPLE'S COOP</p>
                         <p className="text-xs">General Merchandise</p>
-                        <p className="text-xs mt-1">{sale.receipt_number}</p>
+                        <p className="mt-1 text-xs">{sale.receipt_number}</p>
                         <p className="text-xs">{new Date(sale.created_at).toLocaleString()}</p>
                         <p className="text-xs">Cashier: {sale.cashier.name}</p>
                         <p className="text-xs">{sale.is_member ? 'Member' : 'Non-Member'} Sale</p>
                     </div>
 
-                    <div className="border-t border-b border-dashed border-black py-2 my-2">
+                    <div className="my-2 border-t border-b border-dashed border-black py-2">
                         {sale.items.map((item) => (
-                            <div key={item.id} className="mb-1">
+                            <div key={item.id} className="mb-1 tabular-nums">
                                 <p>{item.product.name}</p>
                                 <div className="flex justify-between text-xs">
                                     <span>
@@ -70,7 +79,7 @@ export default function Receipt({ sale }: { sale: Sale }) {
                         ))}
                     </div>
 
-                    <div className="space-y-1">
+                    <div className="space-y-1 tabular-nums">
                         <div className="flex justify-between">
                             <span>Subtotal</span>
                             <span>₱{parseFloat(sale.subtotal).toFixed(2)}</span>
@@ -81,13 +90,13 @@ export default function Receipt({ sale }: { sale: Sale }) {
                                 <span>₱{parseFloat(sale.vat_amount).toFixed(2)}</span>
                             </div>
                         )}
-                        <div className="flex justify-between font-bold text-base border-t border-black pt-1 mt-1">
+                        <div className="mt-1 flex justify-between border-t border-black pt-1 text-base font-bold">
                             <span>TOTAL</span>
                             <span>₱{parseFloat(sale.total).toFixed(2)}</span>
                         </div>
                     </div>
 
-                    <div className="border-t border-dashed border-black mt-2 pt-2 space-y-1">
+                    <div className="mt-2 space-y-1 border-t border-dashed border-black pt-2 tabular-nums">
                         <div className="flex justify-between">
                             <span>{sale.payment_method === 'cash' ? 'Cash' : 'GCash'}</span>
                             <span>
@@ -110,7 +119,7 @@ export default function Receipt({ sale }: { sale: Sale }) {
                         )}
                     </div>
 
-                    <p className="text-center text-xs mt-4">Thank you for shopping with us!</p>
+                    <p className="mt-4 text-center text-xs">Thank you for shopping with us!</p>
                 </div>
             </div>
         </>
