@@ -1,6 +1,7 @@
 import { Link } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { ShieldCheck } from 'lucide-react';
 import type { AuthLayoutProps } from '@/types';
 import { home } from '@/routes';
 
@@ -106,13 +107,42 @@ export default function AuthPcgmLayout({
     }).format(now);
 
     return (
-        <div className="pcgm-auth relative grid h-dvh flex-col items-center justify-center px-8 sm:px-0 lg:max-w-none lg:grid-cols-2 lg:px-0">
+        <div
+            className="pcgm-auth relative grid h-dvh flex-col items-center justify-center px-8 sm:px-0 lg:max-w-none lg:grid-cols-2 lg:px-0"
+            style={{ colorScheme: 'light', color: '#052925' }}
+        >
             <style>{`
                 .pcgm-auth {
+                    color-scheme: light;
+                    color: #052925;
+
                     --ink: #052925;
                     --paper-dim: #e2eeea;
                     --teal: #00a79b;
                     --green: #8dc645;
+
+                    /* Lock shadcn's theme tokens to their light values here, regardless
+                       of the person's dark-mode setting elsewhere in the app. This card
+                       is a fixed light+teal brand surface, not a theme-aware one — without
+                       this, a dark-mode preference makes text/input colors resolve to
+                       near-white on our white card, i.e. invisible. */
+                    --background: oklch(1 0 0);
+                    --foreground: oklch(0.145 0 0);
+                    --card: oklch(1 0 0);
+                    --card-foreground: oklch(0.145 0 0);
+                    --popover: oklch(1 0 0);
+                    --popover-foreground: oklch(0.145 0 0);
+                    --primary: oklch(0.205 0 0);
+                    --primary-foreground: oklch(0.985 0 0);
+                    --secondary: oklch(0.97 0 0);
+                    --secondary-foreground: oklch(0.205 0 0);
+                    --muted: oklch(0.97 0 0);
+                    --muted-foreground: oklch(0.556 0 0);
+                    --accent: oklch(0.97 0 0);
+                    --accent-foreground: oklch(0.205 0 0);
+                    --border: oklch(0.922 0 0);
+                    --input: oklch(0.922 0 0);
+                    --ring: oklch(0.87 0 0);
                 }
 
                 @keyframes pcgm-kenburns {
@@ -312,29 +342,50 @@ export default function AuthPcgmLayout({
             </div>
 
             {/* ---------- FORM PANEL ---------- */}
-            <motion.div
-                className="w-full lg:p-8"
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, ease: easeOut }}
-            >
-                <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
-                    <Link
-                        href={home()}
-                        className="relative z-20 flex items-center justify-center gap-2 lg:hidden"
-                    >
-                        <img src="/images/pcgm_logo.png" alt="" className="h-9 w-9 object-contain" />
-                        <span className="font-bold tracking-tight">People&rsquo;s Coop Gen. Mdse.</span>
-                    </Link>
-                    <div className="flex flex-col items-start gap-2 text-left sm:items-center sm:text-center">
-                        <h1 className="text-xl font-medium">{title}</h1>
-                        <p className="text-sm text-balance text-muted-foreground">
-                            {description}
-                        </p>
-                    </div>
-                    {children}
+            <div className="flex h-full w-full flex-col self-stretch overflow-y-auto bg-[var(--paper,#f4faf8)] lg:bg-white">
+                {/* mobile-only brand bar — on lg the left panel already covers this */}
+                <div
+                    className="flex items-center justify-center gap-2 px-6 py-5 text-white lg:hidden"
+                    style={{ background: 'linear-gradient(135deg, var(--ink) 0%, #0a3a33 100%)' }}
+                >
+                    <img src="/images/pcgm_logo.png" alt="" className="h-8 w-8 object-contain" />
+                    <span className="text-sm font-bold tracking-tight">People&rsquo;s Coop Gen. Mdse.</span>
                 </div>
-            </motion.div>
+
+                <motion.div
+                    className="flex flex-1 items-center justify-center p-6 lg:p-8"
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, ease: easeOut }}
+                >
+                    <div className="w-full sm:w-[380px]">
+                        <Link
+                            href={home()}
+                            className="relative z-20 mb-6 hidden items-center justify-center gap-2 lg:flex"
+                        >
+                            <img src="/images/pcgm_logo.png" alt="" className="h-9 w-9 object-contain" />
+                            <span className="font-bold tracking-tight">People&rsquo;s Coop Gen. Mdse.</span>
+                        </Link>
+
+                        <div className="rounded-xl border border-black/5 bg-white p-6 shadow-[0_1px_2px_rgba(5,41,37,0.04),0_12px_32px_-12px_rgba(5,41,37,0.18)] sm:p-8">
+                            <div
+                                className="-mx-6 -mt-6 mb-6 h-1 rounded-t-xl sm:-mx-8 sm:-mt-8"
+                                style={{ background: 'linear-gradient(90deg, var(--teal) 0%, var(--green) 100%)' }}
+                            />
+                            <div className="mb-6 flex flex-col items-start gap-1.5 text-left">
+                                <h1 className="text-xl font-semibold tracking-tight text-[var(--ink)]">{title}</h1>
+                                <p className="text-sm text-balance text-muted-foreground">{description}</p>
+                            </div>
+                            {children}
+                        </div>
+
+                        <div className="mt-5 flex items-center justify-center gap-1.5 text-center text-[11px] text-muted-foreground">
+                            <ShieldCheck className="h-3.5 w-3.5 text-[var(--teal)]" />
+                            Access restricted to authorized PCGM staff. Contact IT for account issues.
+                        </div>
+                    </div>
+                </motion.div>
+            </div>
         </div>
     );
 }

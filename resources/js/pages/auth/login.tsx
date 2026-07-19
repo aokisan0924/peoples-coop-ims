@@ -72,6 +72,7 @@ export default function Login({ status, canResetPassword }: Props) {
                                     tabIndex={1}
                                     autoComplete="email"
                                     placeholder="email@example.com"
+                                    className="border-black/10 bg-[#f4faf8] text-[#052925] placeholder:text-[#052925]/40 focus-visible:border-[#00a79b] focus-visible:ring-[#00a79b]/25"
                                 />
                                 <InputError message={errors.email} />
                             </motion.div>
@@ -96,6 +97,7 @@ export default function Login({ status, canResetPassword }: Props) {
                                     tabIndex={2}
                                     autoComplete="current-password"
                                     placeholder="Password"
+                                    className="border-black/10 bg-[#f4faf8] text-[#052925] placeholder:text-[#052925]/40 focus-visible:border-[#00a79b] focus-visible:ring-[#00a79b]/25"
                                 />
                                 <InputError message={errors.password} />
                             </motion.div>
@@ -105,6 +107,7 @@ export default function Login({ status, canResetPassword }: Props) {
                                     id="remember"
                                     name="remember"
                                     tabIndex={3}
+                                    className="border-black/10 bg-[#f4faf8] text-[#052925] placeholder:text-[#052925]/40 focus-visible:border-[#00a79b] focus-visible:ring-[#00a79b]/25"
                                 />
                                 <Label htmlFor="remember">Remember me</Label>
                             </motion.div>
@@ -134,7 +137,7 @@ export default function Login({ status, canResetPassword }: Props) {
                             transition={{ duration: 0.4, delay: 0.35 }}
                         >
                             Don't have an account?{' '}
-                            <TextLink href={register()} tabIndex={5}>
+                            <TextLink href={register()} className="text-[#00a79b] decoration-[#00a79b]/40" tabIndex={5}>
                                 Sign up
                             </TextLink>
                         </motion.div>

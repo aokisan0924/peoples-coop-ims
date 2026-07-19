@@ -54,6 +54,7 @@ export default function ForgotPassword({ status }: { status?: string }) {
                                     autoComplete="off"
                                     autoFocus
                                     placeholder="email@example.com"
+                                    className="border-black/10 bg-[#f4faf8] text-[#052925] placeholder:text-[#052925]/40 focus-visible:border-[#00a79b] focus-visible:ring-[#00a79b]/25"
                                 />
 
                                 <InputError message={errors.email} />
@@ -66,7 +67,7 @@ export default function ForgotPassword({ status }: { status?: string }) {
                                     whileTap={{ scale: 0.98 }}
                                 >
                                     <Button
-                                        className="w-full"
+                                        className="w-full bg-[#00a79b] text-white hover:bg-[#00a79b]/90"
                                         disabled={processing}
                                         data-test="email-password-reset-link-button"
                                     >
@@ -88,7 +89,7 @@ export default function ForgotPassword({ status }: { status?: string }) {
                     transition={{ duration: 0.4, delay: 0.3 }}
                 >
                     <span>Or, return to</span>
-                    <TextLink href={login()}>log in</TextLink>
+                    <TextLink href={login()} className="text-[#00a79b] decoration-[#00a79b]/40">log in</TextLink>
                 </motion.div>
             </div>
         </>

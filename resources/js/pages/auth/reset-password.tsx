@@ -49,7 +49,7 @@ export default function ResetPassword({ token, email, passwordRules }: Props) {
                                 name="email"
                                 autoComplete="email"
                                 value={email}
-                                className="mt-1 block w-full"
+                                className="mt-1 block w-full border-black/10 bg-[#e2eeea] text-[#052925]"
                                 readOnly
                             />
                             <InputError
@@ -97,7 +97,7 @@ export default function ResetPassword({ token, email, passwordRules }: Props) {
                         >
                             <Button
                                 type="submit"
-                                className="mt-4 w-full"
+                                className="mt-4 w-full bg-[#00a79b] text-white hover:bg-[#00a79b]/90"
                                 disabled={processing}
                                 data-test="reset-password-button"
                             >

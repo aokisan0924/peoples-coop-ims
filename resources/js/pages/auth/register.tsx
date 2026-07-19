@@ -58,6 +58,7 @@ export default function Register({ passwordRules }: Props) {
                                     autoComplete="name"
                                     name="name"
                                     placeholder="Full name"
+                                    className="border-black/10 bg-[#f4faf8] text-[#052925] placeholder:text-[#052925]/40 focus-visible:border-[#00a79b] focus-visible:ring-[#00a79b]/25"
                                 />
                                 <InputError
                                     message={errors.name}
@@ -75,6 +76,7 @@ export default function Register({ passwordRules }: Props) {
                                     autoComplete="email"
                                     name="email"
                                     placeholder="email@example.com"
+                                    className="border-black/10 bg-[#f4faf8] text-[#052925] placeholder:text-[#052925]/40 focus-visible:border-[#00a79b] focus-visible:ring-[#00a79b]/25"
                                 />
                                 <InputError message={errors.email} />
                             </motion.div>
@@ -89,6 +91,7 @@ export default function Register({ passwordRules }: Props) {
                                     name="password"
                                     placeholder="Password"
                                     passwordrules={passwordRules}
+                                    className="border-black/10 bg-[#f4faf8] text-[#052925] placeholder:text-[#052925]/40 focus-visible:border-[#00a79b] focus-visible:ring-[#00a79b]/25"
                                 />
                                 <InputError message={errors.password} />
                             </motion.div>
@@ -105,6 +108,7 @@ export default function Register({ passwordRules }: Props) {
                                     name="password_confirmation"
                                     placeholder="Confirm password"
                                     passwordrules={passwordRules}
+                                    className="border-black/10 bg-[#f4faf8] text-[#052925] placeholder:text-[#052925]/40 focus-visible:border-[#00a79b] focus-visible:ring-[#00a79b]/25"
                                 />
                                 <InputError
                                     message={errors.password_confirmation}
@@ -118,7 +122,7 @@ export default function Register({ passwordRules }: Props) {
                             >
                                 <Button
                                     type="submit"
-                                    className="mt-2 w-full"
+                                    className="mt-2 w-full bg-[#00a79b] text-white hover:bg-[#00a79b]/90"
                                     tabIndex={5}
                                     data-test="register-user-button"
                                 >
@@ -135,7 +139,7 @@ export default function Register({ passwordRules }: Props) {
                             transition={{ duration: 0.4, delay: 0.35 }}
                         >
                             Already have an account?{' '}
-                            <TextLink href={login()} tabIndex={6}>
+                            <TextLink href={login()} className="text-[#00a79b] decoration-[#00a79b]/40" tabIndex={6}>
                                 Log in
                             </TextLink>
                         </motion.div>
