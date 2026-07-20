@@ -48,16 +48,11 @@ const overviewNavItems: NavItem[] = [
         href: dashboard(),
         icon: LayoutGrid,
     },
-
-    {
-        title: 'Shift History',
-        href: '/shifts',
-        icon: Clock,
-        managerOnly: true,
-    },
 ];
 
 // ---------- Sales & Payments ----------
+// Personal → team oversight → payments, in that order: a cashier only sees
+// the first two, a manager sees the full operational picture.
 const salesNavItems: NavItem[] = [
     {
         title: 'Point of Sale',
@@ -68,6 +63,12 @@ const salesNavItems: NavItem[] = [
         title: 'My Sales',
         href: '/my-sales',
         icon: History,
+    },
+    {
+        title: 'Shift History',
+        href: '/shifts',
+        icon: Clock,
+        managerOnly: true,
     },
     {
         title: 'Sales History',
@@ -83,23 +84,13 @@ const salesNavItems: NavItem[] = [
 ];
 
 // ---------- Inventory ----------
+// Catalog setup (what a product *is*) first, then stock movement
+// (what's physically happening to it), instead of interleaving the two.
 const inventoryNavItems: NavItem[] = [
     {
         title: 'Products',
         href: products.index(),
         icon: Package,
-        managerOnly: true,
-    },
-    {
-        title: 'Stock Batch',
-        href: stockBatches.index(),
-        icon: Boxes,
-        managerOnly: true,
-    },
-    {
-        title: 'Stock Transfers',
-        href: '/stock-transfers',
-        icon: ArrowLeftRight,
         managerOnly: true,
     },
     {
@@ -118,6 +109,18 @@ const inventoryNavItems: NavItem[] = [
         title: 'Suppliers',
         href: suppliers.index(),
         icon: Truck,
+        managerOnly: true,
+    },
+    {
+        title: 'Stock Batch',
+        href: stockBatches.index(),
+        icon: Boxes,
+        managerOnly: true,
+    },
+    {
+        title: 'Stock Transfers',
+        href: '/stock-transfers',
+        icon: ArrowLeftRight,
         managerOnly: true,
     },
 ];
