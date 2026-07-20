@@ -54,6 +54,8 @@ export interface StockBatch {
     product?: Product;
     supplier_id: number | null;
     supplier?: Supplier | null;
+    location_id?: number;
+    location?: { id: number; name: string } | null;
     received_qty: number;
     remaining_qty: number;
     cost_price: string;

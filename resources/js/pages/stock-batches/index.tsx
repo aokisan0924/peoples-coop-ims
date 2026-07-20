@@ -25,7 +25,7 @@ function getExpiryStatus(expiryDate: string | null): ExpiryStatus {
     return 'ok';
 }
 
-export default function StockBatchesIndex({ batches }: { batches: PaginatedBatches }) {
+export default function StockBatchesIndex({ batches, isOwner }: { batches: PaginatedBatches; isOwner: boolean }) {
     const [query, setQuery] = useState('');
     const [expiry, setExpiry] = useState<'all' | 'expired' | 'soon' | 'depleted'>('all');
 
@@ -145,6 +145,7 @@ export default function StockBatchesIndex({ batches }: { batches: PaginatedBatch
                                 <thead className="bg-muted/60">
                                     <tr>
                                         <th className="p-3 text-left font-medium text-muted-foreground">Product</th>
+                                        {isOwner && <th className="p-3 text-left font-medium text-muted-foreground">Branch</th>}
                                         <th className="p-3 text-left font-medium text-muted-foreground">Supplier</th>
                                         <th className="p-3 text-left font-medium text-muted-foreground">Remaining</th>
                                         <th className="p-3 text-left font-medium text-muted-foreground">Cost/Unit</th>
@@ -170,6 +171,11 @@ export default function StockBatchesIndex({ batches }: { batches: PaginatedBatch
                                                         )}
                                                     </div>
                                                 </td>
+                                                {isOwner && (
+                                                    <td className="p-3 text-muted-foreground whitespace-nowrap">
+                                                        {batch.location?.name ?? '—'}
+                                                    </td>
+                                                )}
                                                 <td className="p-3 text-muted-foreground">
                                                     <span className="inline-flex items-center gap-1.5">
                                                         <Truck className="size-3.5 shrink-0" />
@@ -237,6 +243,12 @@ export default function StockBatchesIndex({ batches }: { batches: PaginatedBatch
                                                     <p className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground">
                                                         <Truck className="size-3 shrink-0" />
                                                         {batch.supplier?.name ?? '—'}
+                                                        {isOwner && batch.location?.name && (
+                                                            <>
+                                                                <span className="text-muted-foreground/50">&middot;</span>
+                                                                {batch.location.name}
+                                                            </>
+                                                        )}
                                                     </p>
                                                 </div>
                                             </div>

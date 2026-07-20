@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/select';
 import stockBatches from '@/routes/stock-batches';
 import CameraBarcodeScanner from '@/components/shared/camera-barcode-scanner';
+import { Building2 } from 'lucide-react';
 
 interface Product {
     id: number;
@@ -27,6 +28,7 @@ interface Supplier {
 interface StockBatchFormData {
     product_id: number | null;
     supplier_id: number | null;
+    location_id: number | null;
     received_qty: number;
     cost_price: string;
     received_date: string;
@@ -39,9 +41,11 @@ interface Props {
     errors: Partial<Record<keyof StockBatchFormData, string>>;
     products: Product[];
     suppliers: Supplier[];
+    locations: { id: number; name: string }[] | null;
+    userLocationName: string | null;
 }
 
-export default function StockBatchFormFields({ data, setData, errors, products, suppliers }: Props) {
+export default function StockBatchFormFields({ data, setData, errors, products, suppliers, locations, userLocationName }: Props) {
     const [barcodeInput, setBarcodeInput] = useState('');
     const [matchedProduct, setMatchedProduct] = useState<Product | null>(null);
     const [lookupError, setLookupError] = useState('');
@@ -124,6 +128,34 @@ export default function StockBatchFormFields({ data, setData, errors, products, 
 
     return (
         <div className="space-y-4">
+            {locations ? (
+                <div>
+                    <Label htmlFor="location_id">Receiving Branch *</Label>
+                    <Select
+                        value={data.location_id ? String(data.location_id) : ''}
+                        onValueChange={(value) => setData('location_id', Number(value))}
+                    >
+                        <SelectTrigger id="location_id">
+                            <SelectValue placeholder="Select which branch is receiving this stock" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {locations.map((location) => (
+                                <SelectItem key={location.id} value={String(location.id)}>
+                                    {location.name}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                    {errors.location_id && <p className="text-sm text-red-600 mt-1">{errors.location_id}</p>}
+                </div>
+            ) : (
+                <div className="flex items-center gap-2 rounded-lg border bg-muted/30 p-3 text-sm">
+                    <Building2 className="size-4 shrink-0 text-muted-foreground" />
+                    <span className="text-muted-foreground">Receiving into</span>
+                    <span className="font-medium">{userLocationName ?? 'your assigned branch'}</span>
+                </div>
+            )}
+
             <div className="border rounded-lg p-4 bg-muted/30">
                 <Label htmlFor="barcode_scan">Scan Barcode to Find Product</Label>
                 <Input

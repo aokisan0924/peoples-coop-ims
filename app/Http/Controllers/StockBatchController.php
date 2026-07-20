@@ -17,24 +17,43 @@ class StockBatchController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(): Response
+    public function index(Request $request): Response
     {
+        $user = $request->user();
+
+        $query = StockBatch::with(['product', 'supplier', 'location'])
+            ->orderByDesc('received_date')
+            ->orderByDesc('id');
+
+        // A Manager only sees their own branch's receiving history — otherwise
+        // every branch's batches show up mixed together with nothing to tell
+        // them apart. Owner sees everything, across all branches.
+        if (!$user->seesAllLocations()) {
+            $query->where('location_id', $user->location_id);
+        }
+
         return Inertia::render('stock-batches/index', [
-            'batches' => StockBatch::with(['product', 'supplier'])
-                ->orderByDesc('received_date')
-                ->orderByDesc('id')
-                ->paginate(50),
+            'batches' => $query->paginate(50),
+            'isOwner' => $user->seesAllLocations(),
         ]);
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create(): Response
+    public function create(Request $request): Response
     {
+        $user = $request->user();
+
         return Inertia::render('stock-batches/create', [
             'products' => Product::orderBy('name')->get(['id', 'name', 'sku', 'barcode', 'cost_price']),
             'suppliers' => Supplier::orderBy('name')->get(['id', 'name']),
+            // Owner has no fixed branch and must choose which one is receiving
+            // stock; a Manager's branch is fixed, so they just get told what it is.
+            'locations' => $user->seesAllLocations()
+                ? Location::where('is_active', true)->orderBy('name')->get(['id', 'name'])
+                : null,
+            'userLocationName' => $user->location?->name,
         ]);
     }
 
@@ -83,21 +102,36 @@ class StockBatchController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        if (!$request->user()->location_id) {
-            return back()->withErrors(['location' => 'Your account has no assigned branch. Stock receiving must be done by a branch Manager.']);
+        $user = $request->user();
+
+        if ($user->seesAllLocations()) {
+            $validated = $request->validate([
+                'product_id' => ['required', 'exists:products,id'],
+                'supplier_id' => ['nullable', 'exists:suppliers,id'],
+                'location_id' => ['required', 'exists:locations,id'],
+                'received_qty' => ['required', 'integer', 'min:1'],
+                'cost_price' => ['required', 'numeric', 'min:0'],
+                'received_date' => ['required', 'date'],
+                'expiry_date' => ['nullable', 'date', 'after:received_date'],
+            ]);
+        } else {
+            if (!$user->location_id) {
+                return back()->withErrors(['location' => 'Your account has no assigned branch. Stock receiving must be done by a branch Manager.']);
+            }
+
+            $validated = $request->validate([
+                'product_id' => ['required', 'exists:products,id'],
+                'supplier_id' => ['nullable', 'exists:suppliers,id'],
+                'received_qty' => ['required', 'integer', 'min:1'],
+                'cost_price' => ['required', 'numeric', 'min:0'],
+                'received_date' => ['required', 'date'],
+                'expiry_date' => ['nullable', 'date', 'after:received_date'],
+            ]);
+
+            $validated['location_id'] = $user->location_id;
         }
 
-        $validated = $request->validate([
-            'product_id' => ['required', 'exists:products,id'],
-            'supplier_id' => ['nullable', 'exists:suppliers,id'],
-            'received_qty' => ['required', 'integer', 'min:1'],
-            'cost_price' => ['required', 'numeric', 'min:0'],
-            'received_date' => ['required', 'date'],
-            'expiry_date' => ['nullable', 'date', 'after:received_date'],
-        ]);
-
         $validated['remaining_qty'] = $validated['received_qty'];
-        $validated['location_id'] = $request->user()->location_id;
 
         StockBatch::create($validated);
 

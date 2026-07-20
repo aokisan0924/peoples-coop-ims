@@ -17,10 +17,21 @@ interface Supplier {
     name: string;
 }
 
-export default function CreateStockBatch({ products, suppliers }: { products: Product[]; suppliers: Supplier[] }) {
+export default function CreateStockBatch({
+    products,
+    suppliers,
+    locations,
+    userLocationName,
+}: {
+    products: Product[];
+    suppliers: Supplier[];
+    locations: { id: number; name: string }[] | null;
+    userLocationName: string | null;
+}) {
     const { data, setData, post, processing, errors } = useForm({
         product_id: null as number | null,
         supplier_id: null as number | null,
+        location_id: null as number | null,
         received_qty: 1,
         cost_price: '',
         received_date: new Date().toISOString().split('T')[0],
@@ -59,7 +70,15 @@ export default function CreateStockBatch({ products, suppliers }: { products: Pr
                     <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:items-start">
                         {/* Form card */}
                         <div className="rounded-xl border bg-card p-4 sm:p-5 lg:col-span-2">
-                            <StockBatchFormFields data={data} setData={setData} errors={errors} products={products} suppliers={suppliers} />
+                            <StockBatchFormFields
+                                data={data}
+                                setData={setData}
+                                errors={errors}
+                                products={products}
+                                suppliers={suppliers}
+                                locations={locations}
+                                userLocationName={userLocationName}
+                            />
 
                             {/* Desktop actions, inline with the form card */}
                             <div className="mt-6 hidden gap-2 border-t pt-4 sm:flex">
