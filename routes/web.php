@@ -2,10 +2,12 @@
 
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\GcashController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\PosController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ProfitLossController;
 use App\Http\Controllers\SaleController;
 use App\Http\Controllers\ShiftSessionController;
 use App\Http\Controllers\StockBatchController;
@@ -102,6 +104,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('stock-transfers/{transfer}/cancel', [StockTransferController::class, 'cancel'])->name('stock-transfers.cancel');
 
         Route::get('shifts', [ShiftSessionController::class, 'history'])->name('shifts.history');
+
+        Route::get('expenses', [ExpenseController::class, 'index'])->name('expenses.index');
+        Route::get('expenses/create', [ExpenseController::class, 'create'])->name('expenses.create');
+        Route::post('expenses', [ExpenseController::class, 'store'])->name('expenses.store');
+        Route::post('expenses/{expense}/mark-paid', [ExpenseController::class, 'markPaid'])->name('expenses.mark-paid');
+        Route::delete('expenses/{expense}', [ExpenseController::class, 'destroy'])->name('expenses.destroy');
+
+        Route::get('reports/profit-loss', [ProfitLossController::class, 'index'])->name('reports.profit-loss');
     });
 
 

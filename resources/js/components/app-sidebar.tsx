@@ -31,6 +31,7 @@ import {
 import { useAuth } from '@/hooks/use-auth';
 import type { NavItem } from '@/types';
 import { dashboard } from '@/routes';
+import { Receipt as ReceiptExpense, TrendingUp } from 'lucide-react';
 import categories from '@/routes/categories';
 import gcash from '@/routes/gcash';
 import locations from '@/routes/locations';
@@ -138,6 +139,18 @@ const adminNavItems: NavItem[] = [
         href: locations.index(),
         icon: Building2,
         ownerOnly: true,
+    },
+    {
+        title: 'Expenses',
+        href: '/expenses',
+        icon: ReceiptExpense,
+        managerOnly: true,
+    },
+    {
+        title: 'Profit & Loss',
+        href: '/reports/profit-loss',
+        icon: TrendingUp,
+        managerOnly: true,
     },
     {
         title: 'Users',
