@@ -1,15 +1,10 @@
-import { useRef, useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import CategoryQuickCreateDialog from '@/components/categories/category-quick-create-dialog';
+import CameraBarcodeScanner from '@/components/shared/camera-barcode-scanner';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Combobox } from '@/components/ui/combobox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
-import CameraBarcodeScanner from '@/components/shared/camera-barcode-scanner';
 
 interface ProductFormData {
     name: string;
@@ -42,10 +37,31 @@ interface Props {
 export default function ProductFormFields({ data, setData, errors, categories, units, isEdit }: Props) {
     const barcodeRef = useRef<HTMLInputElement>(null);
 
+    // Local, appendable copy so a newly quick-created category shows up and
+    // gets selected immediately, without waiting on an Inertia round-trip.
+    const [localCategories, setLocalCategories] = useState(categories);
+    const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
+    const [categorySearch, setCategorySearch] = useState('');
+
     useEffect(() => {
         // Auto-focus barcode field so a USB scanner can scan immediately on page load
         barcodeRef.current?.focus();
     }, []);
+
+    const categoryOptions = useMemo(
+        () => localCategories.map((cat) => ({ value: String(cat.id), label: cat.name })),
+        [localCategories],
+    );
+
+    const unitOptions = useMemo(
+        () => units.map((unit) => ({ value: String(unit.id), label: `${unit.name} (${unit.abbreviation})` })),
+        [units],
+    );
+
+    const packUnitOptions = useMemo(
+        () => [{ value: 'none', label: 'None' }, ...unitOptions],
+        [unitOptions],
+    );
 
     // Live pricing preview — recalculates as cost/markup change
     const preview = useMemo(() => {
@@ -58,6 +74,7 @@ export default function ProductFormFields({ data, setData, errors, categories, u
 
         let memberPack: number | null = null;
         let nonMemberPack: number | null = null;
+
         if (data.pack_conversion_factor && data.pack_conversion_factor >= 2) {
             const packCost = cost * data.pack_conversion_factor;
             memberPack = packCost * (1 + markup / 100);
@@ -110,41 +127,34 @@ export default function ProductFormFields({ data, setData, errors, categories, u
             <div className="grid grid-cols-2 gap-4">
                 <div>
                     <Label htmlFor="category_id">Category *</Label>
-                    <Select
-                        value={data.category_id ? String(data.category_id) : ''}
-                        onValueChange={(value) => setData('category_id', Number(value))}
-                    >
-                        <SelectTrigger id="category_id">
-                            <SelectValue placeholder="Select category" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {categories.map((cat) => (
-                                <SelectItem key={cat.id} value={String(cat.id)}>
-                                    {cat.name}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
+                    <Combobox
+                        id="category_id"
+                        options={categoryOptions}
+                        value={data.category_id ? String(data.category_id) : null}
+                        onChange={(value) => setData('category_id', Number(value))}
+                        placeholder="Select category"
+                        searchPlaceholder="Search categories…"
+                        emptyText="No matching categories."
+                        onSearchChange={setCategorySearch}
+                        createAction={{
+                            label: '+ Add Category',
+                            onSelect: () => setCategoryDialogOpen(true),
+                        }}
+                    />
                     {errors.category_id && <p className="text-sm text-red-600 mt-1">{errors.category_id}</p>}
                 </div>
 
                 <div>
                     <Label htmlFor="base_unit_id">Base Selling Unit *</Label>
-                    <Select
-                        value={data.base_unit_id ? String(data.base_unit_id) : ''}
-                        onValueChange={(value) => setData('base_unit_id', Number(value))}
-                    >
-                        <SelectTrigger id="base_unit_id">
-                            <SelectValue placeholder="e.g. Piece, Kilogram" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {units.map((unit) => (
-                                <SelectItem key={unit.id} value={String(unit.id)}>
-                                    {unit.name} ({unit.abbreviation})
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
+                    <Combobox
+                        id="base_unit_id"
+                        options={unitOptions}
+                        value={data.base_unit_id ? String(data.base_unit_id) : null}
+                        onChange={(value) => setData('base_unit_id', Number(value))}
+                        placeholder="e.g. Piece, Kilogram"
+                        searchPlaceholder="Search units…"
+                        emptyText="No matching units."
+                    />
                     {errors.base_unit_id && <p className="text-sm text-red-600 mt-1">{errors.base_unit_id}</p>}
                 </div>
             </div>
@@ -158,22 +168,15 @@ export default function ProductFormFields({ data, setData, errors, categories, u
                 <div className="grid grid-cols-2 gap-4">
                     <div>
                         <Label htmlFor="pack_unit_id">Pack Unit</Label>
-                        <Select
+                        <Combobox
+                            id="pack_unit_id"
+                            options={packUnitOptions}
                             value={data.pack_unit_id ? String(data.pack_unit_id) : 'none'}
-                            onValueChange={(value) => setData('pack_unit_id', value === 'none' ? null : Number(value))}
-                        >
-                            <SelectTrigger id="pack_unit_id">
-                                <SelectValue placeholder="e.g. Pack, Box" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="none">None</SelectItem>
-                                {units.map((unit) => (
-                                    <SelectItem key={unit.id} value={String(unit.id)}>
-                                        {unit.name} ({unit.abbreviation})
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                            onChange={(value) => setData('pack_unit_id', value === 'none' ? null : Number(value))}
+                            placeholder="e.g. Pack, Box"
+                            searchPlaceholder="Search units…"
+                            emptyText="No matching units."
+                        />
                     </div>
 
                     <div>
@@ -283,6 +286,17 @@ export default function ProductFormFields({ data, setData, errors, categories, u
                     </Label>
                 </div>
             )}
+
+            <CategoryQuickCreateDialog
+                open={categoryDialogOpen}
+                onOpenChange={setCategoryDialogOpen}
+                parentOptions={localCategories}
+                initialName={categorySearch}
+                onCreated={(category) => {
+                    setLocalCategories((prev) => [...prev, category].sort((a, b) => a.name.localeCompare(b.name)));
+                    setData('category_id', category.id);
+                }}
+            />
         </div>
     );
 }

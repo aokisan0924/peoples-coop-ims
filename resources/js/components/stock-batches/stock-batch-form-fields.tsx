@@ -1,16 +1,10 @@
-import { useRef, useState, useEffect } from 'react';
+import { Building2 } from 'lucide-react';
+import { useRef, useState, useEffect, useMemo } from 'react';
+import CameraBarcodeScanner from '@/components/shared/camera-barcode-scanner';
+import { Combobox } from '@/components/ui/combobox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
 import stockBatches from '@/routes/stock-batches';
-import CameraBarcodeScanner from '@/components/shared/camera-barcode-scanner';
-import { Building2 } from 'lucide-react';
 
 interface Product {
     id: number;
@@ -65,6 +59,24 @@ export default function StockBatchFormFields({ data, setData, errors, products, 
             }
         }
     }, [data.product_id]);
+
+    const locationOptions = useMemo(
+        () => (locations ?? []).map((location) => ({ value: String(location.id), label: location.name })),
+        [locations],
+    );
+
+    const productOptions = useMemo(
+        () => products.map((product) => ({ value: String(product.id), label: product.name, description: product.sku })),
+        [products],
+    );
+
+    const supplierOptions = useMemo(
+        () => [
+            { value: 'none', label: 'None' },
+            ...suppliers.map((supplier) => ({ value: String(supplier.id), label: supplier.name })),
+        ],
+        [suppliers],
+    );
 
     /**
      * Shared by both the keyboard/hardware-scanner path and the camera scanner —
@@ -131,21 +143,15 @@ export default function StockBatchFormFields({ data, setData, errors, products, 
             {locations ? (
                 <div>
                     <Label htmlFor="location_id">Receiving Branch *</Label>
-                    <Select
-                        value={data.location_id ? String(data.location_id) : ''}
-                        onValueChange={(value) => setData('location_id', Number(value))}
-                    >
-                        <SelectTrigger id="location_id">
-                            <SelectValue placeholder="Select which branch is receiving this stock" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {locations.map((location) => (
-                                <SelectItem key={location.id} value={String(location.id)}>
-                                    {location.name}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
+                    <Combobox
+                        id="location_id"
+                        options={locationOptions}
+                        value={data.location_id ? String(data.location_id) : null}
+                        onChange={(value) => setData('location_id', Number(value))}
+                        placeholder="Select which branch is receiving this stock"
+                        searchPlaceholder="Search branches…"
+                        emptyText="No matching branches."
+                    />
                     {errors.location_id && <p className="text-sm text-red-600 mt-1">{errors.location_id}</p>}
                 </div>
             ) : (
@@ -182,45 +188,36 @@ export default function StockBatchFormFields({ data, setData, errors, products, 
 
             <div>
                 <Label htmlFor="product_id">Product *</Label>
-                <Select
-                    value={data.product_id ? String(data.product_id) : ''}
-                    onValueChange={(value) => {
+                <Combobox
+                    id="product_id"
+                    options={productOptions}
+                    value={data.product_id ? String(data.product_id) : null}
+                    onChange={(value) => {
                         setData('product_id', Number(value));
                         setMatchedProduct(products.find((p) => p.id === Number(value)) ?? null);
                     }}
-                >
-                    <SelectTrigger id="product_id">
-                        <SelectValue placeholder="Or select manually" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        {products.map((product) => (
-                            <SelectItem key={product.id} value={String(product.id)}>
-                                {product.name} ({product.sku})
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
+                    placeholder="Or select manually"
+                    searchPlaceholder="Search by name or SKU…"
+                    emptyText="No matching products."
+                    createAction={{
+                        label: '+ Add New Product (opens in a new tab)',
+                        onSelect: () => window.open('/products/create', '_blank'),
+                    }}
+                />
                 {errors.product_id && <p className="text-sm text-red-600 mt-1">{errors.product_id}</p>}
             </div>
 
             <div>
                 <Label htmlFor="supplier_id">Supplier</Label>
-                <Select
+                <Combobox
+                    id="supplier_id"
+                    options={supplierOptions}
                     value={data.supplier_id ? String(data.supplier_id) : 'none'}
-                    onValueChange={(value) => setData('supplier_id', value === 'none' ? null : Number(value))}
-                >
-                    <SelectTrigger id="supplier_id">
-                        <SelectValue placeholder="Select supplier (optional)" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="none">None</SelectItem>
-                        {suppliers.map((supplier) => (
-                            <SelectItem key={supplier.id} value={String(supplier.id)}>
-                                {supplier.name}
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
+                    onChange={(value) => setData('supplier_id', value === 'none' ? null : Number(value))}
+                    placeholder="Select supplier (optional)"
+                    searchPlaceholder="Search suppliers…"
+                    emptyText="No matching suppliers."
+                />
                 {errors.supplier_id && <p className="text-sm text-red-600 mt-1">{errors.supplier_id}</p>}
             </div>
 

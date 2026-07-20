@@ -46,6 +46,25 @@ class CategoryController extends Controller
     }
 
     /**
+     * Quick-create a category from an inline combobox (e.g. while creating a
+     * product) without leaving the current form. Returns JSON, not a redirect.
+     */
+    public function quickStore(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'parent_id' => ['nullable', 'exists:categories,id'],
+        ]);
+
+        $category = Category::create($validated);
+
+        return response()->json([
+            'id' => $category->id,
+            'name' => $category->name,
+        ], 201);
+    }
+
+    /**
      * Display the specified resource.
      */
     public function show(string $id)

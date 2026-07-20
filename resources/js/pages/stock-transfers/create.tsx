@@ -1,10 +1,11 @@
 import { Head, useForm, Link } from '@inertiajs/react';
+import { ArrowLeft, ArrowRight, ArrowRightLeft, Hash, Info, MapPin, Package, StickyNote } from 'lucide-react';
+import { useMemo } from 'react';
 import { Button } from '@/components/ui/button';
+import { Combobox } from '@/components/ui/combobox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, ArrowRight, ArrowRightLeft, Hash, Info, MapPin, Package, StickyNote } from 'lucide-react';
 
 interface Product {
     id: number;
@@ -32,6 +33,19 @@ export default function CreateStockTransfer({ products, sourceBranches, destinat
         quantity: 1,
         notes: '',
     });
+
+    const productOptions = useMemo(
+        () => products.map((p) => ({ value: String(p.id), label: p.name, description: p.sku })),
+        [products],
+    );
+    const sourceBranchOptions = useMemo(
+        () => sourceBranches.map((loc) => ({ value: String(loc.id), label: loc.name })),
+        [sourceBranches],
+    );
+    const destinationBranchOptions = useMemo(
+        () => destinationBranches.map((loc) => ({ value: String(loc.id), label: loc.name })),
+        [destinationBranches],
+    );
 
     function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
@@ -73,18 +87,20 @@ export default function CreateStockTransfer({ products, sourceBranches, destinat
                                 <Label htmlFor="product_id">Product *</Label>
                                 <div className="relative">
                                     <Package className="pointer-events-none absolute top-1/2 left-3 z-10 size-4 -translate-y-1/2 text-muted-foreground" />
-                                    <Select value={data.product_id ? String(data.product_id) : ''} onValueChange={(v) => setData('product_id', Number(v))}>
-                                        <SelectTrigger id="product_id" className="pl-9">
-                                            <SelectValue placeholder="Select product" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {products.map((p) => (
-                                                <SelectItem key={p.id} value={String(p.id)}>
-                                                    {p.name} ({p.sku})
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
+                                    <Combobox
+                                        id="product_id"
+                                        options={productOptions}
+                                        value={data.product_id ? String(data.product_id) : null}
+                                        onChange={(v) => setData('product_id', Number(v))}
+                                        placeholder="Select product"
+                                        searchPlaceholder="Search by name or SKU…"
+                                        emptyText="No matching products."
+                                        className="pl-9"
+                                        createAction={{
+                                            label: '+ Add New Product (opens in a new tab)',
+                                            onSelect: () => window.open('/products/create', '_blank'),
+                                        }}
+                                    />
                                 </div>
                                 {errors.product_id && <p className="text-sm text-red-600">{errors.product_id}</p>}
                             </div>
@@ -95,21 +111,16 @@ export default function CreateStockTransfer({ products, sourceBranches, destinat
                                         <Label htmlFor="from_location_id">Source Branch *</Label>
                                         <div className="relative">
                                             <MapPin className="pointer-events-none absolute top-1/2 left-3 z-10 size-4 -translate-y-1/2 text-muted-foreground" />
-                                            <Select
-                                                value={data.from_location_id ? String(data.from_location_id) : ''}
-                                                onValueChange={(v) => setData('from_location_id', Number(v))}
-                                            >
-                                                <SelectTrigger id="from_location_id" className="pl-9">
-                                                    <SelectValue placeholder="Select source branch" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    {sourceBranches.map((loc) => (
-                                                        <SelectItem key={loc.id} value={String(loc.id)}>
-                                                            {loc.name}
-                                                        </SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
+                                            <Combobox
+                                                id="from_location_id"
+                                                options={sourceBranchOptions}
+                                                value={data.from_location_id ? String(data.from_location_id) : null}
+                                                onChange={(v) => setData('from_location_id', Number(v))}
+                                                placeholder="Select source branch"
+                                                searchPlaceholder="Search branches…"
+                                                emptyText="No matching branches."
+                                                className="pl-9"
+                                            />
                                         </div>
                                         {errors.from_location_id && <p className="text-sm text-red-600">{errors.from_location_id}</p>}
                                     </div>
@@ -119,21 +130,16 @@ export default function CreateStockTransfer({ products, sourceBranches, destinat
                                     <Label htmlFor="to_location_id">Destination Branch *</Label>
                                     <div className="relative">
                                         <MapPin className="pointer-events-none absolute top-1/2 left-3 z-10 size-4 -translate-y-1/2 text-muted-foreground" />
-                                        <Select
-                                            value={data.to_location_id ? String(data.to_location_id) : ''}
-                                            onValueChange={(v) => setData('to_location_id', Number(v))}
-                                        >
-                                            <SelectTrigger id="to_location_id" className="pl-9">
-                                                <SelectValue placeholder="Select destination branch" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {destinationBranches.map((loc) => (
-                                                    <SelectItem key={loc.id} value={String(loc.id)}>
-                                                        {loc.name}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
+                                        <Combobox
+                                            id="to_location_id"
+                                            options={destinationBranchOptions}
+                                            value={data.to_location_id ? String(data.to_location_id) : null}
+                                            onChange={(v) => setData('to_location_id', Number(v))}
+                                            placeholder="Select destination branch"
+                                            searchPlaceholder="Search branches…"
+                                            emptyText="No matching branches."
+                                            className="pl-9"
+                                        />
                                     </div>
                                     {errors.to_location_id && <p className="text-sm text-red-600">{errors.to_location_id}</p>}
                                 </div>

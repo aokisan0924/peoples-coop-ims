@@ -125,6 +125,13 @@ class ProductController extends Controller
      */
     public function destroy(Product $product): RedirectResponse
     {
+        if ($product->saleItems()->exists()) {
+            $product->update(['is_active' => false]);
+
+            return redirect()->route('products.index')
+                ->with('success', "\"{$product->name}\" has sales history, so it was deactivated instead of deleted.");
+        }
+
         $product->delete();
 
         return redirect()->route('products.index')->with('success', 'Product removed.');
@@ -140,7 +147,16 @@ class ProductController extends Controller
 
     public function labelsBatch(Request $request): Response
     {
-        $ids = explode(',', $request->query('ids', ''));
+        $ids = collect(explode(',', $request->query('ids', '')))
+            ->map(fn ($id) => trim($id))
+            ->filter(fn ($id) => ctype_digit($id))
+            ->map(fn ($id) => (int) $id)
+            ->unique()
+            ->values();
+
+        if ($ids->isEmpty()) {
+            abort(422, 'No valid product IDs were provided for label printing.');
+        }
 
         return Inertia::render('products/labels-batch', [
             'products' => Product::whereIn('id', $ids)->get(),

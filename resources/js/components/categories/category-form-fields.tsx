@@ -1,12 +1,8 @@
+import { useMemo, useState } from 'react';
+import CategoryQuickCreateDialog from '@/components/categories/category-quick-create-dialog';
+import { Combobox } from '@/components/ui/combobox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
 
 interface CategoryFormData {
     name: string;
@@ -26,6 +22,18 @@ interface Props {
 }
 
 export default function CategoryFormFields({ data, setData, errors, parentOptions }: Props) {
+    const [localParentOptions, setLocalParentOptions] = useState(parentOptions);
+    const [dialogOpen, setDialogOpen] = useState(false);
+    const [search, setSearch] = useState('');
+
+    const options = useMemo(
+        () => [
+            { value: 'none', label: 'None (top-level category)' },
+            ...localParentOptions.map((option) => ({ value: String(option.id), label: option.name })),
+        ],
+        [localParentOptions],
+    );
+
     return (
         <div className="space-y-4">
             <div>
@@ -41,27 +49,36 @@ export default function CategoryFormFields({ data, setData, errors, parentOption
 
             <div>
                 <Label htmlFor="parent_id">Parent Category (optional)</Label>
-                <Select
+                <Combobox
+                    id="parent_id"
+                    options={options}
                     value={data.parent_id ? String(data.parent_id) : 'none'}
-                    onValueChange={(value) => setData('parent_id', value === 'none' ? null : Number(value))}
-                >
-                    <SelectTrigger id="parent_id">
-                        <SelectValue placeholder="None (top-level category)" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="none">None (top-level category)</SelectItem>
-                        {parentOptions.map((option) => (
-                            <SelectItem key={option.id} value={String(option.id)}>
-                                {option.name}
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
+                    onChange={(value) => setData('parent_id', value === 'none' ? null : Number(value))}
+                    placeholder="None (top-level category)"
+                    searchPlaceholder="Search categories…"
+                    emptyText="No matching categories."
+                    onSearchChange={setSearch}
+                    createAction={{
+                        label: '+ Add Category',
+                        onSelect: () => setDialogOpen(true),
+                    }}
+                />
                 {errors.parent_id && <p className="text-sm text-red-600 mt-1">{errors.parent_id}</p>}
                 <p className="text-xs text-muted-foreground mt-1">
                     Leave blank for a top-level category (e.g. "Grocery"). Select a parent to make this a subcategory (e.g. "Dairy" under "Grocery").
                 </p>
             </div>
+
+            <CategoryQuickCreateDialog
+                open={dialogOpen}
+                onOpenChange={setDialogOpen}
+                parentOptions={localParentOptions}
+                initialName={search}
+                onCreated={(category) => {
+                    setLocalParentOptions((prev) => [...prev, category].sort((a, b) => a.name.localeCompare(b.name)));
+                    setData('parent_id', category.id);
+                }}
+            />
         </div>
     );
 }

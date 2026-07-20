@@ -1,16 +1,11 @@
 import { Head, useForm, Link } from '@inertiajs/react';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { ArrowLeft, Info, UserPlus } from 'lucide-react';
+import { useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
-import { ArrowLeft, Info, UserPlus } from 'lucide-react';
+import { Combobox } from '@/components/ui/combobox';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 interface Location {
     id: number;
@@ -35,6 +30,18 @@ export default function CreateUser({ locations, canAssignManagers }: Props) {
         e.preventDefault();
         post('/users');
     }
+
+    const roleOptions = useMemo(
+        () => [
+            { value: 'Manager', label: 'Manager' },
+            { value: 'Cashier', label: 'Cashier' },
+        ],
+        [],
+    );
+    const locationOptions = useMemo(
+        () => locations.map((loc) => ({ value: String(loc.id), label: loc.name })),
+        [locations],
+    );
 
     return (
         <div
@@ -105,34 +112,29 @@ export default function CreateUser({ locations, canAssignManagers }: Props) {
                                 <>
                                     <div>
                                         <Label htmlFor="role">Role *</Label>
-                                        <Select value={data.role} onValueChange={(v) => setData('role', v as 'Manager' | 'Cashier')}>
-                                            <SelectTrigger id="role" className="mt-1.5 w-full focus:ring-[var(--pos-teal)]">
-                                                <SelectValue />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="Manager">Manager</SelectItem>
-                                                <SelectItem value="Cashier">Cashier</SelectItem>
-                                            </SelectContent>
-                                        </Select>
+                                        <Combobox
+                                            id="role"
+                                            options={roleOptions}
+                                            value={data.role}
+                                            onChange={(v) => setData('role', v as 'Manager' | 'Cashier')}
+                                            searchPlaceholder="Search roles…"
+                                            emptyText="No matching roles."
+                                            className="mt-1.5 w-full"
+                                        />
                                     </div>
 
                                     <div>
                                         <Label htmlFor="location_id">Branch *</Label>
-                                        <Select
-                                            value={data.location_id ? String(data.location_id) : ''}
-                                            onValueChange={(v) => setData('location_id', Number(v))}
-                                        >
-                                            <SelectTrigger id="location_id" className="mt-1.5 w-full focus:ring-[var(--pos-teal)]">
-                                                <SelectValue placeholder="Select branch" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {locations.map((loc) => (
-                                                    <SelectItem key={loc.id} value={String(loc.id)}>
-                                                        {loc.name}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
+                                        <Combobox
+                                            id="location_id"
+                                            options={locationOptions}
+                                            value={data.location_id ? String(data.location_id) : null}
+                                            onChange={(v) => setData('location_id', Number(v))}
+                                            placeholder="Select branch"
+                                            searchPlaceholder="Search branches…"
+                                            emptyText="No matching branches."
+                                            className="mt-1.5 w-full"
+                                        />
                                         {errors.location_id && <p className="mt-1 text-sm text-red-600">{errors.location_id}</p>}
                                     </div>
                                 </>

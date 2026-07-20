@@ -72,6 +72,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('units', UnitController::class);
 
         // Categories
+        Route::post('categories/quick-create', [CategoryController::class, 'quickStore'])->name('categories.quick-store');
         Route::resource('categories', CategoryController::class);
 
         // Products (search stays outside this group, above)
