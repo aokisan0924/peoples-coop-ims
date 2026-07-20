@@ -7,6 +7,7 @@ use App\Models\GcashTransaction;
 use App\Models\Location;
 use App\Models\Product;
 use App\Models\Sale;
+use App\Models\ShiftSession;
 use App\Models\StockBatch;
 use App\Models\User;
 use Illuminate\Support\Str;
@@ -20,6 +21,7 @@ class LocationScopingTest extends TestCase
         $branchB = Location::factory()->create();
 
         $cashierAtA = User::factory()->cashier()->create(['location_id' => $branchA->id]);
+        $this->openShiftFor($cashierAtA); // ← add this line
         $product = Product::factory()->create();
 
         // Stock only exists at Branch B — Branch A has none
@@ -52,6 +54,7 @@ class LocationScopingTest extends TestCase
     {
         $location = Location::factory()->create();
         $cashier = User::factory()->cashier()->create(['location_id' => $location->id]);
+        $this->openShiftFor($cashier);
         $product = Product::factory()->create();
 
         StockBatch::factory()->create([
@@ -243,5 +246,44 @@ class LocationScopingTest extends TestCase
         $response = $this->actingAs($owner)->get('/locations');
 
         $response->assertOk();
+    }
+
+    public function test_checkout_rejected_when_no_open_shift(): void
+    {
+        $location = Location::factory()->create();
+        $cashier = User::factory()->cashier()->create(['location_id' => $location->id]);
+        // Deliberately no shift opened
+
+        $product = Product::factory()->create();
+        StockBatch::factory()->create([
+            'product_id' => $product->id,
+            'location_id' => $location->id,
+            'received_qty' => 50,
+            'remaining_qty' => 50,
+        ]);
+
+        $response = $this->actingAs($cashier)->postJson('/sales', [
+            'client_uuid' => Str::uuid()->toString(),
+            'is_member' => true,
+            'payment_method' => 'cash',
+            'amount_tendered' => 100,
+            'items' => [
+                ['product_id' => $product->id, 'unit_type' => 'piece', 'quantity' => 1],
+            ],
+        ]);
+
+        $response->assertStatus(422);
+        $response->assertJsonFragment(['message' => 'You must open a shift before processing sales.']);
+    }
+
+    private function openShiftFor(User $cashier): void
+    {
+        ShiftSession::create([
+            'cashier_id' => $cashier->id,
+            'location_id' => $cashier->location_id,
+            'starting_cash' => 1000,
+            'status' => 'open',
+            'opened_at' => now(),
+        ]);
     }
 }

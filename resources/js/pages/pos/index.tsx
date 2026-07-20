@@ -21,6 +21,13 @@ import { syncEngine } from '@/lib/sync-engine';
 import { offlineDb, type CachedProduct } from '@/lib/offline-db';
 import { cn } from '@/lib/utils';
 import { type CartItem } from '@/types/inventory';
+import { useCurrentShift } from '@/hooks/use-current-shift';
+import OpenShiftGate from '@/components/pos/open-shift-gate';
+import CloseShiftModal from '@/components/pos/close-shift-modal';
+
+// Inside the component, near your other useState calls:
+const { shift, loading: shiftLoading, refetch: refetchShift } = useCurrentShift();
+const [showCloseModal, setShowCloseModal] = useState(false);
 
 const QUICK_CASH = [50, 100, 200, 500, 1000];
 
@@ -166,7 +173,28 @@ export default function PosIndex() {
         onCheckout: handleCheckout,
     };
 
+    if (shiftLoading) {
+        return (
+            <>
+                <Head title="Point of Sale" />
+                <div className="flex items-center justify-center h-[calc(100vh-4rem)] text-muted-foreground">
+                    Loading...
+                </div>
+            </>
+        );
+    }
+
+    if (!shift) {
+        return (
+            <>
+                <Head title="Point of Sale" />
+                <OpenShiftGate onOpened={refetchShift} />
+            </>
+        );
+    }
+
     return (
+
         <div
             className="pos-terminal"
             style={{ '--pos-teal': '#00a79b', '--pos-green': '#8dc645' } as React.CSSProperties}
@@ -198,6 +226,15 @@ export default function PosIndex() {
 
                             <div className="hidden lg:block">
                                 <SyncStatusBadge />
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                                <span className="text-xs text-muted-foreground">
+                                    Shift started {new Date(shift.opened_at).toLocaleTimeString()}
+                                </span>
+                                <Button variant="outline" size="sm" onClick={() => setShowCloseModal(true)}>
+                                    Close Shift
+                                </Button>
                             </div>
                         </div>
 
@@ -297,7 +334,15 @@ export default function PosIndex() {
             </div>
         </div>
     );
+    {showCloseModal && (
+        <CloseShiftModal
+            shift={shift}
+            onClose={() => setShowCloseModal(false)}
+            onClosed={() => router.visit(`/shift/${shift.id}/summary`)}
+        />
+    )}
 }
+
 
 // The offline product cache uses a slightly different shape than the live API
 // result type CartItem/addProduct expects — same fields, this just satisfies TS.
@@ -368,8 +413,8 @@ function ProductTile({
                         outOfStock
                             ? 'bg-red-100 text-red-700 dark:bg-red-950/50 dark:text-red-400'
                             : lowStock
-                              ? 'bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:text-amber-400'
-                              : 'bg-muted text-muted-foreground',
+                            ? 'bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:text-amber-400'
+                            : 'bg-muted text-muted-foreground',
                     )}
                 >
                     {outOfStock ? 'Out of stock' : `${product.total_stock} in stock`}
@@ -561,7 +606,9 @@ function CartPanel({
                 </Button>
             </div>
         </div>
+
     );
+
 }
 
 function CartRow({ item, index, cart }: { item: CartItem; index: number; cart: PosCart }) {
@@ -615,7 +662,9 @@ function CartRow({ item, index, cart }: { item: CartItem; index: number; cart: P
             </div>
         </motion.div>
     );
+
 }
+
 
 PosIndex.layout = {
     breadcrumbs: [{ title: 'Point of Sale', href: '/pos' }],

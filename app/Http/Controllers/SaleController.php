@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use App\Models\Sale;
 use App\Models\SaleItem;
+use App\Models\ShiftSession;
 use App\Services\StockDeductionService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -55,6 +56,10 @@ class SaleController extends Controller
             ], 422);
         }
 
+        $openShift = ShiftSession::where('cashier_id', $request->user()->id)
+            ->where('status', 'open')
+            ->first();
+
         // Idempotency check — same as before
         $existing = Sale::where('client_uuid', $validated['client_uuid'])->first();
         if ($existing) {
@@ -63,6 +68,13 @@ class SaleController extends Controller
                 'sale' => $existing->load('items.product', 'cashier'),
                 'was_duplicate' => true,
             ]);
+        }
+
+        if (!$openShift) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You must open a shift before processing sales.',
+            ], 422);
         }
 
         try {

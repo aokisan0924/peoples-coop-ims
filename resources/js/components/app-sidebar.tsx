@@ -3,6 +3,7 @@ import {
     ArrowLeftRight,
     Boxes,
     Building2,
+    Clock,
     History,
     LayoutGrid,
     Package,
@@ -46,6 +47,13 @@ const overviewNavItems: NavItem[] = [
         title: 'Dashboard',
         href: dashboard(),
         icon: LayoutGrid,
+    },
+
+    {
+        title: 'Shift History',
+        href: '/shifts',
+        icon: Clock,
+        managerOnly: true,
     },
 ];
 

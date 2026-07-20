@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Location;
 use App\Models\Product;
 use App\Models\Sale;
+use App\Models\ShiftSession;
 use App\Models\StockBatch;
 use App\Models\User;
 use Illuminate\Support\Str;
@@ -15,7 +16,17 @@ class SaleCheckoutTest extends TestCase
     private function makeCashierAtLocation(): User
     {
         $location = Location::factory()->create();
-        return User::factory()->cashier()->create(['location_id' => $location->id]);
+        $cashier = User::factory()->cashier()->create(['location_id' => $location->id]);
+
+        ShiftSession::create([
+            'cashier_id' => $cashier->id,
+            'location_id' => $location->id,
+            'starting_cash' => 1000,
+            'status' => 'open',
+            'opened_at' => now(),
+        ]);
+
+        return $cashier;
     }
 
     public function test_member_sale_deducts_stock_and_charges_member_price(): void

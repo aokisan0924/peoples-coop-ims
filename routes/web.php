@@ -7,6 +7,7 @@ use App\Http\Controllers\LocationController;
 use App\Http\Controllers\PosController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\SaleController;
+use App\Http\Controllers\ShiftSessionController;
 use App\Http\Controllers\StockBatchController;
 use App\Http\Controllers\StockTransferController;
 use App\Http\Controllers\SupplierController;
@@ -55,7 +56,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('gcash', [GcashController::class, 'index'])->name('gcash.index');
     Route::post('gcash', [GcashController::class, 'store'])->name('gcash.store');
 
-
+    Route::get('shift/current', [ShiftSessionController::class, 'current'])->name('shifts.current');
+    Route::post('shift/open', [ShiftSessionController::class, 'open'])->name('shifts.open');
+    Route::post('shift/{shift}/close', [ShiftSessionController::class, 'close'])->name('shifts.close');
+    Route::get('shift/{shift}/summary', [ShiftSessionController::class, 'summary'])->name('shifts.summary');
 
     // Everything below changes prices, stock records, or exposes financial reports —
     // manager only.
@@ -93,6 +97,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('stock-transfers', [StockTransferController::class, 'store'])->name('stock-transfers.store');
         Route::post('stock-transfers/{transfer}/confirm', [StockTransferController::class, 'confirmReceipt'])->name('stock-transfers.confirm');
         Route::post('stock-transfers/{transfer}/cancel', [StockTransferController::class, 'cancel'])->name('stock-transfers.cancel');
+
+        Route::get('shifts', [ShiftSessionController::class, 'history'])->name('shifts.history');
     });
 
 
