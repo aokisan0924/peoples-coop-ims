@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\GcashTransaction;
 use App\Models\Sale;
 use App\Models\ShiftSession;
+use Carbon\CarbonInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
@@ -122,7 +123,7 @@ class ShiftSessionController extends Controller
         return redirect()->route('shifts.summary', $shift)->with('success', 'Shift closed.');
     }
 
-    private function calculateExpectedCash(ShiftSession $shift, \Illuminate\Support\Carbon $asOf): float
+    private function calculateExpectedCash(ShiftSession $shift, CarbonInterface $asOf): float
     {
         $cashSalesTotal = Sale::where('cashier_id', $shift->cashier_id)
             ->where('payment_method', 'cash')

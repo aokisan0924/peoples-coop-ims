@@ -45,7 +45,7 @@ export default function CloseShiftModal({ shift, onClose, onClosed }: Props) {
     useEffect(() => {
         let cancelled = false;
 
-        fetch(`/shift/${shift.id}/expected-cash`, { headers: { Accept: 'applicatio  n/json' } })
+        fetch(`/shift/${shift.id}/expected-cash`, { headers: { Accept: 'application/json' } })
             .then((res) => res.json())
             .then((data) => {
                 if (!cancelled) setExpectedCash(data.expected_cash);
