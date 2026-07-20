@@ -118,6 +118,12 @@ const inventoryNavItems: NavItem[] = [
         managerOnly: true,
     },
     {
+        title: 'Stock by Branch',
+        href: '/stock-batches/by-branch',
+        icon: Building2,
+        managerOnly: true,
+    },
+    {
         title: 'Stock Transfers',
         href: '/stock-transfers',
         icon: ArrowLeftRight,

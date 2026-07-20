@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\StockBatch;
 use App\Models\Product;
 use App\Models\Supplier;
+use App\Models\Location;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\JsonResponse;
@@ -34,6 +35,46 @@ class StockBatchController extends Controller
         return Inertia::render('stock-batches/create', [
             'products' => Product::orderBy('name')->get(['id', 'name', 'sku', 'barcode', 'cost_price']),
             'suppliers' => Supplier::orderBy('name')->get(['id', 'name']),
+        ]);
+    }
+
+    /**
+     * Current stock per product, per branch, side by side — lets a Manager or
+     * Owner see at a glance which specific branch is running low on what,
+     * instead of hunting through a flat list of individual receiving batches.
+     */
+    public function byBranch(): Response
+    {
+        $locations = Location::where('is_active', true)->orderBy('name')->get(['id', 'name']);
+
+        $stockTotals = StockBatch::selectRaw('product_id, location_id, SUM(remaining_qty) as qty')
+            ->groupBy('product_id', 'location_id')
+            ->get()
+            ->groupBy('product_id');
+
+        $products = Product::where('is_active', true)
+            ->orderBy('name')
+            ->get(['id', 'name', 'sku', 'low_stock_threshold'])
+            ->map(function (Product $product) use ($stockTotals, $locations) {
+                $byLocation = $stockTotals->get($product->id, collect())->keyBy('location_id');
+
+                $stockByLocation = $locations->mapWithKeys(
+                    fn (Location $location) => [$location->id => (int) ($byLocation->get($location->id)->qty ?? 0)]
+                );
+
+                return [
+                    'id' => $product->id,
+                    'name' => $product->name,
+                    'sku' => $product->sku,
+                    'low_stock_threshold' => $product->low_stock_threshold,
+                    'stock_by_location' => $stockByLocation,
+                    'total_stock' => $stockByLocation->sum(),
+                ];
+            });
+
+        return Inertia::render('stock-batches/by-branch', [
+            'locations' => $locations,
+            'products' => $products,
         ]);
     }
 

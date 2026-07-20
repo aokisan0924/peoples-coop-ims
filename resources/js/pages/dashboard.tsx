@@ -12,7 +12,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { cn } from '@/lib/utils';
 
 interface PeriodStat { total: number; count: number }
-interface LowStockProduct { id: number; name: string; total_stock: number; low_stock_threshold: number }
+interface LowStockProduct { id: number; name: string; total_stock: number; low_stock_threshold: number; location_name: string | null }
 interface ExpiringBatch { id: number; product_name: string; remaining_qty: number; expiry_date: string; days_left: number }
 interface TrendPoint { date: string; total: number }
 interface PaymentBreakdown { payment_method: 'cash' | 'gcash'; total: string; count: number }
@@ -121,6 +121,16 @@ export default function Dashboard({
                     )}
 
                     <div className={cn('grid grid-cols-1 gap-3 sm:gap-4', !canManage && 'sm:grid-cols-2')}>
+                        {canManage && (
+                            <div className="sm:col-span-2">
+                                <Link
+                                    href="/stock-batches/by-branch"
+                                    className="text-xs font-medium text-[var(--pos-teal)] hover:underline"
+                                >
+                                    View stock by branch &rarr;
+                                </Link>
+                            </div>
+                        )}
                         <AlertPanel
                             icon={<AlertTriangle className="size-4 text-red-500" />}
                             title={`Low Stock (${lowStockProducts.length})`}
@@ -128,8 +138,15 @@ export default function Dashboard({
                             isEmpty={lowStockProducts.length === 0}
                         >
                             {lowStockProducts.map((p) => (
-                                <div key={p.id} className="flex items-center justify-between text-sm">
-                                    <span className="mr-2 truncate">{p.name}</span>
+                                <div key={`${p.id}-${p.location_name ?? 'own'}`} className="flex items-center justify-between text-sm">
+                                    <span className="mr-2 truncate">
+                                        {p.name}
+                                        {p.location_name && (
+                                            <span className="ml-1.5 text-xs text-muted-foreground">
+                                                &middot; {p.location_name}
+                                            </span>
+                                        )}
+                                    </span>
                                     <div className="flex shrink-0 items-center gap-2">
                                         <Badge variant="destructive">{p.total_stock} left</Badge>
                                         {canManage && (

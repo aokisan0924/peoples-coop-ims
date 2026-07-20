@@ -64,27 +64,55 @@ class DashboardController extends Controller
 
     private function lowStockProducts(?int $locationId)
     {
-        $query = Product::where('is_active', true);
-
         if ($locationId) {
-            // Branch-scoped: sum only this branch's batches
-            $query->withSum(['stockBatches as branch_stock' => fn ($q) => $q->where('location_id', $locationId)], 'remaining_qty');
-        } else {
-            // Owner: global total across all branches
-            $query->withSum('stockBatches as branch_stock', 'remaining_qty');
+            // Branch-scoped: this branch's own stock per product.
+            return Product::where('is_active', true)
+                ->withSum(['stockBatches as branch_stock' => fn ($q) => $q->where('location_id', $locationId)], 'remaining_qty')
+                ->get()
+                ->map(fn (Product $p) => [
+                    'id' => $p->id,
+                    'name' => $p->name,
+                    'total_stock' => (int) ($p->branch_stock ?? 0),
+                    'low_stock_threshold' => $p->low_stock_threshold,
+                    'location_name' => null,
+                ])
+                ->filter(fn ($p) => $p['total_stock'] <= $p['low_stock_threshold'])
+                ->sortBy('total_stock')
+                ->take(10)
+                ->values();
         }
 
-        return $query->get()
-            ->map(fn (Product $p) => [
-                'id' => $p->id,
-                'name' => $p->name,
-                'total_stock' => (int) ($p->branch_stock ?? 0),
-                'low_stock_threshold' => $p->low_stock_threshold,
-            ])
-            ->filter(fn ($p) => $p['total_stock'] <= $p['low_stock_threshold'])
-            ->sortBy('total_stock')
-            ->take(10)
-            ->values();
+        // Owner: a product can look perfectly stocked in aggregate while one
+        // specific branch is actually out — summing across all branches before
+        // comparing to the threshold was masking exactly that. Flag shortages
+        // per branch instead, same as what a Manager at that branch would see.
+        $locations = Location::where('is_active', true)->get(['id', 'name']);
+        $products = Product::where('is_active', true)->get(['id', 'name', 'low_stock_threshold']);
+
+        $rows = collect();
+
+        foreach ($locations as $location) {
+            $stockByProduct = StockBatch::where('location_id', $location->id)
+                ->selectRaw('product_id, SUM(remaining_qty) as qty')
+                ->groupBy('product_id')
+                ->pluck('qty', 'product_id');
+
+            foreach ($products as $product) {
+                $stock = (int) ($stockByProduct[$product->id] ?? 0);
+
+                if ($stock <= $product->low_stock_threshold) {
+                    $rows->push([
+                        'id' => $product->id,
+                        'name' => $product->name,
+                        'total_stock' => $stock,
+                        'low_stock_threshold' => $product->low_stock_threshold,
+                        'location_name' => $location->name,
+                    ]);
+                }
+            }
+        }
+
+        return $rows->sortBy('total_stock')->take(10)->values();
     }
 
     private function expiringSoon(Carbon $today, ?int $locationId)

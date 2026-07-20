@@ -81,6 +81,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('products', ProductController::class)->except(['search']);
 
         // Stock Batches (lookup-barcode stays outside this group, above)
+        Route::get('stock-batches/by-branch', [StockBatchController::class, 'byBranch'])->name('stock-batches.by-branch');
         Route::resource('stock-batches', StockBatchController::class)->except(['show', 'edit', 'update']);
 
         Route::get('sales', [SaleController::class, 'index'])->name('sales.index');
