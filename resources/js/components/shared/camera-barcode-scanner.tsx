@@ -12,17 +12,28 @@ export default function CameraBarcodeScanner({ onScan, buttonLabel = 'Scan with 
     const [isOpen, setIsOpen] = useState(false);
     const [error, setError] = useState('');
     const scannerRef = useRef<Html5Qrcode | null>(null);
+    const startPromiseRef = useRef<Promise<unknown> | null>(null);
+    const stoppedRef = useRef(true);
     const containerId = useRef(`scanner-${Math.random().toString(36).slice(2)}`);
+
+    async function safeStop(scanner: Html5Qrcode) {
+        if (stoppedRef.current) return;
+        stoppedRef.current = true; // set first — if stop() throws, we still don't want to retry it
+        try {
+            await scanner.stop();
+        } catch {
+            // already stopped/never started — fine
+        }
+    }
 
     useEffect(() => {
         if (!isOpen) return;
 
-        const scanner = new Html5Qrcode(containerId.current, {
-            verbose: false,
-        });
+        const scanner = new Html5Qrcode(containerId.current, { verbose: false });
         scannerRef.current = scanner;
+        stoppedRef.current = false;
 
-        scanner
+        const startPromise = scanner
             .start(
                 { facingMode: 'environment' }, // rear camera on phones
                 { fps: 10, qrbox: { width: 250, height: 150 } },
@@ -35,16 +46,30 @@ export default function CameraBarcodeScanner({ onScan, buttonLabel = 'Scan with 
                 }
             )
             .catch(() => {
+                stoppedRef.current = true; // start() failed — nothing to stop
                 setError('Could not access camera. Check permissions and try again.');
             });
 
+        startPromiseRef.current = startPromise;
+
+        // Cleanup handles the unmount case (e.g. navigating away mid-scan). If
+        // handleClose already ran (normal close button / successful scan), this
+        // is a no-op thanks to the stoppedRef guard in safeStop.
         return () => {
-            scanner.stop().catch(() => {});
+            startPromise.then(() => safeStop(scanner));
         };
     }, [isOpen]);
 
-    function handleClose() {
-        scannerRef.current?.stop().catch(() => {});
+    async function handleClose() {
+        // start() may still be pending (camera permission prompt, slow init) —
+        // stopping before it resolves is what leaves the camera track open on
+        // some mobile browsers and breaks the next scan attempt.
+        if (startPromiseRef.current) {
+            await startPromiseRef.current;
+        }
+        if (scannerRef.current) {
+            await safeStop(scannerRef.current);
+        }
         setIsOpen(false);
         setError('');
     }

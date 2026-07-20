@@ -1,5 +1,4 @@
 import { useRef, useState, useEffect } from 'react';
-import { router } from '@inertiajs/react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -46,6 +45,7 @@ export default function StockBatchFormFields({ data, setData, errors, products, 
     const [barcodeInput, setBarcodeInput] = useState('');
     const [matchedProduct, setMatchedProduct] = useState<Product | null>(null);
     const [lookupError, setLookupError] = useState('');
+    const [looking, setLooking] = useState(false);
     const barcodeRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
@@ -62,15 +62,20 @@ export default function StockBatchFormFields({ data, setData, errors, products, 
         }
     }, [data.product_id]);
 
-    function handleBarcodeKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
-        if (e.key !== 'Enter') return;
-        e.preventDefault();
+    /**
+     * Shared by both the keyboard/hardware-scanner path and the camera scanner —
+     * checks the already-loaded product list first (instant), then falls back to
+     * a server lookup in case the list is stale or incomplete. Previously the
+     * camera scanner had no fallback at all (scanning an item not in the local
+     * list just did nothing), and the keyboard path's fallback used Inertia's
+     * router.post against an endpoint that returns plain JSON — Inertia doesn't
+     * parse that as page props, so it silently failed too.
+     */
+    async function lookupBarcode(code: string) {
+        const trimmed = code.trim();
+        if (!trimmed) return;
 
-        const code = barcodeInput.trim();
-        if (!code) return;
-
-        // Try local match first (instant, no network call)
-        const localMatch = products.find((p) => p.barcode === code);
+        const localMatch = products.find((p) => p.barcode === trimmed);
         if (localMatch) {
             setData('product_id', localMatch.id);
             setMatchedProduct(localMatch);
@@ -79,26 +84,42 @@ export default function StockBatchFormFields({ data, setData, errors, products, 
             return;
         }
 
-        // Fallback to server lookup (in case product list wasn't fully loaded)
-        router.post(
-            stockBatches.lookupBarcode().url,
-            { barcode: code },
-            {
-                preserveState: true,
-                preserveScroll: true,
-                onSuccess: (page) => {
-                    const result = (page.props as any).flash?.lookupResult;
-                    if (result?.found) {
-                        setData('product_id', result.product.id);
-                        setMatchedProduct(result.product);
-                        setLookupError('');
-                    } else {
-                        setLookupError(`No product found for barcode "${code}". Add it as a new product first.`);
-                    }
-                    setBarcodeInput('');
+        setLooking(true);
+        setLookupError('');
+
+        try {
+            const response = await fetch(stockBatches.lookupBarcode().url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content ?? '',
                 },
+                body: JSON.stringify({ barcode: trimmed }),
+            });
+
+            const result = await response.json();
+
+            if (result.found) {
+                setData('product_id', result.product.id);
+                setMatchedProduct(result.product);
+                setLookupError('');
+            } else {
+                setMatchedProduct(null);
+                setLookupError(`No product found for barcode "${trimmed}". Add it as a new product first.`);
             }
-        );
+        } catch {
+            setLookupError('Could not reach the server to look up this barcode. Check your connection.');
+        } finally {
+            setLooking(false);
+            setBarcodeInput('');
+        }
+    }
+
+    function handleBarcodeKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+        if (e.key !== 'Enter') return;
+        e.preventDefault();
+        lookupBarcode(barcodeInput);
     }
 
     return (
@@ -116,18 +137,9 @@ export default function StockBatchFormFields({ data, setData, errors, products, 
                 />
 
                 <div className="mt-2">
-                    <CameraBarcodeScanner
-                        onScan={(barcode) => {
-                            setBarcodeInput(barcode);
-                            const localMatch = products.find((p) => p.barcode === barcode);
-                            if (localMatch) {
-                                setData('product_id', localMatch.id);
-                                setMatchedProduct(localMatch);
-                                setLookupError('');
-                            }
-                        }}
-                    />
+                    <CameraBarcodeScanner onScan={(barcode) => lookupBarcode(barcode)} />
                 </div>
+                {looking && <p className="text-sm text-muted-foreground mt-2">Looking up barcode…</p>}
                 {matchedProduct && (
                     <p className="text-sm text-green-600 mt-2">
                         ✓ Matched: {matchedProduct.name} ({matchedProduct.sku})
