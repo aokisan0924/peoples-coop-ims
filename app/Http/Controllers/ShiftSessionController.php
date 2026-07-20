@@ -73,7 +73,9 @@ class ShiftSessionController extends Controller
         }
 
         $validated = $request->validate([
-            'actual_cash' => ['required', 'numeric', 'min:0'],
+            'breakdown' => ['required', 'array', 'min:1'],
+            'breakdown.*.denomination' => ['required', 'numeric', 'min:0.01'],
+            'breakdown.*.count' => ['required', 'integer', 'min:0'],
             'notes' => ['nullable', 'string', 'max:500'],
         ]);
 
@@ -106,12 +108,19 @@ class ShiftSessionController extends Controller
                 + (float) $gcashCashIn
                 - (float) $gcashCashOut;
 
-            $actualCash = $validated['actual_cash'];
+            // Actual cash is always derived from the counted denominations, never
+            // taken as a separately-typed total — that's what actually prevents
+            // the "counted 1x1000 by accident, total field says something else"
+            // class of discrepancy this feature exists to catch.
+            $actualCash = collect($validated['breakdown'])
+                ->sum(fn (array $row) => $row['denomination'] * $row['count']);
+
             $variance = round($actualCash - $expectedCash, 2);
 
             $shift->update([
                 'expected_cash' => round($expectedCash, 2),
-                'actual_cash' => $actualCash,
+                'actual_cash' => round($actualCash, 2),
+                'cash_breakdown' => $validated['breakdown'],
                 'variance' => $variance,
                 'status' => 'closed',
                 'closed_at' => $closedAt,

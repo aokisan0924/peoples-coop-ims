@@ -12,7 +12,7 @@ class ShiftSession extends Model
 
     protected $fillable = [
         'cashier_id', 'location_id', 'starting_cash', 'expected_cash', 'actual_cash',
-        'variance', 'status', 'opened_at', 'closed_at', 'notes',
+        'cash_breakdown', 'variance', 'status', 'opened_at', 'closed_at', 'notes',
     ];
 
     protected function casts(): array
@@ -21,6 +21,7 @@ class ShiftSession extends Model
             'starting_cash' => 'decimal:2',
             'expected_cash' => 'decimal:2',
             'actual_cash' => 'decimal:2',
+            'cash_breakdown' => 'array',
             'variance' => 'decimal:2',
             'opened_at' => 'datetime',
             'closed_at' => 'datetime',

@@ -7,6 +7,7 @@ interface Shift {
     starting_cash: string;
     expected_cash: string;
     actual_cash: string;
+    cash_breakdown: { denomination: number; count: number }[] | null;
     variance: string;
     opened_at: string;
     closed_at: string;
@@ -62,6 +63,24 @@ export default function ShiftSummary({ shift }: { shift: Shift }) {
                             <Badge className="bg-amber-500">Over by {peso(variance)}</Badge>
                         )}
                     </div>
+
+                    {shift.cash_breakdown && shift.cash_breakdown.some((row) => row.count > 0) && (
+                        <div className="mt-4 border-t pt-3 text-left">
+                            <p className="mb-1.5 text-xs font-medium text-muted-foreground">Cash Count</p>
+                            <div className="space-y-0.5 text-sm">
+                                {shift.cash_breakdown
+                                    .filter((row) => row.count > 0)
+                                    .map((row) => (
+                                        <div key={row.denomination} className="flex justify-between font-mono tabular-nums">
+                                            <span className="text-muted-foreground">
+                                                ₱{row.denomination} × {row.count}
+                                            </span>
+                                            <span>{peso(row.denomination * row.count)}</span>
+                                        </div>
+                                    ))}
+                            </div>
+                        </div>
+                    )}
 
                     {shift.notes && (
                         <p className="text-sm text-muted-foreground mt-4 text-left border-t pt-3">
