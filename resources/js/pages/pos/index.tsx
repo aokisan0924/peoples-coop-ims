@@ -25,10 +25,6 @@ import { useCurrentShift } from '@/hooks/use-current-shift';
 import OpenShiftGate from '@/components/pos/open-shift-gate';
 import CloseShiftModal from '@/components/pos/close-shift-modal';
 
-// Inside the component, near your other useState calls:
-const { shift, loading: shiftLoading, refetch: refetchShift } = useCurrentShift();
-const [showCloseModal, setShowCloseModal] = useState(false);
-
 const QUICK_CASH = [50, 100, 200, 500, 1000];
 
 function peso(n: number): string {
@@ -38,6 +34,8 @@ function peso(n: number): string {
 type PosCart = ReturnType<typeof usePosCart>;
 
 export default function PosIndex() {
+    const { shift, loading: shiftLoading, refetch: refetchShift } = useCurrentShift();
+    const [showCloseModal, setShowCloseModal] = useState(false);
     const cart = usePosCart();
     const [paymentMethod, setPaymentMethod] = useState<'cash' | 'gcash'>('cash');
     const [amountTendered, setAmountTendered] = useState('');
@@ -194,11 +192,11 @@ export default function PosIndex() {
     }
 
     return (
-
-        <div
-            className="pos-terminal"
-            style={{ '--pos-teal': '#00a79b', '--pos-green': '#8dc645' } as React.CSSProperties}
-        >
+        <>
+            <div
+                className="pos-terminal"
+                style={{ '--pos-teal': '#00a79b', '--pos-green': '#8dc645' } as React.CSSProperties}
+            >
             <Head title="Point of Sale" />
 
             <div className="flex h-[calc(100vh-4rem)] flex-col lg:flex-row">
@@ -332,17 +330,18 @@ export default function PosIndex() {
                     </SheetContent>
                 </Sheet>
             </div>
-        </div>
-    );
-    {showCloseModal && (
-        <CloseShiftModal
-            shift={shift}
-            onClose={() => setShowCloseModal(false)}
-            onClosed={() => router.visit(`/shift/${shift.id}/summary`)}
-        />
-    )}
-}
+            </div>
 
+            {showCloseModal && (
+                <CloseShiftModal
+                    shift={shift}
+                    onClose={() => setShowCloseModal(false)}
+                    onClosed={() => router.visit(`/shift/${shift.id}/summary`)}
+                />
+            )}
+        </>
+    );
+}
 
 // The offline product cache uses a slightly different shape than the live API
 // result type CartItem/addProduct expects — same fields, this just satisfies TS.
