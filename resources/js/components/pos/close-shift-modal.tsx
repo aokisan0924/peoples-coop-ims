@@ -1,8 +1,9 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { router } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
 import type { ShiftSession } from '@/hooks/use-current-shift';
 import { cn } from '@/lib/utils';
 
@@ -38,6 +39,31 @@ export default function CloseShiftModal({ shift, onClose, onClosed }: Props) {
     const [processing, setProcessing] = useState(false);
     const [error, setError] = useState('');
 
+    const [expectedCash, setExpectedCash] = useState<number | null>(null);
+    const [expectedLoading, setExpectedLoading] = useState(true);
+
+    useEffect(() => {
+        let cancelled = false;
+
+        fetch(`/shift/${shift.id}/expected-cash`, { headers: { Accept: 'applicatio  n/json' } })
+            .then((res) => res.json())
+            .then((data) => {
+                if (!cancelled) setExpectedCash(data.expected_cash);
+            })
+            .catch(() => {
+                // If this fails, the modal just falls back to showing the counted
+                // total with no live variance — closing still works either way,
+                // since the server always recomputes the authoritative figure.
+            })
+            .finally(() => {
+                if (!cancelled) setExpectedLoading(false);
+            });
+
+        return () => {
+            cancelled = true;
+        };
+    }, [shift.id]);
+
     function countFor(value: number): number {
         const n = parseInt(counts[value] ?? '', 10);
         return Number.isFinite(n) && n > 0 ? n : 0;
@@ -54,6 +80,11 @@ export default function CloseShiftModal({ shift, onClose, onClosed }: Props) {
     );
 
     const hasAnyCount = breakdown.some((row) => row.count > 0);
+
+    const variance = useMemo(() => {
+        if (expectedCash === null || !hasAnyCount) return null;
+        return Math.round((totalCounted - expectedCash) * 100) / 100;
+    }, [expectedCash, totalCounted, hasAnyCount]);
 
     function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
@@ -82,7 +113,7 @@ export default function CloseShiftModal({ shift, onClose, onClosed }: Props) {
                     <h2 className="text-lg font-semibold">Close Shift</h2>
                     <p className="mt-1 text-sm text-muted-foreground">
                         Count each denomination separately — the total is added up for you, so a miscount
-                        shows up in the right row instead of hiding inside one typed number.
+                        shows up in the right row.
                     </p>
                 </div>
 
@@ -122,6 +153,25 @@ export default function CloseShiftModal({ shift, onClose, onClosed }: Props) {
                             <span className="text-sm font-medium">Total Counted</span>
                             <span className="font-mono text-xl font-bold tabular-nums">{peso(totalCounted)}</span>
                         </div>
+
+                        {hasAnyCount && (
+                            <div className="mb-3 flex items-center justify-between px-1">
+                                <span className="text-xs text-muted-foreground">
+                                    {expectedLoading
+                                        ? 'Checking expected cash…'
+                                        : expectedCash !== null && `Expected: ${peso(expectedCash)}`}
+                                </span>
+                                {variance !== null && (
+                                    variance === 0 ? (
+                                        <Badge className="bg-green-600">Balanced ✓</Badge>
+                                    ) : variance < 0 ? (
+                                        <Badge variant="destructive">Short by {peso(Math.abs(variance))}</Badge>
+                                    ) : (
+                                        <Badge className="bg-amber-500">Over by {peso(variance)}</Badge>
+                                    )
+                                )}
+                            </div>
+                        )}
 
                         <div className="mb-3">
                             <Label htmlFor="notes">Notes (optional)</Label>

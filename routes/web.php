@@ -58,6 +58,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('shift/current', [ShiftSessionController::class, 'current'])->name('shifts.current');
     Route::post('shift/open', [ShiftSessionController::class, 'open'])->name('shifts.open');
+    Route::get('shift/{shift}/expected-cash', [ShiftSessionController::class, 'expectedCash'])->name('shifts.expected-cash');
     Route::post('shift/{shift}/close', [ShiftSessionController::class, 'close'])->name('shifts.close');
     Route::get('shift/{shift}/summary', [ShiftSessionController::class, 'summary'])->name('shifts.summary');
 

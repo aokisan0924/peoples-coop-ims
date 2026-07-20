@@ -62,6 +62,26 @@ class ShiftSessionController extends Controller
         ]);
     }
 
+    /**
+     * Read-only preview of what the shift's expected cash total is right now —
+     * lets the close-shift modal show a live short/over indicator while the
+     * cashier is still counting, using the exact same math close() will use.
+     */
+    public function expectedCash(Request $request, ShiftSession $shift): JsonResponse
+    {
+        if ($shift->cashier_id !== $request->user()->id) {
+            abort(403);
+        }
+
+        if ($shift->status !== 'open') {
+            return response()->json(['expected_cash' => (float) $shift->expected_cash]);
+        }
+
+        return response()->json([
+            'expected_cash' => round($this->calculateExpectedCash($shift, now()), 2),
+        ]);
+    }
+
     public function close(Request $request, ShiftSession $shift): RedirectResponse
     {
         if ($shift->cashier_id !== $request->user()->id) {
@@ -81,37 +101,8 @@ class ShiftSessionController extends Controller
 
         DB::transaction(function () use ($shift, $validated) {
             $closedAt = now();
+            $expectedCash = $this->calculateExpectedCash($shift, $closedAt);
 
-            $cashSalesTotal = Sale::where('cashier_id', $shift->cashier_id)
-                ->where('payment_method', 'cash')
-                ->whereNull('voided_at')
-                ->whereBetween('created_at', [$shift->opened_at, $closedAt])
-                ->sum('total');
-
-            $gcashFees = GcashTransaction::where('cashier_id', $shift->cashier_id)
-                ->whereBetween('created_at', [$shift->opened_at, $closedAt])
-                ->sum('fee');
-
-            $gcashCashIn = GcashTransaction::where('cashier_id', $shift->cashier_id)
-                ->where('type', 'cash_in')
-                ->whereBetween('created_at', [$shift->opened_at, $closedAt])
-                ->sum('amount');
-
-            $gcashCashOut = GcashTransaction::where('cashier_id', $shift->cashier_id)
-                ->where('type', 'cash_out')
-                ->whereBetween('created_at', [$shift->opened_at, $closedAt])
-                ->sum('amount');
-
-            $expectedCash = (float) $shift->starting_cash
-                + (float) $cashSalesTotal
-                + (float) $gcashFees
-                + (float) $gcashCashIn
-                - (float) $gcashCashOut;
-
-            // Actual cash is always derived from the counted denominations, never
-            // taken as a separately-typed total — that's what actually prevents
-            // the "counted 1x1000 by accident, total field says something else"
-            // class of discrepancy this feature exists to catch.
             $actualCash = collect($validated['breakdown'])
                 ->sum(fn (array $row) => $row['denomination'] * $row['count']);
 
@@ -129,6 +120,35 @@ class ShiftSessionController extends Controller
         });
 
         return redirect()->route('shifts.summary', $shift)->with('success', 'Shift closed.');
+    }
+
+    private function calculateExpectedCash(ShiftSession $shift, \Illuminate\Support\Carbon $asOf): float
+    {
+        $cashSalesTotal = Sale::where('cashier_id', $shift->cashier_id)
+            ->where('payment_method', 'cash')
+            ->whereNull('voided_at')
+            ->whereBetween('created_at', [$shift->opened_at, $asOf])
+            ->sum('total');
+
+        $gcashFees = GcashTransaction::where('cashier_id', $shift->cashier_id)
+            ->whereBetween('created_at', [$shift->opened_at, $asOf])
+            ->sum('fee');
+
+        $gcashCashIn = GcashTransaction::where('cashier_id', $shift->cashier_id)
+            ->where('type', 'cash_in')
+            ->whereBetween('created_at', [$shift->opened_at, $asOf])
+            ->sum('amount');
+
+        $gcashCashOut = GcashTransaction::where('cashier_id', $shift->cashier_id)
+            ->where('type', 'cash_out')
+            ->whereBetween('created_at', [$shift->opened_at, $asOf])
+            ->sum('amount');
+
+        return (float) $shift->starting_cash
+            + (float) $cashSalesTotal
+            + (float) $gcashFees
+            + (float) $gcashCashIn
+            - (float) $gcashCashOut;
     }
 
     public function history(Request $request): Response
