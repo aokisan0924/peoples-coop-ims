@@ -6,6 +6,7 @@ use App\Models\Location;
 use App\Models\Product;
 use App\Models\Sale;
 use App\Models\StockBatch;
+use App\Services\ProfitLossService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -14,6 +15,10 @@ use Inertia\Response;
 
 class DashboardController extends Controller
 {
+    public function __construct(private ProfitLossService $profitLoss)
+    {
+    }
+
     public function index(Request $request): Response
     {
         $user = $request->user();
@@ -38,14 +43,24 @@ class DashboardController extends Controller
             'expiringSoon' => $this->expiringSoon($today, $locationId),
 
             // Manager/Owner only — a Cashier's response must never contain revenue
-            // trends or coworkers' individual sales figures, even hidden in the DOM.
+            // trends, coworkers' individual sales figures, or profit/expense data,
+            // even hidden in the DOM.
             'trend' => $canSeeAnalytics ? $this->trend($today, 30, $locationId) : null,
             'paymentBreakdown' => $canSeeAnalytics ? $this->paymentBreakdown($today, $locationId) : null,
             'cashierBreakdown' => $canSeeAnalytics ? $this->cashierBreakdown($today, $locationId) : null,
             'bestSellers' => $canSeeAnalytics ? $this->bestSellers($today, $locationId) : null,
 
-            // Owner-only: per-branch comparison table
-            'branchBreakdown' => $isOwner ? $this->branchBreakdown($today) : null,
+            // This month's P&L snapshot — Manager sees their own branch, Owner sees
+            // the company-wide total (the per-branch split is in branchBreakdown below).
+            'monthProfitLoss' => $canSeeAnalytics
+                ? $this->profitLoss->summary($today->copy()->startOfMonth()->toDateString(), $today->copy()->endOfMonth()->toDateString(), $locationId)
+                : null,
+
+            // Owner-only: per-branch comparison table, now including expenses/net profit
+            'branchBreakdown' => $isOwner ? $this->profitLoss->branchBreakdown(
+                $today->copy()->startOfMonth()->toDateString(),
+                $today->copy()->endOfMonth()->toDateString()
+            ) : null,
         ]);
     }
 
@@ -209,28 +224,5 @@ class DashboardController extends Controller
             ->orderByDesc('revenue')
             ->limit(10)
             ->get();
-    }
-
-    /**
-     * Owner-only: side-by-side comparison of every branch's performance this month.
-     */
-    private function branchBreakdown(Carbon $today)
-    {
-        return Location::where('is_active', true)
-            ->get()
-            ->map(function (Location $location) use ($today) {
-                $sales = Sale::whereNull('voided_at')
-                    ->where('location_id', $location->id)
-                    ->where('created_at', '>=', $today->copy()->startOfMonth())
-                    ->selectRaw('COALESCE(SUM(total), 0) as total, COUNT(*) as count')
-                    ->first();
-
-                return [
-                    'id' => $location->id,
-                    'name' => $location->name,
-                    'total_sales' => (float) $sales->total,
-                    'transaction_count' => (int) $sales->count,
-                ];
-            });
     }
 }

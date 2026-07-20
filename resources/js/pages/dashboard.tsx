@@ -4,7 +4,7 @@ import {
 } from 'recharts';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { AlertTriangle, Banknote, Clock, PackagePlus, PlusCircle, ShoppingCart, Smartphone, Trophy, Users } from 'lucide-react';
+import { AlertTriangle, Banknote, Clock, DollarSign, PackagePlus, PlusCircle, ShoppingCart, Smartphone, Trophy, Users } from 'lucide-react';
 import { dashboard } from '@/routes';
 import products from '@/routes/products';
 import stockBatches from '@/routes/stock-batches';
@@ -18,11 +18,18 @@ interface TrendPoint { date: string; total: number }
 interface PaymentBreakdown { payment_method: 'cash' | 'gcash'; total: string; count: number }
 interface CashierBreakdown { name: string; total: string; count: number }
 interface BestSeller { name: string; units_sold: number; revenue: string }
-interface BranchStat {
+interface ProfitLossSummary {
+    revenue: number;
+    cogs: number;
+    gross_profit: number;
+    expenses: number;
+    net_profit: number;
+    gross_margin_pct: number;
+    net_margin_pct: number;
+}
+interface BranchStat extends ProfitLossSummary {
     id: number;
     name: string;
-    total_sales: number;
-    transaction_count: number;
 }
 
 interface Props {
@@ -37,6 +44,7 @@ interface Props {
     paymentBreakdown: PaymentBreakdown[] | null;
     cashierBreakdown: CashierBreakdown[] | null;
     bestSellers: BestSeller[] | null;
+    monthProfitLoss: ProfitLossSummary | null;
     isOwner: boolean;
     branchBreakdown: BranchStat[] | null;
 }
@@ -49,7 +57,7 @@ export default function Dashboard({
     todaySales, weekSales, monthSales, yearSales,
     activeProductsCount, lowStockProducts, expiringSoon,
     trend, paymentBreakdown, cashierBreakdown, bestSellers,
-    isOwner, branchBreakdown,
+    monthProfitLoss, isOwner, branchBreakdown,
 }: Props) {
     const { isManager } = useAuth();
     const canManage = isManager || isOwner;
@@ -92,6 +100,34 @@ export default function Dashboard({
                     <StatCard label="This Month" data={monthSales} />
                     <StatCard label="This Year" data={yearSales} />
                 </div>
+
+                {/* Profit & Loss snapshot — Manager sees their own branch, Owner sees
+                    the company-wide total (per-branch split is in the table below) */}
+                {canManage && monthProfitLoss && (
+                    <div className="rounded-xl border bg-card p-4 shadow-sm">
+                        <div className="mb-3 flex items-center justify-between">
+                            <h2 className="flex items-center gap-2 text-sm font-medium">
+                                <DollarSign className="size-4 text-[var(--pos-teal)]" />
+                                Profit &amp; Loss (This Month){!isOwner && ' — Your Branch'}
+                            </h2>
+                            <Link href="/reports/profit-loss" className="text-xs font-medium text-[var(--pos-teal)] hover:underline">
+                                Full report &rarr;
+                            </Link>
+                        </div>
+                        <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
+                            <PlStat label="Revenue" value={monthProfitLoss.revenue} />
+                            <PlStat label="COGS" value={monthProfitLoss.cogs} negative />
+                            <PlStat label="Expenses" value={monthProfitLoss.expenses} negative />
+                            <PlStat label="Gross Profit" value={monthProfitLoss.gross_profit} sub={`${monthProfitLoss.gross_margin_pct}% margin`} />
+                            <PlStat
+                                label="Net Profit"
+                                value={monthProfitLoss.net_profit}
+                                sub={`${monthProfitLoss.net_margin_pct}% margin`}
+                                emphasize
+                            />
+                        </div>
+                    </div>
+                )}
 
                 {/* On wide screens, the trend chart and the two alert panels share a row
                     instead of stacking full-width one after another — the chart is the
@@ -224,25 +260,36 @@ export default function Dashboard({
                     </div>
                 )}
 
-                {/* Branch comparison — Owner-only */}
+                {/* Branch comparison — Owner-only, now a full P&L per branch */}
                 {isOwner && branchBreakdown && (
                     <div className="rounded-xl border bg-card p-4 shadow-sm">
-                        <h2 className="mb-3 text-sm font-medium">Branch Comparison (This Month)</h2>
-                        <div className="overflow-hidden rounded-lg border">
+                        <h2 className="mb-3 text-sm font-medium">Branch Comparison — Profit &amp; Loss (This Month)</h2>
+                        <div className="overflow-x-auto rounded-lg border">
                             <table className="w-full text-sm">
                                 <thead className="bg-muted/60">
                                     <tr>
                                         <th className="p-2.5 text-left font-medium text-muted-foreground">Branch</th>
-                                        <th className="p-2.5 text-left font-medium text-muted-foreground">Sales</th>
-                                        <th className="p-2.5 text-left font-medium text-muted-foreground">Transactions</th>
+                                        <th className="p-2.5 text-right font-medium text-muted-foreground">Revenue</th>
+                                        <th className="p-2.5 text-right font-medium text-muted-foreground">COGS</th>
+                                        <th className="p-2.5 text-right font-medium text-muted-foreground">Expenses</th>
+                                        <th className="p-2.5 text-right font-medium text-muted-foreground">Net Profit</th>
+                                        <th className="p-2.5 text-right font-medium text-muted-foreground">Margin</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {branchBreakdown.map((b) => (
                                         <tr key={b.id} className="border-t transition-colors hover:bg-muted/30">
-                                            <td className="p-2.5 font-medium">{b.name}</td>
-                                            <td className="p-2.5 font-mono tabular-nums">{peso(b.total_sales)}</td>
-                                            <td className="p-2.5">{b.transaction_count}</td>
+                                            <td className="p-2.5 font-medium whitespace-nowrap">{b.name}</td>
+                                            <td className="p-2.5 text-right font-mono tabular-nums">{peso(b.revenue)}</td>
+                                            <td className="p-2.5 text-right font-mono tabular-nums text-muted-foreground">{peso(b.cogs)}</td>
+                                            <td className="p-2.5 text-right font-mono tabular-nums text-muted-foreground">{peso(b.expenses)}</td>
+                                            <td className={cn(
+                                                'p-2.5 text-right font-mono font-medium tabular-nums',
+                                                b.net_profit >= 0 ? 'text-[var(--pos-green)]' : 'text-red-600',
+                                            )}>
+                                                {peso(b.net_profit)}
+                                            </td>
+                                            <td className="p-2.5 text-right text-muted-foreground">{b.net_margin_pct}%</td>
                                         </tr>
                                     ))}
                                 </tbody>
@@ -251,6 +298,36 @@ export default function Dashboard({
                     </div>
                 )}
             </div>
+        </div>
+    );
+}
+
+function PlStat({
+    label,
+    value,
+    sub,
+    negative = false,
+    emphasize = false,
+}: {
+    label: string;
+    value: number;
+    sub?: string;
+    negative?: boolean;
+    emphasize?: boolean;
+}) {
+    const isNegativeValue = emphasize && value < 0;
+    return (
+        <div>
+            <p className="text-xs text-muted-foreground">{label}</p>
+            <p
+                className={cn(
+                    'mt-0.5 font-mono text-lg font-bold tabular-nums',
+                    emphasize && (isNegativeValue ? 'text-red-600' : 'text-[var(--pos-green)]'),
+                )}
+            >
+                {negative && value > 0 ? '−' : ''}{peso(value)}
+            </p>
+            {sub && <p className="text-xs text-muted-foreground">{sub}</p>}
         </div>
     );
 }
