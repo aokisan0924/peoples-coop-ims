@@ -8,9 +8,12 @@ import {
     LayoutGrid,
     Package,
     Receipt,
+    Receipt as ReceiptExpense,
+    Repeat,
     Ruler,
     ShoppingCart,
     Tags,
+    TrendingUp,
     Truck,
     UserPlus,
     Wallet,
@@ -31,7 +34,6 @@ import {
 import { useAuth } from '@/hooks/use-auth';
 import type { NavItem } from '@/types';
 import { dashboard } from '@/routes';
-import { Receipt as ReceiptExpense, Repeat, TrendingUp } from 'lucide-react';
 import categories from '@/routes/categories';
 import gcash from '@/routes/gcash';
 import locations from '@/routes/locations';
@@ -59,11 +61,13 @@ const salesNavItems: NavItem[] = [
         title: 'Point of Sale',
         href: pos.index(),
         icon: ShoppingCart,
+        hideFromOwner: true,
     },
     {
         title: 'My Sales',
         href: '/my-sales',
         icon: History,
+        hideFromOwner: true,
     },
     {
         title: 'Shift History',
@@ -174,6 +178,10 @@ const adminNavItems: NavItem[] = [
 
 function visibleFor(items: NavItem[], isManager: boolean, isOwner: boolean): NavItem[] {
     return items.filter((item) => {
+        if (item.hideFromOwner && isOwner) {
+            return false;
+        }
+
         if (item.ownerOnly) {
             return isOwner;
         }

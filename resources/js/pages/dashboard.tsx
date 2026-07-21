@@ -1,15 +1,19 @@
 import { Head, Link } from '@inertiajs/react';
 import {
+    AlertTriangle, Banknote, Clock, DollarSign, PackagePlus, PlusCircle,
+    ShoppingCart, Smartphone, Trophy, Users, Wallet, Truck, UserCheck,
+} from 'lucide-react';
+import { useMemo, useState } from 'react';
+import {
     LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from 'recharts';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { AlertTriangle, Banknote, Clock, DollarSign, PackagePlus, PlusCircle, ShoppingCart, Smartphone, Trophy, Users } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useAuth } from '@/hooks/use-auth';
+import { cn } from '@/lib/utils';
 import { dashboard } from '@/routes';
 import products from '@/routes/products';
 import stockBatches from '@/routes/stock-batches';
-import { useAuth } from '@/hooks/use-auth';
-import { cn } from '@/lib/utils';
 
 interface PeriodStat { total: number; count: number }
 interface LowStockProduct { id: number; name: string; total_stock: number; low_stock_threshold: number; location_name: string | null }
@@ -31,6 +35,33 @@ interface BranchStat extends ProfitLossSummary {
     id: number;
     name: string;
 }
+interface GcashOverviewRow {
+    location_id: number;
+    location_name: string;
+    balance: number;
+    today_cash_in: number;
+    today_cash_out: number;
+}
+interface PayableRow {
+    id: number;
+    supplier_name: string;
+    amount: number;
+    due_date: string | null;
+    is_overdue: boolean;
+}
+interface PayablesSummary {
+    total_unpaid: number;
+    unpaid_count: number;
+    overdue_count: number;
+    upcoming: PayableRow[];
+}
+interface OpenShift {
+    id: number;
+    cashier_name: string;
+    location_name: string;
+    starting_cash: number;
+    opened_at: string;
+}
 
 interface Props {
     todaySales: PeriodStat;
@@ -47,10 +78,27 @@ interface Props {
     monthProfitLoss: ProfitLossSummary | null;
     isOwner: boolean;
     branchBreakdown: BranchStat[] | null;
+    gcashOverview: GcashOverviewRow[] | null;
+    payablesSummary: PayablesSummary | null;
+    openShifts: OpenShift[] | null;
 }
+
+const TREND_RANGES = [7, 30, 90] as const;
 
 function peso(n: number | string): string {
     return `₱${parseFloat(String(n)).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
+function timeAgo(iso: string): string {
+    const minutes = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 60000));
+
+    if (minutes < 60) {
+return `${minutes}m ago`;
+}
+
+    const hours = Math.floor(minutes / 60);
+
+    return `${hours}h ${minutes % 60}m ago`;
 }
 
 export default function Dashboard({
@@ -58,23 +106,33 @@ export default function Dashboard({
     activeProductsCount, lowStockProducts, expiringSoon,
     trend, paymentBreakdown, cashierBreakdown, bestSellers,
     monthProfitLoss, isOwner, branchBreakdown,
+    gcashOverview, payablesSummary, openShifts,
 }: Props) {
     const { isManager } = useAuth();
     const canManage = isManager || isOwner;
+    const [trendDays, setTrendDays] = useState<(typeof TREND_RANGES)[number]>(30);
+
+    const trendSlice = useMemo(
+        () => (trend ?? []).slice(-trendDays),
+        [trend, trendDays],
+    );
 
     return (
         <div style={{ '--pos-teal': '#00a79b', '--pos-green': '#8dc645' } as React.CSSProperties}>
             <Head title="Dashboard" />
 
             <div className="mx-auto max-w-[1600px] space-y-5 p-3 sm:space-y-6 sm:p-6">
-                {/* Quick actions — only show links to pages the current role can actually open */}
+                {/* Quick actions — only show links to pages the current role can actually open.
+                    Owner doesn't run the register day-to-day, so "New Sale" is Cashier/Manager only. */}
                 <div className="flex flex-wrap gap-2">
-                    <Button asChild className="gap-1.5 bg-[var(--pos-teal)] text-white hover:bg-[var(--pos-teal)]/90">
-                        <Link href="/pos">
-                            <ShoppingCart className="size-4" />
-                            New Sale
-                        </Link>
-                    </Button>
+                    {!isOwner && (
+                        <Button asChild className="gap-1.5 bg-[var(--pos-teal)] text-white hover:bg-[var(--pos-teal)]/90">
+                            <Link href="/pos">
+                                <ShoppingCart className="size-4" />
+                                New Sale
+                            </Link>
+                        </Button>
+                    )}
                     {canManage && (
                         <>
                             <Button variant="outline" asChild className="gap-1.5 hover:border-[var(--pos-teal)] hover:text-[var(--pos-teal)]">
@@ -136,9 +194,28 @@ export default function Dashboard({
                 <div className={cn('grid grid-cols-1 gap-3 sm:gap-4', canManage && 'lg:grid-cols-3')}>
                     {canManage && (
                         <div className="rounded-xl border bg-card p-4 shadow-sm lg:col-span-2">
-                            <h2 className="mb-4 text-sm font-medium">Last 30 Days</h2>
+                            <div className="mb-4 flex items-center justify-between">
+                                <h2 className="text-sm font-medium">Sales Trend</h2>
+                                <div className="flex gap-1 rounded-lg bg-muted p-0.5">
+                                    {TREND_RANGES.map((days) => (
+                                        <button
+                                            key={days}
+                                            type="button"
+                                            onClick={() => setTrendDays(days)}
+                                            className={cn(
+                                                'rounded-md px-2.5 py-1 text-xs font-medium transition-colors',
+                                                trendDays === days
+                                                    ? 'bg-background text-foreground shadow-sm'
+                                                    : 'text-muted-foreground hover:text-foreground',
+                                            )}
+                                        >
+                                            {days}d
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
                             <ResponsiveContainer width="100%" height={280}>
-                                <LineChart data={trend ?? []}>
+                                <LineChart data={trendSlice}>
                                     <CartesianGrid strokeDasharray="3 3" className="opacity-20" />
                                     <XAxis
                                         dataKey="date"
@@ -169,7 +246,7 @@ export default function Dashboard({
                         )}
                         <AlertPanel
                             icon={<AlertTriangle className="size-4 text-red-500" />}
-                            title={`Low Stock (${lowStockProducts.length})`}
+                            title={`Low Stock (${lowStockProducts.length} of ${activeProductsCount} active products)`}
                             emptyLabel="Nothing is low on stock right now."
                             isEmpty={lowStockProducts.length === 0}
                         >
@@ -260,6 +337,78 @@ export default function Dashboard({
                     </div>
                 )}
 
+                {/* Financial oversight — Manager/Owner only */}
+                {canManage && (gcashOverview || payablesSummary || openShifts) && (
+                    <div className="grid grid-cols-1 gap-3 sm:gap-4 lg:grid-cols-3">
+                        <BreakdownPanel
+                            icon={<Wallet className="size-4 text-[var(--pos-teal)]" />}
+                            title="GCash Float"
+                            isEmpty={(gcashOverview ?? []).length === 0}
+                        >
+                            {(gcashOverview ?? []).map((g) => (
+                                <div key={g.location_id} className="mb-2 border-b pb-2 last:mb-0 last:border-0 last:pb-0">
+                                    <div className="flex items-center justify-between text-sm">
+                                        <span className="truncate font-medium">{g.location_name}</span>
+                                        <span className="font-mono font-medium tabular-nums">{peso(g.balance)}</span>
+                                    </div>
+                                    <div className="mt-0.5 flex justify-between text-xs text-muted-foreground">
+                                        <span>Today: +{peso(g.today_cash_in)} in</span>
+                                        <span>−{peso(g.today_cash_out)} out</span>
+                                    </div>
+                                </div>
+                            ))}
+                        </BreakdownPanel>
+
+                        <BreakdownPanel
+                            icon={<Truck className="size-4 text-amber-500" />}
+                            title="Accounts Payable"
+                            isEmpty={!payablesSummary || payablesSummary.unpaid_count === 0}
+                        >
+                            {payablesSummary && (
+                                <>
+                                    <div className="mb-3 flex items-baseline justify-between">
+                                        <span className="font-mono text-lg font-bold tabular-nums">{peso(payablesSummary.total_unpaid)}</span>
+                                        <span className="text-xs text-muted-foreground">{payablesSummary.unpaid_count} unpaid</span>
+                                    </div>
+                                    {payablesSummary.overdue_count > 0 && (
+                                        <Badge variant="destructive" className="mb-2">
+                                            {payablesSummary.overdue_count} overdue
+                                        </Badge>
+                                    )}
+                                    {payablesSummary.upcoming.map((p) => (
+                                        <div key={p.id} className="mb-1 flex items-center justify-between text-sm">
+                                            <span className="mr-2 truncate">{p.supplier_name}</span>
+                                            <div className="flex shrink-0 items-center gap-1.5">
+                                                <span className="font-mono tabular-nums">{peso(p.amount)}</span>
+                                                {p.is_overdue && <Badge variant="destructive" className="px-1.5 text-[10px]">Overdue</Badge>}
+                                            </div>
+                                        </div>
+                                    ))}
+                                    <Link href="/accounts-payable" className="mt-2 block text-xs font-medium text-[var(--pos-teal)] hover:underline">
+                                        View all &rarr;
+                                    </Link>
+                                </>
+                            )}
+                        </BreakdownPanel>
+
+                        <BreakdownPanel
+                            icon={<UserCheck className="size-4 text-[var(--pos-green)]" />}
+                            title={`Open Shifts Right Now (${(openShifts ?? []).length})`}
+                            isEmpty={(openShifts ?? []).length === 0}
+                        >
+                            {(openShifts ?? []).map((s) => (
+                                <div key={s.id} className="mb-1.5 flex items-center justify-between text-sm">
+                                    <span className="mr-2 truncate">
+                                        {s.cashier_name}
+                                        <span className="ml-1.5 text-xs text-muted-foreground">&middot; {s.location_name}</span>
+                                    </span>
+                                    <span className="shrink-0 text-xs text-muted-foreground">{timeAgo(s.opened_at)}</span>
+                                </div>
+                            ))}
+                        </BreakdownPanel>
+                    </div>
+                )}
+
                 {/* Branch comparison — Owner-only, now a full P&L per branch */}
                 {isOwner && branchBreakdown && (
                     <div className="rounded-xl border bg-card p-4 shadow-sm">
@@ -274,6 +423,7 @@ export default function Dashboard({
                                         <th className="p-2.5 text-right font-medium text-muted-foreground">Expenses</th>
                                         <th className="p-2.5 text-right font-medium text-muted-foreground">Net Profit</th>
                                         <th className="p-2.5 text-right font-medium text-muted-foreground">Margin</th>
+                                        <th className="p-2.5"></th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -290,6 +440,14 @@ export default function Dashboard({
                                                 {peso(b.net_profit)}
                                             </td>
                                             <td className="p-2.5 text-right text-muted-foreground">{b.net_margin_pct}%</td>
+                                            <td className="p-2.5 text-right whitespace-nowrap">
+                                                <Link
+                                                    href={`/reports/profit-loss?location_id=${b.id}`}
+                                                    className="text-xs font-medium text-[var(--pos-teal)] hover:underline"
+                                                >
+                                                    Details &rarr;
+                                                </Link>
+                                            </td>
                                         </tr>
                                     ))}
                                 </tbody>
@@ -316,6 +474,7 @@ function PlStat({
     emphasize?: boolean;
 }) {
     const isNegativeValue = emphasize && value < 0;
+
     return (
         <div>
             <p className="text-xs text-muted-foreground">{label}</p>

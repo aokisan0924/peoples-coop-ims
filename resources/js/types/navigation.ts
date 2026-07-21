@@ -13,4 +13,5 @@ export type NavItem = {
     isActive?: boolean;
     managerOnly?: boolean;
     ownerOnly?: boolean;
+    hideFromOwner?: boolean;
 };
