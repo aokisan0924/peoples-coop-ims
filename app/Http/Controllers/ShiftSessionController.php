@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AccountsPayable;
 use App\Models\Expense;
 use App\Models\GcashTransaction;
 use App\Models\Sale;
@@ -76,11 +77,14 @@ class ShiftSessionController extends Controller
         }
 
         if ($shift->status !== 'open') {
-            return response()->json(['expected_cash' => (float) $shift->expected_cash]);
+            return response()->json(['expected_cash' => (float) $shift->expected_cash, 'cash_paid_out' => 0]);
         }
 
+        $asOf = now();
+
         return response()->json([
-            'expected_cash' => round($this->calculateExpectedCash($shift, now()), 2),
+            'expected_cash' => round($this->calculateExpectedCash($shift, $asOf), 2),
+            'cash_paid_out' => round($this->calculateCashPaidOut($shift, $asOf), 2),
         ]);
     }
 
@@ -146,22 +150,49 @@ class ShiftSessionController extends Controller
             ->whereBetween('created_at', [$shift->opened_at, $asOf])
             ->sum('amount');
 
-        // Paying a bill in cash out of the register during a shift reduces the
-        // drawer just like a GCash cash-out does — without this, a cashier who
-        // pays a supplier or utility bill in cash would show as "short" by
-        // exactly that amount at close, for no actual discrepancy.
-        $cashExpensePayments = Expense::where('recorded_by', $shift->cashier_id)
-            ->where('payment_method', 'cash')
-            ->where('is_paid', true)
-            ->whereBetween('paid_at', [$shift->opened_at, $asOf])
-            ->sum('amount');
+        // Paying a bill or a supplier in cash out of the register during a shift
+        // reduces the drawer just like a GCash cash-out does. Scoped by BRANCH
+        // and time window, not by who recorded the payment — a manager paying
+        // the electric bill in cash while a cashier's shift is open still comes
+        // out of that same physical till, even though the cashier didn't touch
+        // it themselves. Without this, that cashier shows "short" by exactly
+        // that amount at close, for no actual discrepancy.
+        //
+        // Known limitation: if two shifts are ever open simultaneously at the
+        // same branch, a single cash payment would get subtracted from both —
+        // there's currently no way to attribute a bill payment to one specific
+        // till when more than one is active at once.
+        $cashPaidOut = $this->calculateCashPaidOut($shift, $asOf);
 
         return (float) $shift->starting_cash
             + (float) $cashSalesTotal
             + (float) $gcashFees
             + (float) $gcashCashIn
             - (float) $gcashCashOut
-            - (float) $cashExpensePayments;
+            - $cashPaidOut;
+    }
+
+    /**
+     * Cash paid out of this branch's till for bills/suppliers during the given
+     * window — split out from calculateExpectedCash() so the close-shift modal
+     * can show the cashier *why* the expected figure is lower, not just a
+     * number they have no way to explain.
+     */
+    private function calculateCashPaidOut(ShiftSession $shift, CarbonInterface $asOf): float
+    {
+        $cashExpensePayments = Expense::where('location_id', $shift->location_id)
+            ->where('payment_method', 'cash')
+            ->where('is_paid', true)
+            ->whereBetween('paid_at', [$shift->opened_at, $asOf])
+            ->sum('amount');
+
+        $cashPayablePayments = AccountsPayable::where('location_id', $shift->location_id)
+            ->where('payment_method', 'cash')
+            ->where('is_paid', true)
+            ->whereBetween('paid_at', [$shift->opened_at, $asOf])
+            ->sum('amount');
+
+        return (float) $cashExpensePayments + (float) $cashPayablePayments;
     }
 
     public function history(Request $request): Response

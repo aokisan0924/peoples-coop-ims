@@ -40,6 +40,7 @@ export default function CloseShiftModal({ shift, onClose, onClosed }: Props) {
     const [error, setError] = useState('');
 
     const [expectedCash, setExpectedCash] = useState<number | null>(null);
+    const [cashPaidOut, setCashPaidOut] = useState<number>(0);
     const [expectedLoading, setExpectedLoading] = useState(true);
 
     useEffect(() => {
@@ -48,7 +49,10 @@ export default function CloseShiftModal({ shift, onClose, onClosed }: Props) {
         fetch(`/shift/${shift.id}/expected-cash`, { headers: { Accept: 'application/json' } })
             .then((res) => res.json())
             .then((data) => {
-                if (!cancelled) setExpectedCash(data.expected_cash);
+                if (!cancelled) {
+                    setExpectedCash(data.expected_cash);
+                    setCashPaidOut(data.cash_paid_out ?? 0);
+                }
             })
             .catch(() => {
                 // If this fails, the modal just falls back to showing the counted
@@ -171,6 +175,12 @@ export default function CloseShiftModal({ shift, onClose, onClosed }: Props) {
                                     )
                                 )}
                             </div>
+                        )}
+
+                        {cashPaidOut > 0 && (
+                            <p className="mb-3 px-1 text-xs text-muted-foreground">
+                                Includes −{peso(cashPaidOut)} paid out in cash for bills/suppliers this shift.
+                            </p>
                         )}
 
                         <div className="mb-3">
