@@ -8,12 +8,12 @@ import FloatAdjustmentForm from '@/components/gcash/float-adjustment-form';
 import OpenShiftGate from '@/components/pos/open-shift-gate';
 import { useAuth } from '@/hooks/use-auth';
 import { useCurrentShift } from '@/hooks/use-current-shift';
-import { ArrowDownCircle, ArrowUpCircle, Receipt, Settings2, Wallet, X } from 'lucide-react';
+import { ArrowDownCircle, ArrowUpCircle, Receipt, Receipt as ExpenseIcon, Settings2, Wallet, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface Transaction {
     id: number;
-    type: 'cash_in' | 'cash_out' | 'float_adjustment';
+    type: 'cash_in' | 'cash_out' | 'float_adjustment' | 'expense_payment';
     amount: string;
     fee: string;
     customer_name: string | null;
@@ -47,7 +47,17 @@ const TYPE_META = {
     cash_in: { label: 'Cash-In', badgeClass: 'border-0 bg-[var(--pos-teal)] text-white' },
     cash_out: { label: 'Cash-Out', badgeClass: 'border-[var(--pos-teal)]/40 text-[var(--pos-teal)]' },
     float_adjustment: { label: 'Adjustment', badgeClass: '' },
+    expense_payment: { label: 'Expense Payment', badgeClass: 'border-0 bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-400' },
 } as const;
+
+/** customer_name is always null for expense payments — show the expense
+ *  context from notes instead of a blank "—" in that column. */
+function secondaryLabel(tx: Transaction): string {
+    if (tx.type === 'expense_payment') {
+        return tx.notes ?? 'Expense payment';
+    }
+    return tx.customer_name ?? '—';
+}
 
 export default function GcashIndex({ floatBalance, todayStats, recentTransactions }: Props) {
     const { isManager } = useAuth();
@@ -59,8 +69,6 @@ export default function GcashIndex({ floatBalance, todayStats, recentTransaction
         router.reload({ only: ['floatBalance', 'todayStats', 'recentTransactions'] });
     }
 
-    // Escape closes whichever modal is open — a baseline a11y expectation for any
-    // overlay, and previously missing entirely.
     useEffect(() => {
         if (!modal) return;
         function onKeyDown(e: KeyboardEvent) {
@@ -154,7 +162,7 @@ export default function GcashIndex({ floatBalance, todayStats, recentTransaction
                                         <tr>
                                             <th className="p-3 text-left font-medium text-muted-foreground">Time</th>
                                             <th className="p-3 text-left font-medium text-muted-foreground">Type</th>
-                                            <th className="p-3 text-left font-medium text-muted-foreground">Customer</th>
+                                            <th className="p-3 text-left font-medium text-muted-foreground">Customer / Notes</th>
                                             <th className="p-3 text-left font-medium text-muted-foreground">Amount</th>
                                             <th className="p-3 text-left font-medium text-muted-foreground">Fee</th>
                                             <th className="p-3 text-left font-medium text-muted-foreground">Float After</th>
@@ -166,11 +174,17 @@ export default function GcashIndex({ floatBalance, todayStats, recentTransaction
                                             <tr key={tx.id} className="border-t transition-colors hover:bg-muted/30">
                                                 <td className="p-3 text-xs text-muted-foreground">{new Date(tx.created_at).toLocaleString()}</td>
                                                 <td className="p-3">
-                                                    <Badge className={cn('font-normal', TYPE_META[tx.type].badgeClass)} variant={tx.type === 'float_adjustment' ? 'secondary' : tx.type === 'cash_out' ? 'outline' : undefined}>
+                                                    <Badge
+                                                        className={cn('font-normal', TYPE_META[tx.type].badgeClass)}
+                                                        variant={tx.type === 'float_adjustment' ? 'secondary' : tx.type === 'cash_out' ? 'outline' : undefined}
+                                                    >
+                                                        {tx.type === 'expense_payment' && <ExpenseIcon className="mr-1 size-3" />}
                                                         {TYPE_META[tx.type].label}
                                                     </Badge>
                                                 </td>
-                                                <td className="p-3">{tx.customer_name ?? '—'}</td>
+                                                <td className="p-3 max-w-[240px] truncate" title={secondaryLabel(tx)}>
+                                                    {secondaryLabel(tx)}
+                                                </td>
                                                 <td className="p-3 font-mono tabular-nums">{peso(tx.amount)}</td>
                                                 <td className="p-3 font-mono tabular-nums text-[var(--pos-green)]">
                                                     {parseFloat(tx.fee) > 0 ? peso(tx.fee) : '—'}
@@ -187,13 +201,17 @@ export default function GcashIndex({ floatBalance, todayStats, recentTransaction
                                 {recentTransactions.map((tx) => (
                                     <div key={tx.id} className="rounded-xl border bg-card p-3 shadow-sm">
                                         <div className="flex items-start justify-between gap-2">
-                                            <div>
-                                                <Badge className={cn('font-normal', TYPE_META[tx.type].badgeClass)} variant={tx.type === 'float_adjustment' ? 'secondary' : tx.type === 'cash_out' ? 'outline' : undefined}>
+                                            <div className="min-w-0">
+                                                <Badge
+                                                    className={cn('font-normal', TYPE_META[tx.type].badgeClass)}
+                                                    variant={tx.type === 'float_adjustment' ? 'secondary' : tx.type === 'cash_out' ? 'outline' : undefined}
+                                                >
+                                                    {tx.type === 'expense_payment' && <ExpenseIcon className="mr-1 size-3" />}
                                                     {TYPE_META[tx.type].label}
                                                 </Badge>
-                                                <p className="mt-1 text-sm font-medium">{tx.customer_name ?? '—'}</p>
+                                                <p className="mt-1 truncate text-sm font-medium">{secondaryLabel(tx)}</p>
                                             </div>
-                                            <div className="text-right">
+                                            <div className="shrink-0 text-right">
                                                 <p className="font-mono text-sm font-semibold tabular-nums">{peso(tx.amount)}</p>
                                                 <p className="text-xs text-muted-foreground">{timeOnly(tx.created_at)}</p>
                                             </div>
