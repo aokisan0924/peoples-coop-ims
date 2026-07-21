@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Expense;
 use App\Models\GcashTransaction;
 use App\Models\Sale;
 use App\Models\ShiftSession;
@@ -145,11 +146,22 @@ class ShiftSessionController extends Controller
             ->whereBetween('created_at', [$shift->opened_at, $asOf])
             ->sum('amount');
 
+        // Paying a bill in cash out of the register during a shift reduces the
+        // drawer just like a GCash cash-out does — without this, a cashier who
+        // pays a supplier or utility bill in cash would show as "short" by
+        // exactly that amount at close, for no actual discrepancy.
+        $cashExpensePayments = Expense::where('recorded_by', $shift->cashier_id)
+            ->where('payment_method', 'cash')
+            ->where('is_paid', true)
+            ->whereBetween('paid_at', [$shift->opened_at, $asOf])
+            ->sum('amount');
+
         return (float) $shift->starting_cash
             + (float) $cashSalesTotal
             + (float) $gcashFees
             + (float) $gcashCashIn
-            - (float) $gcashCashOut;
+            - (float) $gcashCashOut
+            - (float) $cashExpensePayments;
     }
 
     public function history(Request $request): Response

@@ -50,11 +50,8 @@ class AccountsPayableController extends Controller
         try {
             DB::transaction(function () use ($payable, $validated, $user) {
                 if ($validated['payment_method'] === 'gcash') {
+                    GcashFloat::firstOrCreate(['location_id' => $payable->location_id], ['balance' => 0]);
                     $float = GcashFloat::where('location_id', $payable->location_id)->lockForUpdate()->first();
-
-                    if (!$float) {
-                        $float = GcashFloat::create(['location_id' => $payable->location_id, 'balance' => 0]);
-                    }
 
                     $newBalance = (float) $float->balance - (float) $payable->amount;
 

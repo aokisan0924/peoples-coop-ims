@@ -143,11 +143,11 @@ class ExpenseController extends Controller
      */
     private function deductFromGcashFloat(Expense $expense, int $locationId, int $userId): void
     {
+        // Guarantee the row exists (safe under concurrency thanks to the unique
+        // constraint on location_id — see GcashController for the same pattern),
+        // then lock it before reading/updating the balance.
+        GcashFloat::firstOrCreate(['location_id' => $locationId], ['balance' => 0]);
         $float = GcashFloat::where('location_id', $locationId)->lockForUpdate()->first();
-
-        if (!$float) {
-            $float = GcashFloat::create(['location_id' => $locationId, 'balance' => 0]);
-        }
 
         $newBalance = (float) $float->balance - (float) $expense->amount;
 

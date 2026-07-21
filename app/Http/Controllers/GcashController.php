@@ -74,12 +74,13 @@ class GcashController extends Controller
         ]);
 
         DB::transaction(function () use ($validated, $request, $locationId) {
-            // Lock THIS branch's float row only — other branches' floats are untouched
+            // Guarantee the row exists, then lock THIS branch's float row only —
+            // other branches' floats are untouched. Safe under concurrency because
+            // of the unique constraint on location_id: a simultaneous first-ever
+            // request for the same branch fails loudly on the duplicate insert
+            // rather than silently creating two float rows.
+            GcashFloat::firstOrCreate(['location_id' => $locationId], ['balance' => 0]);
             $float = GcashFloat::where('location_id', $locationId)->lockForUpdate()->first();
-
-            if (!$float) {
-                $float = GcashFloat::create(['location_id' => $locationId, 'balance' => 0]);
-            }
 
             $amount = $validated['amount'];
             $fee = $validated['fee'] ?? 0;
@@ -126,6 +127,11 @@ class GcashController extends Controller
         ]);
 
         DB::transaction(function () use ($validated, $request, $locationId) {
+            // Same as store() above — guarantee the row exists before locking it.
+            // Previously this had no null-check at all, so reconciling a brand-new
+            // branch's float (before any GCash transaction had ever happened
+            // there) would crash outright.
+            GcashFloat::firstOrCreate(['location_id' => $locationId], ['balance' => 0]);
             $float = GcashFloat::where('location_id', $locationId)->lockForUpdate()->first();
             $oldBalance = (float) $float->balance;
             $adjustment = $validated['new_balance'] - $oldBalance;
