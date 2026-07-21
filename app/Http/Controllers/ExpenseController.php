@@ -6,6 +6,7 @@ use App\Models\Expense;
 use App\Models\GcashFloat;
 use App\Models\GcashTransaction;
 use App\Models\Location;
+use App\Models\RecurringExpense;
 use App\Models\Supplier;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
@@ -68,6 +69,8 @@ class ExpenseController extends Controller
             'is_paid' => ['boolean'],
             'payment_method' => ['required', 'in:cash,gcash'],
             'notes' => ['nullable', 'string', 'max:500'],
+            'is_recurring_template' => ['boolean'],
+            'recurring_day_of_month' => ['required_if:is_recurring_template,true', 'nullable', 'integer', 'min:1', 'max:31'],
         ];
 
         if ($isOwner) {
@@ -77,6 +80,25 @@ class ExpenseController extends Controller
         $validated = $request->validate($rules);
         $locationId = $isOwner ? $validated['location_id'] : $user->location_id;
         $isPaidNow = $validated['is_paid'] ?? false;
+
+        // "Recurring monthly bill" describes a pattern (this category recurs
+        // every month on roughly this day), not a specific dated instance — so
+        // this branch creates the template only. The actual monthly Expense
+        // rows get generated from it via RecurringExpenseController, same as
+        // any other template.
+        if ($validated['is_recurring_template'] ?? false) {
+            RecurringExpense::create([
+                'location_id' => $locationId,
+                'category' => $validated['category'],
+                'description' => $validated['description'] ?? null,
+                'estimated_amount' => $validated['amount'],
+                'day_of_month' => $validated['recurring_day_of_month'],
+                'is_active' => true,
+                'created_by' => $user->id,
+            ]);
+
+            return redirect()->route('expenses.index')->with('success', 'Recurring bill template added — it\'ll show up as pending each month.');
+        }
 
         try {
             $expense = DB::transaction(function () use ($validated, $user, $locationId, $isPaidNow) {

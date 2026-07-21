@@ -47,6 +47,10 @@ class RecurringExpenseController extends Controller
         $user = $request->user();
         $isOwner = $user->seesAllLocations();
 
+        if (!$isOwner && !$user->location_id) {
+            return back()->withErrors(['location' => 'Only branch-assigned Managers can add recurring bills.']);
+        }
+
         $rules = [
             'category' => ['required', 'string', 'max:100'],
             'description' => ['nullable', 'string', 'max:255'],
@@ -118,8 +122,11 @@ class RecurringExpenseController extends Controller
         $created = 0;
 
         foreach ($templates as $template) {
-            $alreadyExists = Expense::where('location_id', $template->location_id)
-                ->where('category', $template->category)
+            // Keyed to THIS template specifically, not just category+location —
+            // two templates sharing a category (e.g. two separate "Supplies"
+            // contracts) previously masked each other, and a manually-recorded
+            // expense in the same category could block generation entirely.
+            $alreadyExists = Expense::where('recurring_expense_id', $template->id)
                 ->whereYear('expense_date', now()->year)
                 ->whereMonth('expense_date', now()->month)
                 ->exists();
@@ -133,6 +140,7 @@ class RecurringExpenseController extends Controller
 
             Expense::create([
                 'location_id' => $template->location_id,
+                'recurring_expense_id' => $template->id,
                 'category' => $template->category,
                 'description' => $template->description,
                 'amount' => $template->estimated_amount,
@@ -163,8 +171,7 @@ class RecurringExpenseController extends Controller
         }
 
         return $query->get()->filter(function (RecurringExpense $template) {
-            return !Expense::where('location_id', $template->location_id)
-                ->where('category', $template->category)
+            return !Expense::where('recurring_expense_id', $template->id)
                 ->whereYear('expense_date', now()->year)
                 ->whereMonth('expense_date', now()->month)
                 ->exists();

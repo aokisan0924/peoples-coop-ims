@@ -20,18 +20,24 @@ interface Location {
     name: string;
 }
 
+interface Supplier {
+    id: number;
+    name: string;
+}
+
 interface Props {
     categories: string[];
     locations: Location[];
+    suppliers: Supplier[];
     isOwner: boolean;
-    suppliers: { id: number; name: string }[];
 }
 
 const RECURRING_CATEGORIES = ['Rent', 'Electricity', 'Water', 'Internet'];
 
-export default function CreateExpense({ categories, locations, isOwner, suppliers }: Props) {
+export default function CreateExpense({ categories, locations, suppliers, isOwner }: Props) {
     const { data, setData, post, processing, errors } = useForm({
         category: '',
+        supplier_id: null as number | null,
         description: '',
         amount: '',
         expense_date: new Date().toISOString().split('T')[0],
@@ -123,16 +129,17 @@ export default function CreateExpense({ categories, locations, isOwner, supplier
                                     value={data.supplier_id ? String(data.supplier_id) : 'none'}
                                     onValueChange={(v) => setData('supplier_id', v === 'none' ? null : Number(v))}
                                 >
-                                    <SelectTrigger id="supplier_id">
-                                        <SelectValue placeholder="None" />
+                                    <SelectTrigger id="supplier_id" className="mt-1.5 w-full focus:ring-[var(--pos-teal)]">
+                                        <SelectValue placeholder="No supplier" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="none">None</SelectItem>
+                                        <SelectItem value="none">No supplier</SelectItem>
                                         {suppliers.map((s) => (
                                             <SelectItem key={s.id} value={String(s.id)}>{s.name}</SelectItem>
                                         ))}
                                     </SelectContent>
                                 </Select>
+                                {errors.supplier_id && <p className="mt-1 text-sm text-red-600">{errors.supplier_id}</p>}
                             </div>
 
                             <div className="md:col-span-2">
@@ -269,20 +276,6 @@ export default function CreateExpense({ categories, locations, isOwner, supplier
                                 <span className="text-sm font-medium">Already paid</span>
                             </label>
                         )}
-
-                        <div>
-                            <Label htmlFor="payment_method">Payment Method *</Label>
-                            <Select value={data.payment_method} onValueChange={(v) => setData('payment_method', v as 'cash' | 'gcash')}>
-                                <SelectTrigger id="payment_method">
-                                    <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="cash">Cash</SelectItem>
-                                    <SelectItem value="gcash">GCash</SelectItem>
-                                </SelectContent>
-                            </Select>
-                            {errors.payment_method && <p className="text-sm text-red-600 mt-1">{errors.payment_method}</p>}
-                        </div>
 
                         <div>
                             <Label htmlFor="notes">Notes</Label>

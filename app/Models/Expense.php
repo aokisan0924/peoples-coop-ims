@@ -11,7 +11,7 @@ class Expense extends Model
     use HasFactory;
 
     protected $fillable = [
-        'location_id', 'supplier_id', 'category', 'description', 'amount', 'expense_date',
+        'location_id', 'supplier_id', 'recurring_expense_id', 'category', 'description', 'amount', 'expense_date',
         'due_date', 'is_paid', 'payment_method', 'paid_at', 'recorded_by', 'notes',
     ];
 
@@ -39,5 +39,10 @@ class Expense extends Model
     public function supplier(): BelongsTo
     {
         return $this->belongsTo(Supplier::class);
+    }
+
+    public function recurringExpense(): BelongsTo
+    {
+        return $this->belongsTo(RecurringExpense::class);
     }
 }
