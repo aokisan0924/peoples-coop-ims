@@ -320,7 +320,4 @@ Developed by **Jeffrae A. Sapla**.
 
 ## License
 
-> `composer.json` currently carries `"license": "MIT"`, inherited from the Laravel starter kit
-> this project was built from. If this is meant to stay an internal system for the cooperative
-> rather than an open, redistributable project, consider changing this to something like:
-> *"Internal system built for People's Multi-Purpose Cooperative. Not licensed for redistribution."*
+Internal system built for People's Multi-Purpose Cooperative. Not licensed for redistribution.
