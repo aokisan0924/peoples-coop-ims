@@ -1,5 +1,13 @@
 # People's Coop IMS
 
+![Laravel](https://img.shields.io/badge/Laravel-13.17-FF2D20?logo=laravel&logoColor=white)
+![PHP](https://img.shields.io/badge/PHP-%5E8.3-777BB4?logo=php&logoColor=white)
+![Inertia.js](https://img.shields.io/badge/Inertia.js-3.0-9553E9?logo=inertia&logoColor=white)
+![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?logo=tailwindcss&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-8-646CFF?logo=vite&logoColor=white)
+![Status](https://img.shields.io/badge/status-active_development-00A79B)
+
 **Point-of-sale and inventory management for a multi-branch cooperative store.**
 
 One login, one interface. What a person can *do* — ring up a sale, void a receipt, receive stock,
