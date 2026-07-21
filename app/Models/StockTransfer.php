@@ -12,13 +12,14 @@ class StockTransfer extends Model
 
     protected $fillable = [
         'product_id', 'from_location_id', 'to_location_id', 'quantity', 'cost_price',
-        'status', 'initiated_by', 'received_by', 'initiated_at', 'received_at', 'notes',
+        'batch_breakdown', 'status', 'initiated_by', 'received_by', 'initiated_at', 'received_at', 'notes',
     ];
 
     protected function casts(): array
     {
         return [
             'cost_price' => 'decimal:2',
+            'batch_breakdown' => 'array',
             'initiated_at' => 'datetime',
             'received_at' => 'datetime',
         ];

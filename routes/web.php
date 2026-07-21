@@ -92,7 +92,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // resource() call so they aren't swallowed by a {product}/{category}
         // route-model-binding parameter — keep that order when editing.)
         Route::resource('suppliers', SupplierController::class);
-        Route::resource('units', UnitController::class);
+        Route::resource('units', UnitController::class)->except(['edit']);
 
         Route::post('categories/quick-create', [CategoryController::class, 'quickStore'])->name('categories.quick-store');
         Route::resource('categories', CategoryController::class);
@@ -125,7 +125,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('users', [UserManagementController::class, 'index'])->name('users.index');
         Route::get('users/create', [UserManagementController::class, 'create'])->name('users.create');
         Route::post('users', [UserManagementController::class, 'store'])->name('users.store');
-        Route::delete('users/{user}', [UserManagementController::class, 'destroy'])->name('users.destroy');
+        Route::patch('users/{user}/toggle-active', [UserManagementController::class, 'toggleActive'])->name('users.toggle-active');
 
         Route::get('shifts', [ShiftSessionController::class, 'history'])->name('shifts.history');
 

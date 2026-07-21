@@ -92,14 +92,15 @@ class StockTransferController extends Controller
             DB::transaction(function () use ($validated, $user, $fromLocationId) {
                 $product = Product::lockForUpdate()->findOrFail($validated['product_id']);
 
-                $avgCost = $this->stockDeduction->deduct($product, $validated['quantity'], $fromLocationId);
+                $result = $this->stockDeduction->deductWithBreakdown($product, $validated['quantity'], $fromLocationId);
 
                 StockTransfer::create([
                     'product_id' => $product->id,
                     'from_location_id' => $fromLocationId,
                     'to_location_id' => $validated['to_location_id'],
                     'quantity' => $validated['quantity'],
-                    'cost_price' => $avgCost,
+                    'cost_price' => $result['avg_cost'],
+                    'batch_breakdown' => $result['breakdown'],
                     'status' => 'in_transit',
                     'initiated_by' => $user->id,
                     'initiated_at' => now(),
@@ -126,16 +127,37 @@ class StockTransferController extends Controller
         }
 
         DB::transaction(function () use ($transfer, $user) {
-            StockBatch::create([
-                'product_id' => $transfer->product_id,
-                'location_id' => $transfer->to_location_id,
-                'supplier_id' => null, // internal transfer, not a purchase
-                'received_qty' => $transfer->quantity,
-                'remaining_qty' => $transfer->quantity,
-                'cost_price' => $transfer->cost_price,
-                'received_date' => now()->toDateString(),
-                'expiry_date' => null,
-            ]);
+            if (!empty($transfer->batch_breakdown)) {
+                // Preserve the source batches' individual expiry dates and costs —
+                // a transfer spanning two source batches with different expiry
+                // dates becomes two destination batches, not one blended one.
+                foreach ($transfer->batch_breakdown as $row) {
+                    StockBatch::create([
+                        'product_id' => $transfer->product_id,
+                        'location_id' => $transfer->to_location_id,
+                        'supplier_id' => null, // internal transfer, not a purchase
+                        'received_qty' => $row['quantity'],
+                        'remaining_qty' => $row['quantity'],
+                        'cost_price' => $row['cost_price'],
+                        'received_date' => now()->toDateString(),
+                        'expiry_date' => $row['expiry_date'] ?? null,
+                    ]);
+                }
+            } else {
+                // Fallback for transfers initiated before batch_breakdown existed —
+                // no per-batch detail was ever captured for these, so this is the
+                // best that can be reconstructed: one blended batch, no expiry.
+                StockBatch::create([
+                    'product_id' => $transfer->product_id,
+                    'location_id' => $transfer->to_location_id,
+                    'supplier_id' => null,
+                    'received_qty' => $transfer->quantity,
+                    'remaining_qty' => $transfer->quantity,
+                    'cost_price' => $transfer->cost_price,
+                    'received_date' => now()->toDateString(),
+                    'expiry_date' => null,
+                ]);
+            }
 
             $transfer->update([
                 'status' => 'received',

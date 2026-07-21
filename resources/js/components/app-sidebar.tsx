@@ -14,8 +14,6 @@ import {
     Truck,
     UserPlus,
     Wallet,
-    CalendarClock,
-    FileWarning
 } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavMain } from '@/components/nav-main';
@@ -33,7 +31,7 @@ import {
 import { useAuth } from '@/hooks/use-auth';
 import type { NavItem } from '@/types';
 import { dashboard } from '@/routes';
-import { Receipt as ReceiptExpense, TrendingUp } from 'lucide-react';
+import { Receipt as ReceiptExpense, Repeat, TrendingUp } from 'lucide-react';
 import categories from '@/routes/categories';
 import gcash from '@/routes/gcash';
 import locations from '@/routes/locations';
@@ -149,6 +147,18 @@ const adminNavItems: NavItem[] = [
         managerOnly: true,
     },
     {
+        title: 'Accounts Payable',
+        href: '/accounts-payable',
+        icon: Truck,
+        managerOnly: true,
+    },
+    {
+        title: 'Recurring Bills',
+        href: '/recurring-expenses',
+        icon: Repeat,
+        managerOnly: true,
+    },
+    {
         title: 'Profit & Loss',
         href: '/reports/profit-loss',
         icon: TrendingUp,
@@ -159,17 +169,6 @@ const adminNavItems: NavItem[] = [
         href: '/users',
         icon: UserPlus,
         managerOnly: true,
-    },
-    {
-        title: 'Accounts Payable',
-        href: '/accounts-payable',
-        icon: FileWarning,
-        managerOnly: true
-    },
-    { title: 'Recurring Bills',
-        href: '/recurring-expenses',
-        icon: CalendarClock,
-        managerOnly: true
     },
 ];
 

@@ -70,21 +70,23 @@ class UserManagementController extends Controller
         return redirect()->route('users.index')->with('success', 'User added.');
     }
 
-    public function destroy(Request $request, User $user): RedirectResponse
+    public function toggleActive(Request $request, User $user): RedirectResponse
     {
         $currentUser = $request->user();
 
         if ($user->id === $currentUser->id) {
-            return back()->withErrors(['user' => 'You cannot remove your own account.']);
+            return back()->withErrors(['user' => 'You cannot deactivate your own account.']);
         }
 
-        // Manager can only remove users at their own branch
+        // Manager can only manage users at their own branch
         if (!$currentUser->seesAllLocations() && $user->location_id !== $currentUser->location_id) {
             abort(403);
         }
 
-        $user->delete();
+        $user->update(['is_active' => !$user->is_active]);
 
-        return redirect()->route('users.index')->with('success', 'User removed.');
+        $message = $user->is_active ? 'User reactivated.' : 'User deactivated. They can no longer log in.';
+
+        return back()->with('success', $message);
     }
 }

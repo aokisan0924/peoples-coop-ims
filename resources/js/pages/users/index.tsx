@@ -1,13 +1,14 @@
 import { Head, Link, router } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Building2, Mail, Plus, Trash2, Users } from 'lucide-react';
+import { Building2, Mail, Plus, PowerOff, Power, Users } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface UserRow {
     id: number;
     name: string;
     email: string;
+    is_active: boolean;
     location: { name: string } | null;
     roles: { name: string }[];
 }
@@ -36,9 +37,14 @@ function RoleBadge({ name }: { name: string }) {
 }
 
 export default function UsersIndex({ users, canAssignManagers }: { users: UserRow[]; canAssignManagers: boolean }) {
-    function handleDelete(user: UserRow) {
-        if (confirm(`Remove user "${user.name}"? This cannot be undone.`)) {
-            router.delete(`/users/${user.id}`);
+    function handleToggle(user: UserRow) {
+        const action = user.is_active ? 'Deactivate' : 'Reactivate';
+        const consequence = user.is_active
+            ? 'They will be signed out and won\'t be able to log in until reactivated.'
+            : 'They will be able to log in again.';
+
+        if (confirm(`${action} "${user.name}"? ${consequence}`)) {
+            router.patch(`/users/${user.id}/toggle-active`);
         }
     }
 
@@ -94,6 +100,7 @@ export default function UsersIndex({ users, canAssignManagers }: { users: UserRo
                                         <th className="p-3 text-left font-medium text-muted-foreground">Email</th>
                                         <th className="p-3 text-left font-medium text-muted-foreground">Role</th>
                                         <th className="p-3 text-left font-medium text-muted-foreground">Branch</th>
+                                        <th className="p-3 text-left font-medium text-muted-foreground">Status</th>
                                         <th className="p-3 text-right font-medium text-muted-foreground">Actions</th>
                                     </tr>
                                 </thead>
@@ -115,15 +122,40 @@ export default function UsersIndex({ users, canAssignManagers }: { users: UserRo
                                                 ))}
                                             </td>
                                             <td className="p-3 text-muted-foreground">{user.location?.name ?? '—'}</td>
+                                            <td className="p-3">
+                                                {user.is_active ? (
+                                                    <Badge className="border-0 bg-emerald-600/15 font-normal text-emerald-700 dark:text-emerald-400">
+                                                        Active
+                                                    </Badge>
+                                                ) : (
+                                                    <Badge variant="secondary" className="font-normal">
+                                                        Inactive
+                                                    </Badge>
+                                                )}
+                                            </td>
                                             <td className="p-3 text-right">
                                                 <Button
                                                     variant="outline"
                                                     size="sm"
-                                                    onClick={() => handleDelete(user)}
-                                                    className="gap-1.5 text-red-600 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-950/40"
+                                                    onClick={() => handleToggle(user)}
+                                                    className={cn(
+                                                        'gap-1.5',
+                                                        user.is_active
+                                                            ? 'text-red-600 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-950/40'
+                                                            : 'text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700 dark:hover:bg-emerald-950/40',
+                                                    )}
                                                 >
-                                                    <Trash2 className="size-3.5" />
-                                                    Remove
+                                                    {user.is_active ? (
+                                                        <>
+                                                            <PowerOff className="size-3.5" />
+                                                            Deactivate
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <Power className="size-3.5" />
+                                                            Reactivate
+                                                        </>
+                                                    )}
                                                 </Button>
                                             </td>
                                         </tr>
@@ -152,10 +184,19 @@ export default function UsersIndex({ users, canAssignManagers }: { users: UserRo
                                                         {user.location.name}
                                                     </p>
                                                 )}
-                                                <div className="mt-1.5">
+                                                <div className="mt-1.5 flex flex-wrap items-center gap-1">
                                                     {user.roles.map((r) => (
                                                         <RoleBadge key={r.name} name={r.name} />
                                                     ))}
+                                                    {user.is_active ? (
+                                                        <Badge className="border-0 bg-emerald-600/15 font-normal text-emerald-700 dark:text-emerald-400">
+                                                            Active
+                                                        </Badge>
+                                                    ) : (
+                                                        <Badge variant="secondary" className="font-normal">
+                                                            Inactive
+                                                        </Badge>
+                                                    )}
                                                 </div>
                                             </div>
                                         </div>
@@ -164,11 +205,25 @@ export default function UsersIndex({ users, canAssignManagers }: { users: UserRo
                                         <Button
                                             variant="outline"
                                             size="sm"
-                                            onClick={() => handleDelete(user)}
-                                            className="w-full gap-1.5 text-red-600 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-950/40"
+                                            onClick={() => handleToggle(user)}
+                                            className={cn(
+                                                'w-full gap-1.5',
+                                                user.is_active
+                                                    ? 'text-red-600 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-950/40'
+                                                    : 'text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700 dark:hover:bg-emerald-950/40',
+                                            )}
                                         >
-                                            <Trash2 className="size-3.5" />
-                                            Remove
+                                            {user.is_active ? (
+                                                <>
+                                                    <PowerOff className="size-3.5" />
+                                                    Deactivate
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Power className="size-3.5" />
+                                                    Reactivate
+                                                </>
+                                            )}
                                         </Button>
                                     </div>
                                 </div>

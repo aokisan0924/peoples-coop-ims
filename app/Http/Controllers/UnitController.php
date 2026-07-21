@@ -52,16 +52,6 @@ class UnitController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Unit $unit): Response
-    {
-        return Inertia::render('units/edit', [
-            'unit' => $unit,
-        ]);
-    }
-
-    /**
      * Update the specified resource in storage.
      */
     public function update(Request $request, Unit $unit): RedirectResponse
