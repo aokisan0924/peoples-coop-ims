@@ -30,6 +30,7 @@ class ExpenseController extends Controller
 
         return Inertia::render('expenses/index', [
             'expenses' => $query->limit(100)->get(),
+            'pendingThisMonth' => app(RecurringExpenseController::class)->pendingForUser($user),
         ]);
     }
 

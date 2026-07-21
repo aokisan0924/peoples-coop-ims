@@ -13,7 +13,7 @@ interface Expense {
     due_date: string | null;
     is_paid: boolean;
     payment_method: 'cash' | 'gcash';
-    affects_profit_loss: boolean;
+    supplier_id: number | null;
     location: { name: string };
     recorded_by: { name: string };
 }
@@ -22,16 +22,16 @@ interface RecurringTemplate {
     id: number;
     category: string;
     description: string | null;
-    amount: string;
-    recurring_day_of_month: number;
-    next_due_date: string;
-    days_until_due: number;
+    estimated_amount: string;
+    day_of_month: number;
     location: { name: string };
 }
 
 interface Props {
     expenses: Expense[];
-    recurringTemplates?: RecurringTemplate[];
+    /** Active recurring templates with no Expense generated yet this month —
+     *  same list RecurringExpenseController::pendingForUser() returns. */
+    pendingThisMonth?: RecurringTemplate[];
 }
 
 function peso(n: string | number): string {
@@ -41,6 +41,21 @@ function peso(n: string | number): string {
 function isOverdue(dueDate: string | null): boolean {
     if (!dueDate) return false;
     return new Date(dueDate) < new Date(new Date().toDateString());
+}
+
+/** RecurringExpenseController only sends day_of_month — the due date and
+ *  days-remaining are derived here rather than assuming a backend field. */
+function daysUntilDue(dayOfMonth: number): number {
+    const today = new Date();
+    const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+    let due = new Date(today.getFullYear(), today.getMonth(), Math.min(dayOfMonth, daysInMonth));
+
+    if (due < new Date(today.toDateString())) {
+        const nextMonthDays = new Date(today.getFullYear(), today.getMonth() + 2, 0).getDate();
+        due = new Date(today.getFullYear(), today.getMonth() + 1, Math.min(dayOfMonth, nextMonthDays));
+    }
+
+    return Math.round((due.getTime() - new Date(today.toDateString()).getTime()) / 86_400_000);
 }
 
 function PaymentBadge({ method }: { method: 'cash' | 'gcash' }) {
@@ -57,7 +72,7 @@ function PaymentBadge({ method }: { method: 'cash' | 'gcash' }) {
     );
 }
 
-export default function ExpensesIndex({ expenses, recurringTemplates = [] }: Props) {
+export default function ExpensesIndex({ expenses, pendingThisMonth = [] }: Props) {
     function handleMarkPaid(expense: Expense) {
         router.post(`/expenses/${expense.id}/mark-paid`);
     }
@@ -114,34 +129,36 @@ export default function ExpensesIndex({ expenses, recurringTemplates = [] }: Pro
 
                 {/* Recurring bills — this is the "monthly reminder" surface: rent, electricity,
                     water, internet all show their next due date so nothing gets missed. */}
-                {recurringTemplates.length > 0 && (
+                {pendingThisMonth.length > 0 && (
                     <div className="rounded-xl border bg-card p-4 shadow-sm">
                         <h2 className="mb-3 flex items-center gap-2 text-sm font-medium">
                             <Repeat className="size-4 text-[var(--pos-teal)]" />
-                            Recurring Bills
+                            Recurring Bills — Not Yet Generated This Month
                         </h2>
                         <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
-                            {recurringTemplates.map((t) => (
-                                <div
-                                    key={t.id}
-                                    className={cn(
-                                        'flex items-center justify-between gap-2 rounded-lg border p-3',
-                                        t.days_until_due <= 3 && 'border-amber-300 bg-amber-50 dark:border-amber-900/50 dark:bg-amber-950/20',
-                                    )}
-                                >
-                                    <div className="min-w-0">
-                                        <p className="truncate text-sm font-medium">{t.category}</p>
-                                        <p className="text-xs text-muted-foreground">Due day {t.recurring_day_of_month} · {peso(t.amount)}</p>
-                                    </div>
-                                    <Badge
-                                        variant={t.days_until_due <= 3 ? 'destructive' : 'secondary'}
-                                        className="shrink-0 gap-1"
+                            {pendingThisMonth.map((t) => {
+                                const daysLeft = daysUntilDue(t.day_of_month);
+                                return (
+                                    <div
+                                        key={t.id}
+                                        className={cn(
+                                            'flex items-center justify-between gap-2 rounded-lg border p-3',
+                                            daysLeft <= 3 && 'border-amber-300 bg-amber-50 dark:border-amber-900/50 dark:bg-amber-950/20',
+                                        )}
                                     >
-                                        <CalendarClock className="size-3" />
-                                        {t.days_until_due <= 0 ? 'Due today' : `${t.days_until_due}d`}
-                                    </Badge>
-                                </div>
-                            ))}
+                                        <div className="min-w-0">
+                                            <p className="truncate text-sm font-medium">{t.category}</p>
+                                            <p className="text-xs text-muted-foreground">
+                                                Due day {t.day_of_month} · {peso(t.estimated_amount)}
+                                            </p>
+                                        </div>
+                                        <Badge variant={daysLeft <= 3 ? 'destructive' : 'secondary'} className="shrink-0 gap-1">
+                                            <CalendarClock className="size-3" />
+                                            {daysLeft <= 0 ? 'Due today' : `${daysLeft}d`}
+                                        </Badge>
+                                    </div>
+                                );
+                            })}
                         </div>
                     </div>
                 )}
@@ -185,7 +202,7 @@ export default function ExpensesIndex({ expenses, recurringTemplates = [] }: Pro
                                             <td className="p-3 font-medium">
                                                 <div className="flex items-center gap-1.5">
                                                     {e.category}
-                                                    {!e.affects_profit_loss && (
+                                                    {e.supplier_id && (
                                                         <Badge variant="outline" className="font-normal text-muted-foreground">
                                                             Stock purchase
                                                         </Badge>
