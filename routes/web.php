@@ -8,6 +8,7 @@ use App\Http\Controllers\LocationController;
 use App\Http\Controllers\PosController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfitLossController;
+use App\Http\Controllers\RecurringExpenseController;
 use App\Http\Controllers\SaleController;
 use App\Http\Controllers\ShiftSessionController;
 use App\Http\Controllers\StockBatchController;
@@ -15,6 +16,7 @@ use App\Http\Controllers\StockTransferController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\UnitController;
 use App\Http\Controllers\UserManagementController;
+use App\Http\Controllers\AccountsPayableController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -112,6 +114,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('expenses/{expense}', [ExpenseController::class, 'destroy'])->name('expenses.destroy');
 
         Route::get('reports/profit-loss', [ProfitLossController::class, 'index'])->name('reports.profit-loss');
+
+        Route::get('recurring-expenses', [RecurringExpenseController::class, 'index'])->name('recurring-expenses.index');
+        Route::get('recurring-expenses/create', [RecurringExpenseController::class, 'create'])->name('recurring-expenses.create');
+        Route::post('recurring-expenses', [RecurringExpenseController::class, 'store'])->name('recurring-expenses.store');
+        Route::post('recurring-expenses/{recurringExpense}/toggle', [RecurringExpenseController::class, 'toggleActive'])->name('recurring-expenses.toggle');
+        Route::delete('recurring-expenses/{recurringExpense}', [RecurringExpenseController::class, 'destroy'])->name('recurring-expenses.destroy');
+        Route::post('recurring-expenses/generate', [RecurringExpenseController::class, 'generateThisMonth'])->name('recurring-expenses.generate');
+
+        Route::get('accounts-payable', [AccountsPayableController::class, 'index'])->name('accounts-payable.index');
+        Route::post('accounts-payable/{payable}/mark-paid', [AccountsPayableController::class, 'markPaid'])->name('accounts-payable.mark-paid');
     });
 
 

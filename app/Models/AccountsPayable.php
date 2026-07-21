@@ -6,24 +6,29 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Expense extends Model
+class AccountsPayable extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'location_id', 'supplier_id', 'category', 'description', 'amount', 'expense_date',
-        'due_date', 'is_paid', 'payment_method', 'paid_at', 'recorded_by', 'notes',
+        'supplier_id', 'location_id', 'stock_batch_id', 'amount', 'incurred_date',
+        'due_date', 'is_paid', 'paid_at', 'payment_method', 'recorded_by', 'notes',
     ];
 
     protected function casts(): array
     {
         return [
             'amount' => 'decimal:2',
-            'expense_date' => 'date',
+            'incurred_date' => 'date',
             'due_date' => 'date',
             'is_paid' => 'boolean',
             'paid_at' => 'datetime',
         ];
+    }
+
+    public function supplier(): BelongsTo
+    {
+        return $this->belongsTo(Supplier::class);
     }
 
     public function location(): BelongsTo
@@ -31,13 +36,13 @@ class Expense extends Model
         return $this->belongsTo(Location::class);
     }
 
+    public function stockBatch(): BelongsTo
+    {
+        return $this->belongsTo(StockBatch::class);
+    }
+
     public function recordedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'recorded_by');
-    }
-
-    public function supplier(): BelongsTo
-    {
-        return $this->belongsTo(Supplier::class);
     }
 }

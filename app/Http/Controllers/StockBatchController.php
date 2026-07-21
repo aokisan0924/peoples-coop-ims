@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AccountsPayable;
 use App\Models\StockBatch;
 use App\Models\Product;
 use App\Models\Supplier;
@@ -111,6 +112,8 @@ class StockBatchController extends Controller
                 'location_id' => ['required', 'exists:locations,id'],
                 'received_qty' => ['required', 'integer', 'min:1'],
                 'cost_price' => ['required', 'numeric', 'min:0'],
+                'paid_on_delivery' => ['boolean'],
+                'payable_due_date' => ['nullable', 'date'],
                 'received_date' => ['required', 'date'],
                 'expiry_date' => ['nullable', 'date', 'after:received_date'],
             ]);
@@ -124,6 +127,8 @@ class StockBatchController extends Controller
                 'supplier_id' => ['nullable', 'exists:suppliers,id'],
                 'received_qty' => ['required', 'integer', 'min:1'],
                 'cost_price' => ['required', 'numeric', 'min:0'],
+                'paid_on_delivery' => ['boolean'],
+                'payable_due_date' => ['nullable', 'date'],
                 'received_date' => ['required', 'date'],
                 'expiry_date' => ['nullable', 'date', 'after:received_date'],
             ]);
@@ -133,7 +138,19 @@ class StockBatchController extends Controller
 
         $validated['remaining_qty'] = $validated['received_qty'];
 
-        StockBatch::create($validated);
+        $batch = StockBatch::create($validated);
+
+        if (!empty($validated['supplier_id']) && empty($validated['paid_on_delivery'])) {
+            AccountsPayable::create([
+                'supplier_id' => $validated['supplier_id'],
+                'location_id' => $validated['location_id'],
+                'stock_batch_id' => $batch->id,
+                'amount' => $validated['received_qty'] * $validated['cost_price'],
+                'incurred_date' => $validated['received_date'],
+                'due_date' => $validated['payable_due_date'] ?? null,
+                'recorded_by' => $request->user()->id,
+            ]);
+        }
 
         Product::where('id', $validated['product_id'])
             ->update(['cost_price' => $validated['cost_price']]);
