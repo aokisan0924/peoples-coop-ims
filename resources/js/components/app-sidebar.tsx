@@ -14,6 +14,8 @@ import {
     Truck,
     UserPlus,
     Wallet,
+    CalendarClock,
+    FileWarning
 } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavMain } from '@/components/nav-main';
@@ -157,6 +159,17 @@ const adminNavItems: NavItem[] = [
         href: '/users',
         icon: UserPlus,
         managerOnly: true,
+    },
+    {
+        title: 'Accounts Payable',
+        href: '/accounts-payable',
+        icon: FileWarning,
+        managerOnly: true
+    },
+    { title: 'Recurring Bills',
+        href: '/recurring-expenses',
+        icon: CalendarClock,
+        managerOnly: true
     },
 ];
 

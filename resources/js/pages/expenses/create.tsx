@@ -24,11 +24,12 @@ interface Props {
     categories: string[];
     locations: Location[];
     isOwner: boolean;
+    suppliers: { id: number; name: string }[];
 }
 
 const RECURRING_CATEGORIES = ['Rent', 'Electricity', 'Water', 'Internet'];
 
-export default function CreateExpense({ categories, locations, isOwner }: Props) {
+export default function CreateExpense({ categories, locations, isOwner, suppliers }: Props) {
     const { data, setData, post, processing, errors } = useForm({
         category: '',
         description: '',
@@ -114,6 +115,24 @@ export default function CreateExpense({ categories, locations, isOwner }: Props)
                                     </SelectContent>
                                 </Select>
                                 {errors.category && <p className="mt-1 text-sm text-red-600">{errors.category}</p>}
+                            </div>
+
+                            <div>
+                                <Label htmlFor="supplier_id">Supplier (optional)</Label>
+                                <Select
+                                    value={data.supplier_id ? String(data.supplier_id) : 'none'}
+                                    onValueChange={(v) => setData('supplier_id', v === 'none' ? null : Number(v))}
+                                >
+                                    <SelectTrigger id="supplier_id">
+                                        <SelectValue placeholder="None" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="none">None</SelectItem>
+                                        {suppliers.map((s) => (
+                                            <SelectItem key={s.id} value={String(s.id)}>{s.name}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
                             </div>
 
                             <div className="md:col-span-2">
@@ -250,6 +269,20 @@ export default function CreateExpense({ categories, locations, isOwner }: Props)
                                 <span className="text-sm font-medium">Already paid</span>
                             </label>
                         )}
+
+                        <div>
+                            <Label htmlFor="payment_method">Payment Method *</Label>
+                            <Select value={data.payment_method} onValueChange={(v) => setData('payment_method', v as 'cash' | 'gcash')}>
+                                <SelectTrigger id="payment_method">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="cash">Cash</SelectItem>
+                                    <SelectItem value="gcash">GCash</SelectItem>
+                                </SelectContent>
+                            </Select>
+                            {errors.payment_method && <p className="text-sm text-red-600 mt-1">{errors.payment_method}</p>}
+                        </div>
 
                         <div>
                             <Label htmlFor="notes">Notes</Label>
