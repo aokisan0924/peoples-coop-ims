@@ -1,7 +1,9 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Building2, Mail, Plus, PowerOff, Power, Users } from 'lucide-react';
+import { useState } from 'react';
+import ConfirmDialog from '@/components/confirm-dialog';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 interface UserRow {
@@ -24,6 +26,7 @@ function initials(name: string): string {
 
 function RoleBadge({ name }: { name: string }) {
     const isManagerial = name === 'Manager' || name === 'Owner' || name === 'super_admin';
+
     return (
         <Badge
             className={cn(
@@ -37,15 +40,15 @@ function RoleBadge({ name }: { name: string }) {
 }
 
 export default function UsersIndex({ users, canAssignManagers }: { users: UserRow[]; canAssignManagers: boolean }) {
-    function handleToggle(user: UserRow) {
-        const action = user.is_active ? 'Deactivate' : 'Reactivate';
-        const consequence = user.is_active
-            ? 'They will be signed out and won\'t be able to log in until reactivated.'
-            : 'They will be able to log in again.';
+    const [pendingUser, setPendingUser] = useState<UserRow | null>(null);
 
-        if (confirm(`${action} "${user.name}"? ${consequence}`)) {
-            router.patch(`/users/${user.id}/toggle-active`);
-        }
+    function confirmToggle() {
+        if (!pendingUser) {
+return;
+}
+
+        router.patch(`/users/${pendingUser.id}/toggle-active`);
+        setPendingUser(null);
     }
 
     const isEmpty = users.length === 0;
@@ -137,7 +140,7 @@ export default function UsersIndex({ users, canAssignManagers }: { users: UserRo
                                                 <Button
                                                     variant="outline"
                                                     size="sm"
-                                                    onClick={() => handleToggle(user)}
+                                                    onClick={() => setPendingUser(user)}
                                                     className={cn(
                                                         'gap-1.5',
                                                         user.is_active
@@ -205,7 +208,7 @@ export default function UsersIndex({ users, canAssignManagers }: { users: UserRo
                                         <Button
                                             variant="outline"
                                             size="sm"
-                                            onClick={() => handleToggle(user)}
+                                            onClick={() => setPendingUser(user)}
                                             className={cn(
                                                 'w-full gap-1.5',
                                                 user.is_active
@@ -244,6 +247,20 @@ export default function UsersIndex({ users, canAssignManagers }: { users: UserRo
                     </Link>
                 </Button>
             )}
+
+            <ConfirmDialog
+                open={pendingUser !== null}
+                onOpenChange={(open) => !open && setPendingUser(null)}
+                title={pendingUser ? `${pendingUser.is_active ? 'Deactivate' : 'Reactivate'} "${pendingUser.name}"?` : ''}
+                description={
+                    pendingUser?.is_active
+                        ? "They will be signed out and won't be able to log in until reactivated."
+                        : 'They will be able to log in again.'
+                }
+                confirmLabel={pendingUser?.is_active ? 'Deactivate' : 'Reactivate'}
+                destructive={pendingUser?.is_active}
+                onConfirm={confirmToggle}
+            />
         </div>
     );
 }
