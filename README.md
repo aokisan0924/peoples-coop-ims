@@ -38,6 +38,7 @@ available actions change based on who's signed in:
 |---|---|---|
 | **Register / Sales** | Cashier, Manager, Owner | Ring up sales, view/void receipts, per-shift cash reconciliation |
 | **Inventory** | Manager, Owner | Products, categories, stock batches (FIFO), stock transfers between branches, suppliers, units of measure |
+| **Financial Management** | Manager, Owner | GCash float, expenses, recurring bills, accounts payable, profit & loss reporting |
 | **Administration** | Owner, senior Manager | Add/remove users, assign roles and branches |
 | **Account Settings** | Everyone | Profile info, password, theme |
 
@@ -52,8 +53,26 @@ Owners operate across all branches; Managers and Cashiers are scoped to their as
   your own, kept on record with the voided receipt
 - **My Sales** — a per-cashier daily summary (total, cash total, GCash total, voided count) for
   end-of-shift cash drawer reconciliation
+- **Shift Sessions** — a cashier opens a shift with a starting cash amount and closes it at
+  end-of-day against the system's expected cash, with a full summary and shift history
 - Automatic **member vs. non-member pricing**, with VAT applied on top of the member price for
   non-members
+
+### 💳 GCash Monitor
+- Tracks each branch's GCash float balance, with a running log of cash-in/cash-out transactions
+  and fees
+- Daily totals per branch, so a manager can reconcile the float without cross-referencing the
+  transaction log by hand
+
+### 💰 Financial Management
+- **Expenses** — one-off operating costs (rent, utilities, supplies), each tied to a branch and a
+  payment method, with a paid/unpaid status and optional due date
+- **Recurring Expenses** — templates for bills that repeat monthly (e.g. rent due on the 5th);
+  the system tracks the next due date and generates the month's expense on request
+- **Accounts Payable** — money owed to suppliers, linkable to the stock batch that created the
+  debt, with its own paid/unpaid tracking
+- **Profit & Loss Report** — revenue, cost of goods sold, gross profit, expenses, and net profit
+  for a chosen date range, with margin percentages and a per-branch breakdown for Owners
 
 ### 📦 Products & Categories
 - Sell by a base unit (piece) and, optionally, a pack unit with a conversion factor (e.g.
@@ -110,6 +129,7 @@ Owners operate across all branches; Managers and Cashiers are scoped to their as
 | Capability | Cashier | Manager | Owner |
 |---|:---:|:---:|:---:|
 | Process sales at own branch | ✅ | ✅ | ✅ |
+| Open/close own shift session | ✅ | ✅ | ✅ |
 | View own daily sales summary | ✅ | ✅ | ✅ |
 | Manage own profile / password | ✅ | ✅ | ✅ |
 | View branch sales history | — | ✅ | ✅ |
@@ -118,6 +138,8 @@ Owners operate across all branches; Managers and Cashiers are scoped to their as
 | Receive stock (stock batches) | — | ✅ | ✅ |
 | Initiate / confirm / cancel stock transfers (own branch) | — | ✅ | ✅ |
 | Manage suppliers | — | ✅ | ✅ |
+| Manage GCash float, expenses, payables | — | ✅ | ✅ |
+| View profit & loss report | — | ✅ (own branch) | ✅ (all branches) |
 | Add / remove users, assign roles & branches | — | Limited | ✅ |
 | Cross-branch visibility & transfers | — | — | ✅ |
 
@@ -137,56 +159,6 @@ Owners operate across all branches; Managers and Cashiers are scoped to their as
 | Offline support | `dexie` (IndexedDB) + `vite-plugin-pwa` |
 | Build tool | Vite `^8` with `@vitejs/plugin-react` |
 | Database | SQLite by default (swap `DB_*` in `.env` for MySQL/Postgres if preferred) |
-
-## System Architecture
-
-```
-Browser (React 19 + Inertia)
-        │  Inertia XHR/visits (JSON, not a REST API)
-        ▼
-Laravel 13 (routes/web.php)
- ├─ auth + role middleware (Owner / Manager / Cashier)
- ├─ Controllers (app/Http/Controllers/**)
- ├─ Eloquent Models (app/Models/**)
- └─ Blade templates (labels, barcode display)
-        │
-        ▼
-SQLite/MySQL ── products, categories, units, suppliers, stock_batches,
-                 stock_transfers, sales, sale_items, users, locations,
-                 roles, permissions, sessions, cache, jobs
-        │
-        └─ Product::offlineSnapshot() ──▶ Dexie (IndexedDB) ──▶ POS search/scan
-                                            keeps working offline at the register
-```
-
-### Directory layout
-
-```
-app/
-├── Http/Controllers/          # ProductController, SaleController, StockBatchController,
-│                               # StockTransferController, SupplierController, UnitController,
-│                               # UserController, CategoryController, Settings/*
-└── Models/                    # Product, Category, Unit, Supplier, StockBatch,
-                                # StockTransfer, Sale, SaleItem, User, Location, ...
-resources/
-├── js/pages/
-│   ├── sales/                 # index (Sales History), my-sales
-│   ├── products/              # index, create, edit, label, labels-batch
-│   ├── categories/            # index, create, edit
-│   ├── stock-batches/         # index, create
-│   ├── stock-transfers/       # index, create
-│   ├── suppliers/             # index, create, edit
-│   ├── units/                 # index (fully inline add/edit/delete)
-│   ├── users/                 # index, create
-│   └── settings/              # profile, security, appearance
-├── js/components/              # Shared UI (combobox, dialog, etc.) + per-feature form fields
-└── views/                      # Blade templates for barcode labels/printing
-database/migrations/            # products, categories, units, suppliers, stock_batches,
-                                 # stock_transfers, sales, sale_items, users, locations, ...
-routes/
-└── web.php                     # sales / products / stock-batches / stock-transfers /
-                                 # suppliers / units / users route groups
-```
 
 ## Pricing Computation Reference
 
@@ -300,6 +272,10 @@ php artisan tinker           # interactive shell
 | `stock_batches` | Individual stock receipts — FIFO cost, remaining qty, expiry |
 | `stock_transfers` | Inter-branch stock movements and their status |
 | `sales` / `sale_items` | Transaction headers and line items |
+| `shift_sessions` | Per-cashier shift open/close records with expected vs. actual cash |
+| `gcash_float` / `gcash_transactions` | Per-branch GCash float balance and its cash-in/cash-out log |
+| `expenses` / `recurring_expenses` | One-off and recurring operating costs, per branch |
+| `accounts_payables` | Money owed to suppliers, optionally linked to a stock batch |
 | `users` | Accounts for Owners, Managers, and Cashiers, each tied to a branch |
 | `locations` | Branches |
 | Spatie permission tables | Roles and permissions backing role-based access |

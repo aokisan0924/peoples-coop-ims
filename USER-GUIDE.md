@@ -10,7 +10,7 @@ The system recognizes three levels of access:
 | Role | Can do |
 |---|---|
 | **Owner** | Everything, across all branches. Assigns Manager/Cashier roles and branches when creating users. Can act as source or destination on any stock transfer. |
-| **Manager** | Runs day-to-day operations at their assigned branch: process and void sales, manage products/stock/suppliers, add Cashiers. |
+| **Manager** | Runs day-to-day operations at their assigned branch: process and void sales, manage products/stock/suppliers, add Cashiers, and manage GCash float, expenses, and payables for their branch. |
 | **Cashier** | Processes sales at their assigned branch and can view their own daily sales summary. Cannot void sales or manage inventory. |
 
 ## Signing In & Account Settings
@@ -39,6 +39,19 @@ shift to reconcile the cash drawer:
 - **Total Sales**, broken down into **Cash** and **GCash** totals, plus a count of **Voided** transactions
 - Pick a date to review a previous shift
 - Search by receipt number within that day
+
+### Shift Sessions
+Before ringing up sales, a cashier opens a shift by entering the
+**starting cash** in the drawer. Recording a GCash cash-in or cash-out
+(see **GCash Monitor** below) requires an open shift.
+
+At end-of-day, closing the shift asks you to count the drawer by
+**denomination** (₱1000s, ₱500s, ₱100s, coins, etc.) — the system adds
+those up as your **actual cash**, compares it against the **expected
+cash** it calculated from your starting cash and the shift's cash
+sales, and shows the **variance** (short or over). The closed shift's
+summary — and a full history of past shifts — stays available for
+reference.
 
 ## Products
 
@@ -73,6 +86,8 @@ number.
 1. If you're an Owner, pick the **Receiving Branch**. Managers/Cashiers receive directly into their own assigned branch.
 2. Scan the item's barcode to auto-select the product (works with both a hardware barcode scanner and your device's camera), or pick the product manually from the searchable dropdown. If the product doesn't exist yet, use **+ Add New Product** — this opens the full product-creation page in a new tab (product creation has too many required fields — SKU, category, unit, cost, markup — to fit a quick inline dialog), so your stock-batch form stays exactly as you left it.
 3. Pick a **Supplier** (optional), enter the **quantity received** and **cost price per unit**, and the **date received**. Add an **expiry date** if the product is perishable.
+
+> If you select a **Supplier**, a **Paid on Delivery** checkbox appears (checked by default). Leave it checked if the supplier was paid in full on the spot — nothing gets added to Accounts Payable. Uncheck it if the delivery is on credit, and the full batch cost will be recorded as unpaid in **Accounts Payable** (see the Financial Management section below), with an optional due date.
 
 **On the Stock Batches list**, you can see at a glance:
 - **Remaining vs. received** as a small progress bar per batch
@@ -124,6 +139,56 @@ The Users list shows each person's role (with a shield icon for
 Managers) and branch, with counts of Managers, Cashiers, and branches
 represented at the top. Removing a user is permanent — you'll be
 asked to confirm.
+
+## GCash Monitor
+
+Each branch has its own GCash **float** — the cash balance backing GCash
+transactions at that register. From this page you can:
+
+- **Cash-In** — record cash a customer paid you in exchange for a GCash transfer
+- **Cash-Out** — record cash you gave a customer for a GCash transfer they sent you
+- **Float Adjustment** — correct the float balance directly (e.g. after topping it up)
+
+Cash-In and Cash-Out both require an **open shift** — if you haven't
+started one yet, the dialog will tell you so instead of letting you
+record the transaction. The page also shows today's cash-in/cash-out
+totals and a running transaction log, so the float can be reconciled
+without cross-checking receipts by hand.
+
+## Financial Management
+
+*(Manager/Owner only)*
+
+### Expenses
+Record a one-off operating cost: **Branch**, **Category** (rent,
+utilities, supplies, etc.), **Description**, **Amount**, **Payment
+Method**, **Expense Date**, and an optional **Due Date**. Mark it
+**Paid** once it's settled, or leave it open to track what's still
+owed.
+
+Check **Recurring monthly bill** while adding an expense if it's one
+that repeats every month (e.g. rent) — pick the **day of the month**
+it's due, and from then on a reminder appears automatically each
+month instead of you having to re-enter it. Recurring bills you've
+set up can be reviewed, paused, or removed from the recurring list,
+and a month's bill can be generated on demand once it's due.
+
+### Accounts Payable
+Money owed to suppliers. Most entries here are created automatically
+when stock is received from a supplier (see **Stock Batches** above);
+mark one **Paid** once the supplier has been settled. The page totals
+how much is currently unpaid.
+
+### Profit & Loss Report
+Pick a **date range** (and, for Owners, a **branch** or "all
+branches") to see:
+
+- **Revenue**, **Cost of Goods Sold**, and **Gross Profit** (from completed sales)
+- **Expenses** for the period
+- **Net Profit**, with gross and net margin percentages
+
+Owners viewing "all branches" also get a **per-branch breakdown**, so
+performance can be compared across locations at a glance.
 
 ## Offline Use at the Register
 

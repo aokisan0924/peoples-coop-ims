@@ -1,6 +1,7 @@
-import { Building2 } from 'lucide-react';
+import { Building2, CreditCard } from 'lucide-react';
 import { useRef, useState, useEffect, useMemo } from 'react';
 import CameraBarcodeScanner from '@/components/shared/camera-barcode-scanner';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Combobox } from '@/components/ui/combobox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -27,6 +28,8 @@ interface StockBatchFormData {
     cost_price: string;
     received_date: string;
     expiry_date: string;
+    paid_on_delivery: boolean;
+    payable_due_date: string;
 }
 
 interface Props {
@@ -54,6 +57,7 @@ export default function StockBatchFormFields({ data, setData, errors, products, 
     useEffect(() => {
         if (data.product_id) {
             const product = products.find((p) => p.id === data.product_id);
+
             if (product && !data.cost_price) {
                 setData('cost_price', product.cost_price);
             }
@@ -89,14 +93,19 @@ export default function StockBatchFormFields({ data, setData, errors, products, 
      */
     async function lookupBarcode(code: string) {
         const trimmed = code.trim();
-        if (!trimmed) return;
+
+        if (!trimmed) {
+return;
+}
 
         const localMatch = products.find((p) => p.barcode === trimmed);
+
         if (localMatch) {
             setData('product_id', localMatch.id);
             setMatchedProduct(localMatch);
             setLookupError('');
             setBarcodeInput('');
+
             return;
         }
 
@@ -133,7 +142,10 @@ export default function StockBatchFormFields({ data, setData, errors, products, 
     }
 
     function handleBarcodeKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
-        if (e.key !== 'Enter') return;
+        if (e.key !== 'Enter') {
+return;
+}
+
         e.preventDefault();
         lookupBarcode(barcodeInput);
     }
@@ -213,13 +225,60 @@ export default function StockBatchFormFields({ data, setData, errors, products, 
                     id="supplier_id"
                     options={supplierOptions}
                     value={data.supplier_id ? String(data.supplier_id) : 'none'}
-                    onChange={(value) => setData('supplier_id', value === 'none' ? null : Number(value))}
+                    onChange={(value) => {
+                        const supplierId = value === 'none' ? null : Number(value);
+                        setData('supplier_id', supplierId);
+
+                        if (!supplierId) {
+                            setData('paid_on_delivery', true);
+                            setData('payable_due_date', '');
+                        }
+                    }}
                     placeholder="Select supplier (optional)"
                     searchPlaceholder="Search suppliers…"
                     emptyText="No matching suppliers."
                 />
                 {errors.supplier_id && <p className="text-sm text-red-600 mt-1">{errors.supplier_id}</p>}
             </div>
+
+            {data.supplier_id && (
+                <div className="rounded-lg border p-4 bg-muted/30 space-y-3">
+                    <label htmlFor="paid_on_delivery" className="flex items-start gap-2.5 cursor-pointer">
+                        <Checkbox
+                            id="paid_on_delivery"
+                            checked={data.paid_on_delivery}
+                            onCheckedChange={(checked) => setData('paid_on_delivery', checked === true)}
+                            className="mt-0.5"
+                        />
+                        <span>
+                            <span className="flex items-center gap-1.5 text-sm font-medium">
+                                <CreditCard className="size-3.5 text-muted-foreground" />
+                                Paid on delivery
+                            </span>
+                            <span className="block text-xs text-muted-foreground">
+                                {data.paid_on_delivery
+                                    ? "This supplier was paid in full for this delivery — nothing will be added to Accounts Payable."
+                                    : 'This delivery is on credit — the full batch cost will be recorded as unpaid in Accounts Payable.'}
+                            </span>
+                        </span>
+                    </label>
+
+                    {!data.paid_on_delivery && (
+                        <div className="max-w-[220px] pl-7">
+                            <Label htmlFor="payable_due_date">Payment Due Date (optional)</Label>
+                            <Input
+                                id="payable_due_date"
+                                type="date"
+                                value={data.payable_due_date}
+                                onChange={(e) => setData('payable_due_date', e.target.value)}
+                            />
+                            {errors.payable_due_date && (
+                                <p className="text-sm text-red-600 mt-1">{errors.payable_due_date}</p>
+                            )}
+                        </div>
+                    )}
+                </div>
+            )}
 
             <div className="grid grid-cols-2 gap-4">
                 <div>

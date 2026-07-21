@@ -1,8 +1,8 @@
 import { Head, useForm, Link } from '@inertiajs/react';
+import { ArrowLeft, Boxes, Info, PackagePlus } from 'lucide-react';
 import StockBatchFormFields from '@/components/stock-batches/stock-batch-form-fields';
 import { Button } from '@/components/ui/button';
 import stockBatches from '@/routes/stock-batches';
-import { ArrowLeft, Boxes, Info, PackagePlus } from 'lucide-react';
 
 interface Product {
     id: number;
@@ -36,6 +36,8 @@ export default function CreateStockBatch({
         cost_price: '',
         received_date: new Date().toISOString().split('T')[0],
         expiry_date: '',
+        paid_on_delivery: true,
+        payable_due_date: '',
     });
 
     function handleSubmit(e: React.FormEvent) {
@@ -108,6 +110,7 @@ export default function CreateStockBatch({
                                     <li>• Cost per unit here is used to calculate margins on this batch.</li>
                                     <li>• Leave expiry blank for non-perishable items.</li>
                                     <li>• A batch can only be deleted before any stock is sold from it.</li>
+                                    <li>• Uncheck "Paid on Delivery" for a supplier batch to track it as unpaid in Accounts Payable.</li>
                                 </ul>
                             </div>
 
