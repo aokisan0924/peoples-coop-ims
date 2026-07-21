@@ -5,7 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import GcashTransactionForm from '@/components/gcash/gcash-transaction-form';
 import FloatAdjustmentForm from '@/components/gcash/float-adjustment-form';
+import OpenShiftGate from '@/components/pos/open-shift-gate';
 import { useAuth } from '@/hooks/use-auth';
+import { useCurrentShift } from '@/hooks/use-current-shift';
 import { ArrowDownCircle, ArrowUpCircle, Receipt, Settings2, Wallet, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -49,6 +51,7 @@ const TYPE_META = {
 
 export default function GcashIndex({ floatBalance, todayStats, recentTransactions }: Props) {
     const { isManager } = useAuth();
+    const { shift, refetch: refetchShift } = useCurrentShift();
     const [modal, setModal] = useState<'cash_in' | 'cash_out' | 'adjust' | null>(null);
 
     function closeModal() {
@@ -230,8 +233,10 @@ export default function GcashIndex({ floatBalance, todayStats, recentTransaction
                         >
                             <div className="mb-4 flex items-center justify-between">
                                 <h2 className="font-medium">
-                                    {modal === 'cash_in' && 'New Cash-In'}
-                                    {modal === 'cash_out' && 'New Cash-Out'}
+                                    {modal === 'cash_in' && !shift && 'Shift Required'}
+                                    {modal === 'cash_in' && shift && 'New Cash-In'}
+                                    {modal === 'cash_out' && !shift && 'Shift Required'}
+                                    {modal === 'cash_out' && shift && 'New Cash-Out'}
                                     {modal === 'adjust' && 'Reconcile GCash Float'}
                                 </h2>
                                 <button
@@ -244,14 +249,19 @@ export default function GcashIndex({ floatBalance, todayStats, recentTransaction
                                 </button>
                             </div>
 
-                            {(modal === 'cash_in' || modal === 'cash_out') && (
+                            {(modal === 'cash_in' || modal === 'cash_out') && !shift && (
+                                <OpenShiftGate onOpened={refetchShift} />
+                            )}
+                            {(modal === 'cash_in' || modal === 'cash_out') && shift && (
                                 <GcashTransactionForm type={modal} onSuccess={closeModal} />
                             )}
                             {modal === 'adjust' && <FloatAdjustmentForm currentBalance={floatBalance} onSuccess={closeModal} />}
 
-                            <Button variant="outline" className="mt-2 w-full" onClick={() => setModal(null)}>
-                                Cancel
-                            </Button>
+                            {!(modal === 'cash_in' || modal === 'cash_out') || shift ? (
+                                <Button variant="outline" className="mt-2 w-full" onClick={() => setModal(null)}>
+                                    Cancel
+                                </Button>
+                            ) : null}
                         </motion.div>
                     </motion.div>
                 )}

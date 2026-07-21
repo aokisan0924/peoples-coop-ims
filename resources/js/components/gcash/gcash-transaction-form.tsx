@@ -32,6 +32,12 @@ export default function GcashTransactionForm({ type, onSuccess }: Props) {
 
     return (
         <form onSubmit={handleSubmit} className="space-y-4">
+            {(errors as Record<string, string>).shift && (
+                <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-400">
+                    {(errors as Record<string, string>).shift}
+                </p>
+            )}
+
             <div>
                 <Label htmlFor="amount">
                     Amount (₱) — {type === 'cash_in' ? 'GCash sent to customer' : 'GCash received from customer'} *

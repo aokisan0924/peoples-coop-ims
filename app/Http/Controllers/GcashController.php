@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\GcashFloat;
 use App\Models\GcashTransaction;
 use App\Models\Location;
+use App\Models\ShiftSession;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Carbon;
@@ -64,6 +65,17 @@ class GcashController extends Controller
             return back()->withErrors(['location' => 'Your account has no assigned branch.']);
         }
 
+        // A GCash transaction outside a shift's opened_at/closed_at window is
+        // invisible to that shift's cash reconciliation — the physical cash it
+        // moves would never be counted as expected in any shift's close-out.
+        $hasOpenShift = ShiftSession::where('cashier_id', $request->user()->id)
+            ->where('status', 'open')
+            ->exists();
+
+        if (!$hasOpenShift) {
+            return back()->withErrors(['shift' => 'Open your shift before recording GCash transactions.']);
+        }
+
         $validated = $request->validate([
             'type' => ['required', 'in:cash_in,cash_out'],
             'amount' => ['required', 'numeric', 'min:1'],
@@ -74,13 +86,12 @@ class GcashController extends Controller
         ]);
 
         DB::transaction(function () use ($validated, $request, $locationId) {
-            // Guarantee the row exists, then lock THIS branch's float row only —
-            // other branches' floats are untouched. Safe under concurrency because
-            // of the unique constraint on location_id: a simultaneous first-ever
-            // request for the same branch fails loudly on the duplicate insert
-            // rather than silently creating two float rows.
-            GcashFloat::firstOrCreate(['location_id' => $locationId], ['balance' => 0]);
+            // Lock THIS branch's float row only — other branches' floats are untouched
             $float = GcashFloat::where('location_id', $locationId)->lockForUpdate()->first();
+
+            if (!$float) {
+                $float = GcashFloat::create(['location_id' => $locationId, 'balance' => 0]);
+            }
 
             $amount = $validated['amount'];
             $fee = $validated['fee'] ?? 0;
@@ -127,11 +138,6 @@ class GcashController extends Controller
         ]);
 
         DB::transaction(function () use ($validated, $request, $locationId) {
-            // Same as store() above — guarantee the row exists before locking it.
-            // Previously this had no null-check at all, so reconciling a brand-new
-            // branch's float (before any GCash transaction had ever happened
-            // there) would crash outright.
-            GcashFloat::firstOrCreate(['location_id' => $locationId], ['balance' => 0]);
             $float = GcashFloat::where('location_id', $locationId)->lockForUpdate()->first();
             $oldBalance = (float) $float->balance;
             $adjustment = $validated['new_balance'] - $oldBalance;
