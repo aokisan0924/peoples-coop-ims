@@ -172,8 +172,6 @@ individual scripts if you only need one of them.
 
 - Passwords hashed with `bcrypt` (`BCRYPT_ROUNDS=12`); role checks are enforced server-side, not
   just hidden in the UI.
-- Two-Factor Authentication and passkey login were deliberately left out — this runs on trusted
-  devices for known staff, so that overhead wasn't worth the friction.
 - Before deploying: never commit a populated `.env`, and rotate any seeded/demo credentials
   before real use.
 
