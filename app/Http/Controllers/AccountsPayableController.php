@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\AccountsPayable;
 use App\Models\GcashFloat;
 use App\Models\GcashTransaction;
-use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -19,7 +19,7 @@ class AccountsPayableController extends Controller
         $user = $request->user();
         $query = AccountsPayable::with('supplier', 'location', 'stockBatch.product')->orderByDesc('incurred_date');
 
-        if (!$user->seesAllLocations()) {
+        if (! $user->seesAllLocations()) {
             $query->where('location_id', $user->location_id);
         }
 
@@ -35,7 +35,7 @@ class AccountsPayableController extends Controller
     {
         $user = $request->user();
 
-        if (!$user->seesAllLocations() && $payable->location_id !== $user->location_id) {
+        if (! $user->seesAllLocations() && $payable->location_id !== $user->location_id) {
             abort(403);
         }
 
@@ -56,7 +56,7 @@ class AccountsPayableController extends Controller
                     $newBalance = (float) $float->balance - (float) $payable->amount;
 
                     if ($newBalance < 0) {
-                        throw new RuntimeException('Insufficient GCash float to pay this supplier. Current float: ₱' . number_format($float->balance, 2));
+                        throw new RuntimeException('Insufficient GCash float to pay this supplier. Current float: ₱'.number_format($float->balance, 2));
                     }
 
                     $float->update(['balance' => $newBalance]);

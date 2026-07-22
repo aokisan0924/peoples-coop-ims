@@ -3,9 +3,13 @@
 namespace Database\Factories;
 
 use App\Models\Product;
+use App\Models\StockBatch;
 use App\Models\Supplier;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
+/**
+ * @extends Factory<StockBatch>
+ */
 class StockBatchFactory extends Factory
 {
     public function definition(): array

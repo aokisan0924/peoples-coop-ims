@@ -2,12 +2,17 @@
 
 namespace App\Models;
 
+use Database\Factories\StockTransferFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @property array<int, array{batch_id: int, quantity: int, cost_price: float, expiry_date: string|null}>|null $batch_breakdown
+ */
 class StockTransfer extends Model
 {
+    /** @use HasFactory<StockTransferFactory> */
     use HasFactory;
 
     protected $fillable = [
@@ -25,26 +30,41 @@ class StockTransfer extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Product, $this>
+     */
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
     }
 
+    /**
+     * @return BelongsTo<Location, $this>
+     */
     public function fromLocation(): BelongsTo
     {
         return $this->belongsTo(Location::class, 'from_location_id');
     }
 
+    /**
+     * @return BelongsTo<Location, $this>
+     */
     public function toLocation(): BelongsTo
     {
         return $this->belongsTo(Location::class, 'to_location_id');
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function initiatedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'initiated_by');
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function receivedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'received_by');

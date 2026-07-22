@@ -50,11 +50,11 @@ class ProductSeeder extends Seeder
         foreach ($products as [$name, $categoryName, $baseUnit, $packUnit, $packFactor, $cost, $markup, $threshold]) {
             $categoryId = $categories[$categoryName] ?? $categories['Grocery'] ?? null;
 
-            if (!$categoryId || !$baseUnit) {
+            if (! $categoryId || ! $baseUnit) {
                 continue; // skip if a referenced category/unit wasn't found — keeps seeder resilient
             }
 
-            $sku = 'PRD-' . now()->format('ymd') . '-' . strtoupper(Str::random(4));
+            $sku = 'PRD-'.now()->format('ymd').'-'.strtoupper(Str::random(4));
 
             Product::firstOrCreate(
                 ['name' => $name],

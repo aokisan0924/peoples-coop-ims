@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Database\Factories\ProductFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -9,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Product extends Model
 {
+    /** @use HasFactory<ProductFactory> */
     use HasFactory;
 
     protected $fillable = [
@@ -27,34 +29,55 @@ class Product extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Category, $this>
+     */
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
     }
 
+    /**
+     * @return BelongsTo<Unit, $this>
+     */
     public function baseUnit(): BelongsTo
     {
         return $this->belongsTo(Unit::class, 'base_unit_id');
     }
 
+    /**
+     * @return BelongsTo<Unit, $this>
+     */
     public function packUnit(): BelongsTo
     {
         return $this->belongsTo(Unit::class, 'pack_unit_id');
     }
 
-    public function stockBatches(): HasMany {
+    /**
+     * @return HasMany<StockBatch, $this>
+     */
+    public function stockBatches(): HasMany
+    {
         return $this->hasMany(StockBatch::class);
+    }
+
+    /**
+     * @return HasMany<SaleItem, $this>
+     */
+    public function saleItems(): HasMany
+    {
+        return $this->hasMany(SaleItem::class);
     }
 
     // Total stock on hand, summed across all FIFO batches, in base units
     public function getTotalStockAttribute(): int
     {
-        return $this->stockBatches()->sum('remaining_qty');
+        return (int) $this->stockBatches()->sum('remaining_qty');
     }
 
     public function totalStockAt(int $locationId): int
     {
-        return $this->stockBatches()->where('location_id', $locationId)->sum('remaining_qty');
+        return (int) $this->stockBatches()->where('location_id', $locationId)->sum('remaining_qty');
     }
 
     public function getIsLowStockAttribute(): bool
@@ -75,6 +98,7 @@ class Product extends Model
         }
 
         $vatRate = config('pricing.vat_rate');
+
         return round($memberPrice * (1 + $vatRate / 100), 2);
     }
 
@@ -90,21 +114,23 @@ class Product extends Model
 
     public function getMemberPackPriceAttribute(): ?float
     {
-        if (!$this->pack_conversion_factor) {
+        if (! $this->pack_conversion_factor) {
             return null;
         }
 
         $packCost = (float) $this->cost_price * $this->pack_conversion_factor;
+
         return $this->calculatePrice($packCost, isMember: true);
     }
 
     public function getNonMemberPackPriceAttribute(): ?float
     {
-        if (!$this->pack_conversion_factor) {
+        if (! $this->pack_conversion_factor) {
             return null;
         }
 
         $packCost = (float) $this->cost_price * $this->pack_conversion_factor;
+
         return $this->calculatePrice($packCost, isMember: false);
     }
 }

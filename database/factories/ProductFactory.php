@@ -3,17 +3,21 @@
 namespace Database\Factories;
 
 use App\Models\Category;
+use App\Models\Product;
 use App\Models\Unit;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
+/**
+ * @extends Factory<Product>
+ */
 class ProductFactory extends Factory
 {
     public function definition(): array
     {
         return [
             'name' => $this->faker->words(3, true),
-            'sku' => 'PRD-TEST-' . strtoupper(Str::random(6)),
+            'sku' => 'PRD-TEST-'.strtoupper(Str::random(6)),
             'barcode' => strtoupper(Str::random(12)),
             'category_id' => Category::factory(),
             'base_unit_id' => Unit::factory(),

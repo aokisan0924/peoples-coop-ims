@@ -2,12 +2,20 @@
 
 namespace App\Models;
 
+use Database\Factories\ExpenseFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
+/**
+ * @property Carbon $expense_date
+ * @property Carbon|null $due_date
+ * @property Carbon|null $paid_at
+ */
 class Expense extends Model
 {
+    /** @use HasFactory<ExpenseFactory> */
     use HasFactory;
 
     protected $fillable = [
@@ -26,21 +34,33 @@ class Expense extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Location, $this>
+     */
     public function location(): BelongsTo
     {
         return $this->belongsTo(Location::class);
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function recordedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'recorded_by');
     }
 
+    /**
+     * @return BelongsTo<Supplier, $this>
+     */
     public function supplier(): BelongsTo
     {
         return $this->belongsTo(Supplier::class);
     }
 
+    /**
+     * @return BelongsTo<RecurringExpense, $this>
+     */
     public function recurringExpense(): BelongsTo
     {
         return $this->belongsTo(RecurringExpense::class);

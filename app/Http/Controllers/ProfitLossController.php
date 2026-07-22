@@ -10,9 +10,7 @@ use Inertia\Response;
 
 class ProfitLossController extends Controller
 {
-    public function __construct(private ProfitLossService $profitLoss)
-    {
-    }
+    public function __construct(private ProfitLossService $profitLoss) {}
 
     public function index(Request $request): Response
     {
@@ -22,7 +20,9 @@ class ProfitLossController extends Controller
         $startDate = $request->query('start_date', now()->startOfMonth()->toDateString());
         $endDate = $request->query('end_date', now()->endOfMonth()->toDateString());
 
-        $locationId = $isOwner ? $request->query('location_id') : $user->location_id;
+        $locationId = $isOwner
+            ? ($request->filled('location_id') ? (int) $request->query('location_id') : null)
+            : $user->location_id;
 
         return Inertia::render('reports/profit-loss', [
             'summary' => $this->profitLoss->summary($startDate, $endDate, $locationId),
@@ -31,7 +31,7 @@ class ProfitLossController extends Controller
             'isOwner' => $isOwner,
             'locations' => $isOwner ? Location::where('is_active', true)->orderBy('name')->get(['id', 'name']) : [],
             'selectedLocationId' => $locationId,
-            'branchBreakdown' => ($isOwner && !$locationId) ? $this->profitLoss->branchBreakdown($startDate, $endDate) : null,
+            'branchBreakdown' => ($isOwner && ! $locationId) ? $this->profitLoss->branchBreakdown($startDate, $endDate) : null,
         ]);
     }
 }

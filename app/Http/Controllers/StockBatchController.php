@@ -3,13 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\AccountsPayable;
-use App\Models\StockBatch;
-use App\Models\Product;
-use App\Models\Supplier;
 use App\Models\Location;
-use Illuminate\Http\Request;
-use Illuminate\Http\RedirectResponse;
+use App\Models\Product;
+use App\Models\StockBatch;
+use App\Models\Supplier;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -29,7 +29,7 @@ class StockBatchController extends Controller
         // A Manager only sees their own branch's receiving history — otherwise
         // every branch's batches show up mixed together with nothing to tell
         // them apart. Owner sees everything, across all branches.
-        if (!$user->seesAllLocations()) {
+        if (! $user->seesAllLocations()) {
             $query->where('location_id', $user->location_id);
         }
 
@@ -118,7 +118,7 @@ class StockBatchController extends Controller
                 'expiry_date' => ['nullable', 'date', 'after:received_date'],
             ]);
         } else {
-            if (!$user->location_id) {
+            if (! $user->location_id) {
                 return back()->withErrors(['location' => 'Your account has no assigned branch. Stock receiving must be done by a branch Manager.']);
             }
 
@@ -140,7 +140,7 @@ class StockBatchController extends Controller
 
         $batch = StockBatch::create($validated);
 
-        if (!empty($validated['supplier_id']) && empty($validated['paid_on_delivery'])) {
+        if (! empty($validated['supplier_id']) && empty($validated['paid_on_delivery'])) {
             AccountsPayable::create([
                 'supplier_id' => $validated['supplier_id'],
                 'location_id' => $validated['location_id'],
@@ -157,10 +157,11 @@ class StockBatchController extends Controller
 
         return redirect()->route('stock-batches.index')->with('success', 'Stock received.');
     }
+
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(string $id): void
     {
         //
     }
@@ -168,7 +169,7 @@ class StockBatchController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(string $id): void
     {
         //
     }
@@ -176,7 +177,7 @@ class StockBatchController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, string $id): void
     {
         //
     }
@@ -207,7 +208,7 @@ class StockBatchController extends Controller
 
         $product = Product::where('barcode', $request->barcode)->first();
 
-        if (!$product) {
+        if (! $product) {
             return response()->json(['found' => false], 404);
         }
 

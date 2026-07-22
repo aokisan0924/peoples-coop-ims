@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use Database\Factories\RecurringExpenseFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class RecurringExpense extends Model
 {
+    /** @use HasFactory<RecurringExpenseFactory> */
     use HasFactory;
 
     protected $fillable = [
@@ -23,11 +25,17 @@ class RecurringExpense extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<Location, $this>
+     */
     public function location(): BelongsTo
     {
         return $this->belongsTo(Location::class);
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function createdBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');

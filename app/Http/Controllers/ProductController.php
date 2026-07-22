@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Product;
 use App\Models\Category;
+use App\Models\Product;
 use App\Models\Unit;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -64,7 +64,7 @@ class ProductController extends Controller
         ]);
 
         // Auto-generate SKU: PRD-{timestamp}-{random} — simple, unique, human-scannable enough
-        $validated['sku'] = 'PRD-' . now()->format('ymd') . '-' . strtoupper(Str::random(4));
+        $validated['sku'] = 'PRD-'.now()->format('ymd').'-'.strtoupper(Str::random(4));
 
         // If no barcode provided, auto-generate an internal one from the SKU
         // so it can still be scanned/printed as a label
@@ -80,7 +80,7 @@ class ProductController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(string $id): void
     {
         //
     }
@@ -104,7 +104,7 @@ class ProductController extends Controller
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'barcode' => ['nullable', 'string', 'max:255', 'unique:products,barcode,' . $product->id],
+            'barcode' => ['nullable', 'string', 'max:255', 'unique:products,barcode,'.$product->id],
             'category_id' => ['required', 'exists:categories,id'],
             'base_unit_id' => ['required', 'exists:units,id'],
             'pack_unit_id' => ['nullable', 'exists:units,id'],
@@ -136,7 +136,6 @@ class ProductController extends Controller
 
         return redirect()->route('products.index')->with('success', 'Product removed.');
     }
-
 
     public function label(Product $product): Response
     {

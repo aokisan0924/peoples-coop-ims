@@ -8,8 +8,8 @@ use App\Models\GcashTransaction;
 use App\Models\Location;
 use App\Models\RecurringExpense;
 use App\Models\Supplier;
-use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -24,7 +24,7 @@ class ExpenseController extends Controller
         $user = $request->user();
         $query = Expense::with('location', 'recordedBy', 'supplier')->orderByDesc('expense_date');
 
-        if (!$user->seesAllLocations()) {
+        if (! $user->seesAllLocations()) {
             $query->where('location_id', $user->location_id);
         }
 
@@ -39,7 +39,7 @@ class ExpenseController extends Controller
         $user = $request->user();
         $isOwner = $user->seesAllLocations();
 
-        if (!$isOwner && !$user->location_id) {
+        if (! $isOwner && ! $user->location_id) {
             abort(403, 'Only branch-assigned Managers can record expenses.');
         }
 
@@ -56,7 +56,7 @@ class ExpenseController extends Controller
         $user = $request->user();
         $isOwner = $user->seesAllLocations();
 
-        if (!$isOwner && !$user->location_id) {
+        if (! $isOwner && ! $user->location_id) {
             return back()->withErrors(['location' => 'Only branch-assigned Managers can record expenses.']);
         }
 
@@ -135,7 +135,7 @@ class ExpenseController extends Controller
     {
         $user = $request->user();
 
-        if (!$user->seesAllLocations() && $expense->location_id !== $user->location_id) {
+        if (! $user->seesAllLocations() && $expense->location_id !== $user->location_id) {
             abort(403);
         }
 
@@ -175,7 +175,7 @@ class ExpenseController extends Controller
         $newBalance = (float) $float->balance - (float) $expense->amount;
 
         if ($newBalance < 0) {
-            throw new RuntimeException('Insufficient GCash float to pay this expense. Current float: ₱' . number_format($float->balance, 2));
+            throw new RuntimeException('Insufficient GCash float to pay this expense. Current float: ₱'.number_format($float->balance, 2));
         }
 
         $float->update(['balance' => $newBalance]);
@@ -189,7 +189,7 @@ class ExpenseController extends Controller
             'cashier_id' => $userId,
             'location_id' => $locationId,
             'float_balance_after' => $newBalance,
-            'notes' => "Payment for expense: {$expense->category}" . ($expense->description ? " ({$expense->description})" : ''),
+            'notes' => "Payment for expense: {$expense->category}".($expense->description ? " ({$expense->description})" : ''),
         ]);
     }
 
@@ -197,7 +197,7 @@ class ExpenseController extends Controller
     {
         $user = $request->user();
 
-        if (!$user->seesAllLocations() && $expense->location_id !== $user->location_id) {
+        if (! $user->seesAllLocations() && $expense->location_id !== $user->location_id) {
             abort(403);
         }
 

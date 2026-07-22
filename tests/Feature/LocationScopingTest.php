@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use App\Models\GcashFloat;
-use App\Models\GcashTransaction;
 use App\Models\Location;
 use App\Models\Product;
 use App\Models\Sale;
