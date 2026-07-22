@@ -1,11 +1,12 @@
 import { Head, Link, router } from '@inertiajs/react';
+import { Building2, CheckCircle2, MapPin, Pencil, Phone, Plus, Search, Store, Trash2, X, XCircle  } from 'lucide-react';
+import type {LucideIcon} from 'lucide-react';
 import { useMemo, useState } from 'react';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import locations from '@/routes/locations';
-import { Building2, CheckCircle2, MapPin, Pencil, Phone, Plus, Search, Store, Trash2, X, XCircle, type LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import locations from '@/routes/locations';
 
 interface Location {
     id: number;
@@ -32,7 +33,11 @@ export default function LocationsIndex({ locations: locationList }: { locations:
 
     const filtered = useMemo(() => {
         const q = query.trim().toLowerCase();
-        if (!q) return locationList;
+
+        if (!q) {
+return locationList;
+}
+
         return locationList.filter((l) => [l.name, l.address, l.phone].some((field) => field?.toLowerCase().includes(q)));
     }, [locationList, query]);
 

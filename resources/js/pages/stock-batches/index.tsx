@@ -1,12 +1,13 @@
-import { useMemo, useState } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
-import { Button } from '@/components/ui/button';
+import { AlertTriangle, Boxes, Calendar, CheckCircle2, PackagePlus, PackageX, Search, Trash2, Truck, X, XCircle } from 'lucide-react';
+import type {LucideIcon} from 'lucide-react';
+import { useMemo, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
-import { type StockBatch } from '@/types/inventory';
 import stockBatches from '@/routes/stock-batches';
-import { AlertTriangle, Boxes, Calendar, CheckCircle2, PackagePlus, Search, Trash2, Truck, X, XCircle, type LucideIcon } from 'lucide-react';
+import type {StockBatch} from '@/types/inventory';
 
 interface PaginatedBatches {
     data: StockBatch[];
@@ -18,10 +19,20 @@ type ExpiryStatus = 'none' | 'expired' | 'soon' | 'ok';
 const SOON_THRESHOLD_DAYS = 30;
 
 function getExpiryStatus(expiryDate: string | null): ExpiryStatus {
-    if (!expiryDate) return 'none';
+    if (!expiryDate) {
+return 'none';
+}
+
     const diffDays = Math.ceil((new Date(expiryDate).setHours(0, 0, 0, 0) - new Date().setHours(0, 0, 0, 0)) / 86400000);
-    if (diffDays < 0) return 'expired';
-    if (diffDays <= SOON_THRESHOLD_DAYS) return 'soon';
+
+    if (diffDays < 0) {
+return 'expired';
+}
+
+    if (diffDays <= SOON_THRESHOLD_DAYS) {
+return 'soon';
+}
+
     return 'ok';
 }
 
@@ -43,6 +54,7 @@ export default function StockBatchesIndex({ batches, isOwner }: { batches: Pagin
 
     const filtered = useMemo(() => {
         const q = query.trim().toLowerCase();
+
         return batches.data.filter((batch) => {
             const matchesQuery = !q || [batch.product?.name, batch.supplier?.name].some((f) => f?.toLowerCase().includes(q));
             const status = getExpiryStatus(batch.expiry_date);
@@ -51,6 +63,7 @@ export default function StockBatchesIndex({ batches, isOwner }: { batches: Pagin
                 (expiry === 'expired' && status === 'expired') ||
                 (expiry === 'soon' && status === 'soon') ||
                 (expiry === 'depleted' && batch.remaining_qty === 0);
+
             return matchesQuery && matchesExpiry;
         });
     }, [batches.data, query, expiry]);
@@ -94,6 +107,7 @@ export default function StockBatchesIndex({ batches, isOwner }: { batches: Pagin
                             <StatCard icon={Boxes} label="Total Batches" value={batches.data.length} accent="teal" />
                             <StatCard icon={AlertTriangle} label="Expiring Soon" value={soonCount} accent="amber" />
                             <StatCard icon={XCircle} label="Expired" value={expiredCount} accent="red" />
+                            <StatCard icon={PackageX} label="Depleted" value={depletedCount} accent="gray" />
                         </div>
 
                         {/* Search + filter */}
@@ -158,6 +172,7 @@ export default function StockBatchesIndex({ batches, isOwner }: { batches: Pagin
                                     {filtered.map((batch) => {
                                         const status = getExpiryStatus(batch.expiry_date);
                                         const pct = batch.received_qty > 0 ? Math.round((batch.remaining_qty / batch.received_qty) * 100) : 0;
+
                                         return (
                                             <tr key={batch.id} className="group border-t transition-colors hover:bg-muted/30">
                                                 <td className="p-3 font-medium">
@@ -226,6 +241,7 @@ export default function StockBatchesIndex({ batches, isOwner }: { batches: Pagin
                             {filtered.map((batch) => {
                                 const status = getExpiryStatus(batch.expiry_date);
                                 const pct = batch.received_qty > 0 ? Math.round((batch.remaining_qty / batch.received_qty) * 100) : 0;
+
                                 return (
                                     <div key={batch.id} className="rounded-xl border bg-card p-3 shadow-sm">
                                         <div className="flex items-start justify-between gap-2">
@@ -306,7 +322,10 @@ export default function StockBatchesIndex({ batches, isOwner }: { batches: Pagin
 }
 
 function ExpiryBadge({ status, date }: { status: ExpiryStatus; date: string | null }) {
-    if (status === 'none') return <span className="text-xs text-muted-foreground">—</span>;
+    if (status === 'none') {
+return <span className="text-xs text-muted-foreground">—</span>;
+}
+
     if (status === 'expired') {
         return (
             <Badge className="gap-1 border-0 bg-red-100 font-normal text-red-700 dark:bg-red-950/50 dark:text-red-400">
@@ -315,6 +334,7 @@ function ExpiryBadge({ status, date }: { status: ExpiryStatus; date: string | nu
             </Badge>
         );
     }
+
     if (status === 'soon') {
         return (
             <Badge className="gap-1 border-0 bg-amber-100 font-normal text-amber-700 dark:bg-amber-950/50 dark:text-amber-400">
@@ -323,6 +343,7 @@ function ExpiryBadge({ status, date }: { status: ExpiryStatus; date: string | nu
             </Badge>
         );
     }
+
     return (
         <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
             <CheckCircle2 className="size-3 text-[var(--pos-green)]" />
@@ -331,11 +352,12 @@ function ExpiryBadge({ status, date }: { status: ExpiryStatus; date: string | nu
     );
 }
 
-function StatCard({ icon: Icon, label, value, accent }: { icon: LucideIcon; label: string; value: number; accent: 'teal' | 'amber' | 'red' }) {
+function StatCard({ icon: Icon, label, value, accent }: { icon: LucideIcon; label: string; value: number; accent: 'teal' | 'amber' | 'red' | 'gray' }) {
     const styles = {
         teal: 'bg-[var(--pos-teal)]/10 text-[var(--pos-teal)]',
         amber: 'bg-amber-100 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400',
         red: 'bg-red-100 text-red-600 dark:bg-red-950/40 dark:text-red-400',
+        gray: 'bg-muted text-muted-foreground',
     }[accent];
 
     return (
@@ -352,12 +374,15 @@ function StatCard({ icon: Icon, label, value, accent }: { icon: LucideIcon; labe
 }
 
 function Pagination({ links }: { links: PaginatedBatches['links'] }) {
-    if (links.length <= 3) return null;
+    if (links.length <= 3) {
+    return null;
+}
 
     return (
         <div className="flex flex-wrap items-center justify-center gap-1 pt-1">
             {links.map((link, i) => {
                 const label = link.label.replace('&laquo;', '←').replace('&raquo;', '→');
+
                 if (!link.url) {
                     return (
                         <span key={i} className="cursor-not-allowed rounded-md px-3 py-1.5 text-sm text-muted-foreground/40">
@@ -365,6 +390,7 @@ function Pagination({ links }: { links: PaginatedBatches['links'] }) {
                         </span>
                     );
                 }
+
                 return (
                     <Link
                         key={i}

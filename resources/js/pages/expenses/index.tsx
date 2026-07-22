@@ -1,7 +1,7 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { AlertCircle, Banknote, CalendarClock, Plus, Receipt, Repeat, Smartphone, Trash2 } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 interface Expense {
@@ -39,7 +39,10 @@ function peso(n: string | number): string {
 }
 
 function isOverdue(dueDate: string | null): boolean {
-    if (!dueDate) return false;
+    if (!dueDate) {
+return false;
+}
+
     return new Date(dueDate) < new Date(new Date().toDateString());
 }
 
@@ -138,6 +141,7 @@ export default function ExpensesIndex({ expenses, pendingThisMonth = [] }: Props
                         <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
                             {pendingThisMonth.map((t) => {
                                 const daysLeft = daysUntilDue(t.day_of_month);
+
                                 return (
                                     <div
                                         key={t.id}

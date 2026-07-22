@@ -1,6 +1,6 @@
 import { Head, Link } from '@inertiajs/react';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 
 interface Shift {
     id: number;

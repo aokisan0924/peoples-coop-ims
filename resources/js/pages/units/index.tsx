@@ -1,11 +1,11 @@
-import { useMemo, useState } from 'react';
 import { Head, router } from '@inertiajs/react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { type Unit } from '@/types/inventory';
-import units from '@/routes/units';
 import { Check, Pencil, Plus, Ruler, Search, Trash2, X } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import units from '@/routes/units';
+import type {Unit} from '@/types/inventory';
 
 export default function UnitsIndex({ units: unitList }: { units: Unit[] }) {
     const [query, setQuery] = useState('');
@@ -15,7 +15,11 @@ export default function UnitsIndex({ units: unitList }: { units: Unit[] }) {
 
     const filtered = useMemo(() => {
         const q = query.trim().toLowerCase();
-        if (!q) return unitList;
+
+        if (!q) {
+return unitList;
+}
+
         return unitList.filter((u) => u.name.toLowerCase().includes(q) || u.abbreviation.toLowerCase().includes(q));
     }, [unitList, query]);
 
@@ -96,7 +100,10 @@ function AddRow({ onDone }: { onDone: () => void }) {
     const [error, setError] = useState<string | null>(null);
 
     function save() {
-        if (!name.trim() || !abbreviation.trim()) return;
+        if (!name.trim() || !abbreviation.trim()) {
+return;
+}
+
         setSaving(true);
         setError(null);
         router.post(
@@ -160,7 +167,10 @@ function UnitRow({ unit }: { unit: Unit }) {
     const [error, setError] = useState<string | null>(null);
 
     function save() {
-        if (!name.trim() || !abbreviation.trim()) return;
+        if (!name.trim() || !abbreviation.trim()) {
+return;
+}
+
         setSaving(true);
         setError(null);
         router.put(

@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef } from 'react';
-import { Input } from '@/components/ui/input';
 import { Search } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
 import CameraBarcodeScanner from '@/components/shared/camera-barcode-scanner';
+import { Input } from '@/components/ui/input';
 
 interface ProductResult {
     id: number;
@@ -32,19 +32,24 @@ export default function ProductSearchBar({ onSelect, placeholder, autoFocus }: P
     const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
     useEffect(() => {
-        if (autoFocus) inputRef.current?.focus();
+        if (autoFocus) {
+            inputRef.current?.focus();
+            }
     }, [autoFocus]);
 
     useEffect(() => {
         clearTimeout(debounceRef.current);
 
         if (query.trim() === '') {
-            setResults([]);
-            setShowDropdown(false);
+            queueMicrotask(() => {
+                setResults([]);
+                setShowDropdown(false);
+            });
+
             return;
         }
 
-        setLoading(true);
+        queueMicrotask(() => setLoading(true));
         debounceRef.current = setTimeout(async () => {
             try {
                 const res = await fetch(`/products/search?q=${encodeURIComponent(query)}`);
@@ -64,6 +69,7 @@ export default function ProductSearchBar({ onSelect, placeholder, autoFocus }: P
         // one exact barcode match, select it immediately without waiting for a click
         if (e.key === 'Enter') {
             const exactMatch = results.find((p) => p.barcode === query.trim());
+
             if (exactMatch) {
                 handleSelect(exactMatch);
             }
@@ -99,6 +105,7 @@ export default function ProductSearchBar({ onSelect, placeholder, autoFocus }: P
                             setQuery(barcode);
                             // Reuse the existing Enter-key auto-select logic by simulating the lookup directly
                             const exactMatch = results.find((p) => p.barcode === barcode);
+
                             if (exactMatch) {
                                 handleSelect(exactMatch);
                             }

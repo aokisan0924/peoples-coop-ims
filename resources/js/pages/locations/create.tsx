@@ -1,12 +1,12 @@
 import { Head, useForm, Link } from '@inertiajs/react';
+import { ArrowLeft, Building2, MapPin, Phone, Store } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import locations from '@/routes/locations';
-import { ArrowLeft, Building2, MapPin, Phone, Store } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import locations from '@/routes/locations';
 
 export default function CreateLocation() {
     const { data, setData, post, processing, errors } = useForm({

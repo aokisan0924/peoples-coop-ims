@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
 import { Html5Qrcode } from 'html5-qrcode';
-import { Button } from '@/components/ui/button';
 import { Camera, X } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { Button } from '@/components/ui/button';
 
 interface Props {
     onScan: (value: string) => void;
@@ -17,8 +17,12 @@ export default function CameraBarcodeScanner({ onScan, buttonLabel = 'Scan with 
     const containerId = useRef(`scanner-${Math.random().toString(36).slice(2)}`);
 
     async function safeStop(scanner: Html5Qrcode) {
-        if (stoppedRef.current) return;
+        if (stoppedRef.current) {
+return;
+}
+
         stoppedRef.current = true; // set first — if stop() throws, we still don't want to retry it
+
         try {
             await scanner.stop();
         } catch {
@@ -27,7 +31,9 @@ export default function CameraBarcodeScanner({ onScan, buttonLabel = 'Scan with 
     }
 
     useEffect(() => {
-        if (!isOpen) return;
+        if (!isOpen) {
+return;
+}
 
         const scanner = new Html5Qrcode(containerId.current, { verbose: false });
         scannerRef.current = scanner;
@@ -67,9 +73,11 @@ export default function CameraBarcodeScanner({ onScan, buttonLabel = 'Scan with 
         if (startPromiseRef.current) {
             await startPromiseRef.current;
         }
+
         if (scannerRef.current) {
             await safeStop(scannerRef.current);
         }
+
         setIsOpen(false);
         setError('');
     }

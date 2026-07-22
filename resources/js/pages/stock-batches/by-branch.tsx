@@ -1,9 +1,9 @@
-import { useMemo, useState } from 'react';
 import { Head, Link } from '@inertiajs/react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
 import { AlertTriangle, Boxes, Search } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { cn } from '@/lib/utils';
 
 interface Location {
     id: number;
@@ -25,8 +25,14 @@ interface Props {
 }
 
 function cellTone(qty: number, threshold: number): string {
-    if (qty <= 0) return 'bg-red-50 text-red-700 font-semibold dark:bg-red-950/30 dark:text-red-400';
-    if (qty <= threshold) return 'bg-amber-50 text-amber-700 font-medium dark:bg-amber-950/30 dark:text-amber-400';
+    if (qty <= 0) {
+return 'bg-red-50 text-red-700 font-semibold dark:bg-red-950/30 dark:text-red-400';
+}
+
+    if (qty <= threshold) {
+return 'bg-amber-50 text-amber-700 font-medium dark:bg-amber-950/30 dark:text-amber-400';
+}
+
     return 'text-foreground';
 }
 
@@ -36,10 +42,18 @@ export default function StockByBranch({ locations, products }: Props) {
 
     const filtered = useMemo(() => {
         const q = query.trim().toLowerCase();
+
         return products.filter((p) => {
             const matchesQuery = !q || p.name.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q);
-            if (!matchesQuery) return false;
-            if (!lowOnly) return true;
+
+            if (!matchesQuery) {
+return false;
+}
+
+            if (!lowOnly) {
+return true;
+}
+
             return locations.some((loc) => (p.stock_by_location[loc.id] ?? 0) <= p.low_stock_threshold);
         });
     }, [products, query, lowOnly, locations]);
@@ -114,6 +128,7 @@ export default function StockByBranch({ locations, products }: Props) {
                                     </td>
                                     {locations.map((loc) => {
                                         const qty = p.stock_by_location[loc.id] ?? 0;
+
                                         return (
                                             <td
                                                 key={loc.id}

@@ -13,6 +13,7 @@ export function useCurrentShift() {
 
     const refetch = useCallback(async () => {
         setLoading(true);
+
         try {
             const res = await fetch('/shift/current');
             const data = await res.json();
@@ -23,7 +24,11 @@ export function useCurrentShift() {
     }, []);
 
     useEffect(() => {
-        refetch();
+        // Deferred: refetch()'s first line (setLoading(true)) would otherwise
+        // run synchronously inside this effect body.
+        queueMicrotask(() => {
+            refetch();
+        });
     }, [refetch]);
 
     return { shift, loading, refetch };

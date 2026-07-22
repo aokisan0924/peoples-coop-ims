@@ -1,8 +1,8 @@
 import { Head, useForm, Link } from '@inertiajs/react';
+import { ArrowLeft, Info, Save, Truck } from 'lucide-react';
 import SupplierFormFields from '@/components/suppliers/supplier-form-fields';
 import { Button } from '@/components/ui/button';
 import suppliers from '@/routes/suppliers';
-import { ArrowLeft, Info, Save, Truck } from 'lucide-react';
 
 export default function CreateSupplier() {
     const { data, setData, post, processing, errors } = useForm({

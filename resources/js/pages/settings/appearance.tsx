@@ -1,8 +1,8 @@
 import { Head } from '@inertiajs/react';
+import { Palette } from 'lucide-react';
 import AppearanceTabs from '@/components/appearance-tabs';
 import Heading from '@/components/heading';
 import { edit as editAppearance } from '@/routes/appearance';
-import { Palette } from 'lucide-react';
 
 export default function Appearance() {
     return (

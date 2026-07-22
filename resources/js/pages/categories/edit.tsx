@@ -1,10 +1,10 @@
 import { Head, useForm, Link } from '@inertiajs/react';
+import { ArrowLeft, Pencil } from 'lucide-react';
 import CategoryFormFields from '@/components/categories/category-form-fields';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { type Category } from '@/types/inventory';
 import categories from '@/routes/categories';
-import { ArrowLeft, Pencil } from 'lucide-react';
+import type {Category} from '@/types/inventory';
 
 interface ParentOption {
     id: number;

@@ -1,9 +1,9 @@
 import { Link } from '@inertiajs/react';
-import { useEffect, useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { ShieldCheck } from 'lucide-react';
-import type { AuthLayoutProps } from '@/types';
+import { useEffect, useState } from 'react';
 import { home } from '@/routes';
+import type { AuthLayoutProps } from '@/types';
 
 // What this system actually does, shown as a rotating showcase — real
 // capabilities from the codebase, not marketing copy.

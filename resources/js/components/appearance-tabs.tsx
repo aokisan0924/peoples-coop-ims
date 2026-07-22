@@ -18,6 +18,7 @@ export default function AppearanceToggleTab({ className = '', ...props }: HTMLAt
         <div className={cn('grid grid-cols-3 gap-1 rounded-lg bg-muted p-1 sm:inline-grid sm:w-auto', className)} {...props}>
             {tabs.map(({ value, icon: Icon, label }) => {
                 const active = appearance === value;
+
                 return (
                     <button
                         key={value}

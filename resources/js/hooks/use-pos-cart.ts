@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { type CartItem } from '@/types/inventory';
+import type {CartItem} from '@/types/inventory';
 
 interface ProductResult {
     id: number;
@@ -38,6 +38,7 @@ export function usePosCart() {
                     quantity: newQty,
                     line_total: round2(newQty * item.unit_price),
                 };
+
                 return updated;
             }
 
@@ -60,7 +61,10 @@ export function usePosCart() {
     }
 
     function updateQuantity(index: number, quantity: number) {
-        if (quantity < 1) return;
+        if (quantity < 1) {
+return;
+}
+
         setItems((prev) => {
             const updated = [...prev];
             const item = updated[index];
@@ -69,6 +73,7 @@ export function usePosCart() {
                 quantity,
                 line_total: round2(quantity * item.unit_price),
             };
+
             return updated;
         });
     }

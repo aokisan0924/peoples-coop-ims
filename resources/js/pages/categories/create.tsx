@@ -1,9 +1,9 @@
 import { Head, useForm, Link } from '@inertiajs/react';
+import { ArrowLeft, FolderPlus } from 'lucide-react';
 import CategoryFormFields from '@/components/categories/category-form-fields';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import categories from '@/routes/categories';
-import { ArrowLeft, FolderPlus } from 'lucide-react';
 
 interface ParentOption {
     id: number;

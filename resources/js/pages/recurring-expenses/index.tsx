@@ -1,7 +1,7 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { AlertCircle, Building2, CalendarClock, Pause, Play, Plus, Repeat, Trash2 } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 interface Template {
@@ -19,7 +19,10 @@ function peso(n: string | number): string {
 }
 
 function ordinal(n: number): string {
-    if (n >= 11 && n <= 13) return `${n}th`;
+    if (n >= 11 && n <= 13) {
+return `${n}th`;
+}
+
     switch (n % 10) {
         case 1: return `${n}st`;
         case 2: return `${n}nd`;

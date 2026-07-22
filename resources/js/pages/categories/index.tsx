@@ -1,13 +1,13 @@
-import { useMemo, useState } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
 import { AnimatePresence, motion } from 'framer-motion';
+import { ChevronDown, FolderTree, Pencil, Plus, Search, Trash2 } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { type Category } from '@/types/inventory';
-import categories from '@/routes/categories';
-import { ChevronDown, FolderTree, Pencil, Plus, Search, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import categories from '@/routes/categories';
+import type {Category} from '@/types/inventory';
 
 type CategoryWithChildren = Category & { childCategories: Category[] };
 
@@ -52,6 +52,7 @@ export default function CategoriesIndex({ categories: categoryList }: { categori
                 consumed.add(root.id);
                 const kids = (childrenByParent.get(root.id) ?? []).sort(sortByName);
                 kids.forEach((k) => consumed.add(k.id));
+
                 return { ...root, childCategories: kids };
             });
 
@@ -72,7 +73,11 @@ export default function CategoriesIndex({ categories: categoryList }: { categori
 
     const searchResults = useMemo(() => {
         const q = query.trim().toLowerCase();
-        if (q === '') return null;
+
+        if (q === '') {
+return null;
+}
+
         return categoryList
             .filter((c) => c.name.toLowerCase().includes(q))
             .sort((a, b) => a.name.localeCompare(b.name));

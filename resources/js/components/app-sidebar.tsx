@@ -32,7 +32,6 @@ import {
     SidebarSeparator,
 } from '@/components/ui/sidebar';
 import { useAuth } from '@/hooks/use-auth';
-import type { NavItem } from '@/types';
 import { dashboard } from '@/routes';
 import categories from '@/routes/categories';
 import gcash from '@/routes/gcash';
@@ -43,6 +42,7 @@ import sales from '@/routes/sales';
 import stockBatches from '@/routes/stock-batches';
 import suppliers from '@/routes/suppliers';
 import units from '@/routes/units';
+import type { NavItem } from '@/types';
 
 // ---------- Overview ----------
 const overviewNavItems: NavItem[] = [

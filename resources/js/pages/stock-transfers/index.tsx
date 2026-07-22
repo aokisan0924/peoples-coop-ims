@@ -1,12 +1,13 @@
-import { useMemo, useState } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
+import { ArrowRight, ArrowRightLeft, CheckCircle2, Clock, Search, User, X, XCircle  } from 'lucide-react';
+import type {LucideIcon} from 'lucide-react';
+import { useMemo, useState } from 'react';
 import TransferStatusBadge from '@/components/stock-transfer/transfer-status-badge';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { useAuth } from '@/hooks/use-auth';
 import { cn } from '@/lib/utils';
-import { ArrowRight, ArrowRightLeft, CheckCircle2, Clock, Search, User, X, XCircle, type LucideIcon } from 'lucide-react';
 
 interface Transfer {
     id: number;
@@ -47,6 +48,7 @@ export default function StockTransfersIndex({ transfers }: { transfers: Transfer
 
     const filtered = useMemo(() => {
         const q = query.trim().toLowerCase();
+
         return transfers.filter((t) => {
             const matchesQuery =
                 !q ||
@@ -54,6 +56,7 @@ export default function StockTransfersIndex({ transfers }: { transfers: Transfer
                     f?.toLowerCase().includes(q),
                 );
             const matchesStatus = status === 'all' || t.status === status;
+
             return matchesQuery && matchesStatus;
         });
     }, [transfers, query, status]);

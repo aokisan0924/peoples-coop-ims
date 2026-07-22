@@ -1,10 +1,10 @@
 import { Head, Link } from '@inertiajs/react';
+import { ArrowLeft, Barcode as BarcodeIcon, Printer, Sun } from 'lucide-react';
 import BarcodeLabel from '@/components/products/barcode-label';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { type Product } from '@/types/inventory';
 import products from '@/routes/products';
-import { ArrowLeft, Barcode as BarcodeIcon, Printer, Sun } from 'lucide-react';
+import type {Product} from '@/types/inventory';
 
 export default function BarcodeDisplay({ product }: { product: Product }) {
     return (

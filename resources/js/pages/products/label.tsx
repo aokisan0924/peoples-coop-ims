@@ -1,9 +1,9 @@
 import { Head, Link } from '@inertiajs/react';
+import { ArrowLeft, Printer } from 'lucide-react';
 import BarcodeLabel from '@/components/products/barcode-label';
 import { Button } from '@/components/ui/button';
-import { type Product } from '@/types/inventory';
 import products from '@/routes/products';
-import { ArrowLeft, Printer } from 'lucide-react';
+import type {Product} from '@/types/inventory';
 
 export default function ProductLabel({ product }: { product: Product }) {
     function handlePrint() {

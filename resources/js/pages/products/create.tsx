@@ -1,11 +1,11 @@
 import { Head, useForm, Link } from '@inertiajs/react';
+import { ArrowLeft, Package, Tag } from 'lucide-react';
 import ProductFormFields from '@/components/products/product-form-fields';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import products from '@/routes/products';
-import { ArrowLeft, Package, Tag } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import products from '@/routes/products';
 
 interface Option {
     id: number;

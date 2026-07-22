@@ -1,14 +1,14 @@
-import { useEffect, useState } from 'react';
 import { Head, router } from '@inertiajs/react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import GcashTransactionForm from '@/components/gcash/gcash-transaction-form';
+import { ArrowDownCircle, ArrowUpCircle, Receipt, Receipt as ExpenseIcon, Settings2, Wallet, X } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import FloatAdjustmentForm from '@/components/gcash/float-adjustment-form';
+import GcashTransactionForm from '@/components/gcash/gcash-transaction-form';
 import OpenShiftGate from '@/components/pos/open-shift-gate';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/use-auth';
 import { useCurrentShift } from '@/hooks/use-current-shift';
-import { ArrowDownCircle, ArrowUpCircle, Receipt, Receipt as ExpenseIcon, Settings2, Wallet, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface Transaction {
@@ -56,6 +56,7 @@ function secondaryLabel(tx: Transaction): string {
     if (tx.type === 'expense_payment') {
         return tx.notes ?? 'Expense payment';
     }
+
     return tx.customer_name ?? '—';
 }
 
@@ -70,11 +71,17 @@ export default function GcashIndex({ floatBalance, todayStats, recentTransaction
     }
 
     useEffect(() => {
-        if (!modal) return;
+        if (!modal) {
+return;
+}
+
         function onKeyDown(e: KeyboardEvent) {
-            if (e.key === 'Escape') setModal(null);
+            if (e.key === 'Escape') {
+setModal(null);
+}
         }
         window.addEventListener('keydown', onKeyDown);
+
         return () => window.removeEventListener('keydown', onKeyDown);
     }, [modal]);
 

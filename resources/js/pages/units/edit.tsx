@@ -1,9 +1,9 @@
 import { Head, useForm, Link } from '@inertiajs/react';
-import UnitFormFields from '@/components/units/unit-form-fields';
-import { Button } from '@/components/ui/button';
-import { type Unit } from '@/types/inventory';
-import units from '@/routes/units';
 import { ArrowLeft, Pencil, Ruler, Save } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import UnitFormFields from '@/components/units/unit-form-fields';
+import units from '@/routes/units';
+import type {Unit} from '@/types/inventory';
 
 export default function EditUnit({ unit }: { unit: Unit }) {
     const { data, setData, put, processing, errors } = useForm({

@@ -1,4 +1,5 @@
-import { offlineDb, type PendingSale } from '@/lib/offline-db';
+import { offlineDb  } from '@/lib/offline-db';
+import type {PendingSale} from '@/lib/offline-db';
 
 type SyncListener = (status: SyncStatus) => void;
 
@@ -19,7 +20,9 @@ class SyncEngine {
         window.addEventListener('offline', () => this.handleConnectionChange());
 
         setInterval(() => {
-            if (navigator.onLine) this.syncPending();
+            if (navigator.onLine) {
+                this.syncPending();
+            }
         }, 15000);
 
         // Refresh product cache every 5 minutes while online, plus once immediately
@@ -30,6 +33,7 @@ class SyncEngine {
     subscribe(listener: SyncListener): () => void {
         this.listeners.push(listener);
         this.notify();
+
         return () => {
             this.listeners = this.listeners.filter((l) => l !== listener);
         };
@@ -48,6 +52,7 @@ class SyncEngine {
 
     private handleConnectionChange() {
         this.notify();
+
         if (navigator.onLine) {
             this.syncPending();
         }
@@ -86,7 +91,10 @@ class SyncEngine {
 
         for (const item of payload.items) {
             const product = await offlineDb.cachedProducts.get(item.product_id);
-            if (!product) continue;
+
+            if (!product) {
+                continue;
+            }
 
             const unitPrice = item.unit_type === 'pack'
                 ? (payload.is_member ? product.member_pack_price : product.non_member_pack_price)
@@ -103,7 +111,10 @@ class SyncEngine {
      * items were actually sold, which matters for FIFO stock deduction accuracy).
      */
     async syncPending(): Promise<void> {
-        if (this.syncing) return; // avoid overlapping sync runs
+        if (this.syncing) {
+        return;
+    } // avoid overlapping sync runs
+
         this.syncing = true;
         this.notify();
 
@@ -157,7 +168,7 @@ class SyncEngine {
                 });
                 this.lastError = data.message ?? 'A sale failed to sync — needs manager review.';
             }
-        } catch (e) {
+        } catch {
             // Network error mid-sync — leave as pending, will retry automatically
             await offlineDb.pendingSales.update(sale.uuid, { status: 'pending' });
         }
@@ -168,7 +179,9 @@ class SyncEngine {
      * so offline search/scan has recent data to work with.
      */
     async refreshProductCache(): Promise<void> {
-    if (!navigator.onLine) return;
+        if (!navigator.onLine) {
+        return;
+    }
 
     try {
         const response = await fetch('/products/offline-snapshot', {
@@ -177,6 +190,7 @@ class SyncEngine {
 
         if (!response.ok) {
             console.warn(`Offline product cache refresh failed: HTTP ${response.status}`);
+
             return;
         }
 

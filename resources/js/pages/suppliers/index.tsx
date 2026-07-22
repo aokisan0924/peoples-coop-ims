@@ -1,11 +1,11 @@
-import { useMemo, useState } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { type Supplier } from '@/types/inventory';
-import suppliers from '@/routes/suppliers';
 import { CreditCard, Mail, Pencil, Phone, Search, Trash2, Truck, User, X } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import suppliers from '@/routes/suppliers';
+import type {Supplier} from '@/types/inventory';
 
 export default function SuppliersIndex({ suppliers: supplierList }: { suppliers: Supplier[] }) {
     const [query, setQuery] = useState('');
@@ -20,7 +20,11 @@ export default function SuppliersIndex({ suppliers: supplierList }: { suppliers:
 
     const filtered = useMemo(() => {
         const q = query.trim().toLowerCase();
-        if (!q) return supplierList;
+
+        if (!q) {
+return supplierList;
+}
+
         return supplierList.filter((s) => [s.name, s.contact_person, s.phone, s.email].some((f) => f?.toLowerCase().includes(q)));
     }, [supplierList, query]);
 

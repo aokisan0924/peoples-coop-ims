@@ -1,10 +1,11 @@
-import { useMemo, useState } from 'react';
 import { Head, router, Link } from '@inertiajs/react';
+import { Banknote, Calendar, Eye, Receipt, Search, Smartphone, Users, Wallet, X, XCircle  } from 'lucide-react';
+import type {LucideIcon} from 'lucide-react';
+import { useMemo, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
-import { Banknote, Calendar, Eye, Receipt, Search, Smartphone, Users, Wallet, X, XCircle, type LucideIcon } from 'lucide-react';
 
 interface Sale {
     id: number;
@@ -39,7 +40,11 @@ export default function MySales({ sales, summary, selectedDate }: { sales: Sale[
 
     const filtered = useMemo(() => {
         const q = query.trim().toLowerCase();
-        if (!q) return sales;
+
+        if (!q) {
+return sales;
+}
+
         return sales.filter((sale) => sale.receipt_number.toLowerCase().includes(q));
     }, [sales, query]);
 
@@ -246,6 +251,7 @@ function PaymentBadge({ method }: { method: 'cash' | 'gcash' }) {
             </span>
         );
     }
+
     return (
         <span className="inline-flex items-center gap-1 rounded-md bg-[var(--pos-teal)]/15 px-2 py-0.5 text-xs font-medium text-[var(--pos-teal)]">
             <Smartphone className="size-3" />

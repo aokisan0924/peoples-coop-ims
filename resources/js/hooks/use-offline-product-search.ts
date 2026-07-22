@@ -24,11 +24,12 @@ export function useOfflineProductSearch(query: string) {
         clearTimeout(debounceRef.current);
 
         if (query.trim() === '') {
-            setResults([]);
+            queueMicrotask(() => setResults([]));
+
             return;
         }
 
-        setLoading(true);
+        queueMicrotask(() => setLoading(true));
         debounceRef.current = setTimeout(async () => {
             try {
                 if (navigator.onLine) {

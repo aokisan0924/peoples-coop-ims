@@ -1,6 +1,6 @@
 import { Head, Link } from '@inertiajs/react';
-import { Button } from '@/components/ui/button';
 import { Building2, ChevronRight, MapPinOff } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface Location {
     id: number;

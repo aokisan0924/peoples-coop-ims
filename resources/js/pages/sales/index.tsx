@@ -1,10 +1,4 @@
-import { useMemo, useState } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { useAuth } from '@/hooks/use-auth';
-import { cn } from '@/lib/utils';
 import {
     Banknote,
     CheckCircle2,
@@ -14,9 +8,16 @@ import {
     Smartphone,
     Users,
     X,
-    XCircle,
-    type LucideIcon,
+    XCircle
+    
 } from 'lucide-react';
+import type {LucideIcon} from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { useAuth } from '@/hooks/use-auth';
+import { cn } from '@/lib/utils';
 
 interface Sale {
     id: number;
@@ -58,10 +59,12 @@ export default function SalesIndex({ sales }: { sales: PaginatedSales }) {
 
     const filtered = useMemo(() => {
         const q = query.trim().toLowerCase();
+
         return sales.data.filter((sale) => {
             const matchesQuery = !q || sale.receipt_number.toLowerCase().includes(q) || sale.cashier.name.toLowerCase().includes(q);
             const matchesStatus = status === 'all' || (status === 'voided' ? !!sale.voided_at : !sale.voided_at);
             const matchesPayment = payment === 'all' || sale.payment_method === payment;
+
             return matchesQuery && matchesStatus && matchesPayment;
         });
     }, [sales.data, query, status, payment]);
@@ -82,7 +85,10 @@ export default function SalesIndex({ sales }: { sales: PaginatedSales }) {
     }
 
     function handleVoidSubmit(saleId: number) {
-        if (!reason.trim()) return;
+        if (!reason.trim()) {
+return;
+}
+
         router.post(
             `/sales/${saleId}/void`,
             { void_reason: reason },
@@ -417,6 +423,7 @@ function PaymentBadge({ method }: { method: 'cash' | 'gcash' }) {
             </span>
         );
     }
+
     return (
         <span className="inline-flex items-center gap-1 rounded-md bg-[var(--pos-teal)]/15 px-2 py-0.5 text-xs font-medium text-[var(--pos-teal)]">
             <Smartphone className="size-3" />
@@ -446,12 +453,15 @@ function StatCard({ icon: Icon, label, value, accent }: { icon: LucideIcon; labe
 }
 
 function Pagination({ links }: { links: PaginatedSales['links'] }) {
-    if (links.length <= 3) return null;
+    if (links.length <= 3) {
+return null;
+}
 
     return (
         <div className="flex flex-wrap items-center justify-center gap-1 pt-1">
             {links.map((link, i) => {
                 const label = link.label.replace('&laquo;', '←').replace('&raquo;', '→');
+
                 if (!link.url) {
                     return (
                         <span key={i} className="cursor-not-allowed rounded-md px-3 py-1.5 text-sm text-muted-foreground/40">
@@ -459,6 +469,7 @@ function Pagination({ links }: { links: PaginatedSales['links'] }) {
                         </span>
                     );
                 }
+
                 return (
                     <Link
                         key={i}

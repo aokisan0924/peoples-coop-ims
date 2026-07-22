@@ -1,7 +1,7 @@
-import { useEffect } from 'react';
 import { Head, Link } from '@inertiajs/react';
-import { Button } from '@/components/ui/button';
 import { CheckCircle2, Printer } from 'lucide-react';
+import { useEffect } from 'react';
+import { Button } from '@/components/ui/button';
 
 interface SaleItem {
     id: number;
@@ -32,6 +32,7 @@ export default function Receipt({ sale }: { sale: Sale }) {
     useEffect(() => {
         // Auto-print as soon as the receipt renders
         const timer = setTimeout(() => window.print(), 400);
+
         return () => clearTimeout(timer);
     }, []);
 

@@ -15,7 +15,10 @@ interface Shift {
 }
 
 function peso(n: string | number | null): string {
-    if (n === null) return '—';
+    if (n === null) {
+return '—';
+}
+
     return `₱${parseFloat(String(n)).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
@@ -51,6 +54,7 @@ export default function ShiftsIndex({ shifts }: { shifts: Shift[] }) {
                             )}
                             {shifts.map((s) => {
                                 const variance = s.variance ? parseFloat(s.variance) : null;
+
                                 return (
                                     <tr key={s.id} className="border-t">
                                         <td className="p-3">{s.cashier.name}</td>

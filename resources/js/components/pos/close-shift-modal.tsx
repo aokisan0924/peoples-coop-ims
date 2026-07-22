@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useState } from 'react';
 import { router } from '@inertiajs/react';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
+import { useEffect, useMemo, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import type { ShiftSession } from '@/hooks/use-current-shift';
 import { cn } from '@/lib/utils';
 
@@ -60,7 +60,9 @@ export default function CloseShiftModal({ shift, onClose, onClosed }: Props) {
                 // since the server always recomputes the authoritative figure.
             })
             .finally(() => {
-                if (!cancelled) setExpectedLoading(false);
+                if (!cancelled) {
+setExpectedLoading(false);
+}
             });
 
         return () => {
@@ -70,6 +72,7 @@ export default function CloseShiftModal({ shift, onClose, onClosed }: Props) {
 
     function countFor(value: number): number {
         const n = parseInt(counts[value] ?? '', 10);
+
         return Number.isFinite(n) && n > 0 ? n : 0;
     }
 
@@ -86,7 +89,10 @@ export default function CloseShiftModal({ shift, onClose, onClosed }: Props) {
     const hasAnyCount = breakdown.some((row) => row.count > 0);
 
     const variance = useMemo(() => {
-        if (expectedCash === null || !hasAnyCount) return null;
+        if (expectedCash === null || !hasAnyCount) {
+return null;
+}
+
         return Math.round((totalCounted - expectedCash) * 100) / 100;
     }, [expectedCash, totalCounted, hasAnyCount]);
 
@@ -126,6 +132,7 @@ export default function CloseShiftModal({ shift, onClose, onClosed }: Props) {
                         {DENOMINATIONS.map((d) => {
                             const count = countFor(d.value);
                             const subtotal = d.value * count;
+
                             return (
                                 <div key={d.value} className="flex items-center gap-3 py-1.5">
                                     <span className="w-16 shrink-0 font-mono text-sm font-medium tabular-nums">

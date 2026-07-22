@@ -1,15 +1,12 @@
-import { useEffect, useState } from 'react';
 import { Head, Link } from '@inertiajs/react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { offlineDb, type PendingSale } from '@/lib/offline-db';
-import { syncEngine } from '@/lib/sync-engine';
 import { AlertTriangle, ArrowLeft, CheckCircle2, Clock, RefreshCw, Trash2 } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { offlineDb  } from '@/lib/offline-db';
+import type {PendingSale} from '@/lib/offline-db';
+import { syncEngine } from '@/lib/sync-engine';
 import { cn } from '@/lib/utils';
-
-function peso(n: number): string {
-    return `₱${n.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-}
 
 export default function SyncReview() {
     const [sales, setSales] = useState<PendingSale[]>([]);
@@ -21,8 +18,11 @@ export default function SyncReview() {
     }
 
     useEffect(() => {
-        loadSales();
+        queueMicrotask(() => {
+            loadSales();
+        });
         const interval = setInterval(loadSales, 3000); // refresh while a retry might be in flight
+
         return () => clearInterval(interval);
     }, []);
 
@@ -36,9 +36,11 @@ export default function SyncReview() {
 
     async function handleRetryAll() {
         const failed = sales.filter((s) => s.status === 'failed');
+
         for (const sale of failed) {
             await offlineDb.pendingSales.update(sale.uuid, { status: 'pending' });
         }
+
         await syncEngine.syncPending();
         await loadSales();
     }
@@ -47,6 +49,7 @@ export default function SyncReview() {
         if (!confirm('Discard this sale permanently? This CANNOT be undone — the transaction will be lost and no stock will be deducted for it.')) {
             return;
         }
+
         await offlineDb.pendingSales.delete(uuid);
         await loadSales();
     }

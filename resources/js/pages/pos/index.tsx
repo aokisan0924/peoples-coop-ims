@@ -1,10 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
 import { Head, router } from '@inertiajs/react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
-import { usePosCart } from '@/hooks/use-pos-cart';
 import {
     Minus,
     Plus,
@@ -16,14 +11,20 @@ import {
     PackageSearch,
     WifiOff,
 } from 'lucide-react';
-import SyncStatusBadge from '@/components/pos/sync-status-badge';
-import { syncEngine } from '@/lib/sync-engine';
-import { offlineDb, type CachedProduct } from '@/lib/offline-db';
-import { cn } from '@/lib/utils';
-import { type CartItem } from '@/types/inventory';
-import { useCurrentShift } from '@/hooks/use-current-shift';
-import OpenShiftGate from '@/components/pos/open-shift-gate';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import CloseShiftModal from '@/components/pos/close-shift-modal';
+import OpenShiftGate from '@/components/pos/open-shift-gate';
+import SyncStatusBadge from '@/components/pos/sync-status-badge';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { useCurrentShift } from '@/hooks/use-current-shift';
+import { usePosCart } from '@/hooks/use-pos-cart';
+import { offlineDb  } from '@/lib/offline-db';
+import type {CachedProduct} from '@/lib/offline-db';
+import { syncEngine } from '@/lib/sync-engine';
+import { cn } from '@/lib/utils';
+import type {CartItem} from '@/types/inventory';
 
 const QUICK_CASH = [50, 100, 200, 500, 1000];
 
@@ -62,6 +63,7 @@ export default function PosIndex() {
         const goOffline = () => setIsOnline(false);
         window.addEventListener('online', goOnline);
         window.addEventListener('offline', goOffline);
+
         return () => {
             window.removeEventListener('online', goOnline);
             window.removeEventListener('offline', goOffline);
@@ -71,15 +73,24 @@ export default function PosIndex() {
     const categories = useMemo(() => {
         const set = new Set<string>();
         products.forEach((p) => set.add(p.category ?? 'Uncategorized'));
+
         return ['All', ...Array.from(set).sort()];
     }, [products]);
 
     const filteredProducts = useMemo(() => {
         const q = query.trim().toLowerCase();
+
         return products.filter((p) => {
             const matchesCategory = activeCategory === 'All' || (p.category ?? 'Uncategorized') === activeCategory;
-            if (!matchesCategory) return false;
-            if (q === '') return true;
+
+            if (!matchesCategory) {
+return false;
+}
+
+            if (q === '') {
+return true;
+}
+
             return (
                 p.name.toLowerCase().includes(q) ||
                 p.sku.toLowerCase().includes(q) ||
@@ -96,6 +107,7 @@ export default function PosIndex() {
         // exact barcode match, add it immediately without waiting for a tap.
         if (e.key === 'Enter') {
             const exactMatch = products.find((p) => p.barcode === query.trim());
+
             if (exactMatch) {
                 cart.addProduct(exactMatch as CartProductInput, 'piece');
                 setQuery('');
@@ -104,7 +116,10 @@ export default function PosIndex() {
     }
 
     function addTile(product: CachedProduct, unitType: 'piece' | 'pack') {
-        if (product.total_stock <= 0) return;
+        if (product.total_stock <= 0) {
+return;
+}
+
         cart.addProduct(product as CartProductInput, unitType);
     }
 
@@ -113,16 +128,19 @@ export default function PosIndex() {
 
         if (cart.items.length === 0) {
             setError('Cart is empty.');
+
             return;
         }
 
         if (paymentMethod === 'cash' && parseFloat(amountTendered || '0') < cart.subtotal) {
             setError('Amount tendered is less than the total.');
+
             return;
         }
 
         if (paymentMethod === 'gcash' && !gcashReference.trim()) {
             setError('GCash reference number is required.');
+
             return;
         }
 
@@ -349,6 +367,7 @@ type CartProductInput = Parameters<PosCart['addProduct']>[0];
 
 function CartSheetTrigger({ cart, onOpen }: { cart: PosCart; onOpen: () => void }) {
     const count = cart.items.reduce((n, i) => n + i.quantity, 0);
+
     return (
         <button
             type="button"

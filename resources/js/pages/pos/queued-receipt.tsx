@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
 import { motion } from 'framer-motion';
-import { Button } from '@/components/ui/button';
-import { offlineDb, type PendingSale } from '@/lib/offline-db';
 import { AlertTriangle, CheckCircle2, Clock, RefreshCw } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { offlineDb  } from '@/lib/offline-db';
+import type {PendingSale} from '@/lib/offline-db';
 import { cn } from '@/lib/utils';
 
 function peso(n: number): string {
@@ -28,6 +29,7 @@ export default function QueuedReceipt({ uuid }: { uuid: string }) {
         const interval = setInterval(async () => {
             const updated = await offlineDb.pendingSales.get(uuid);
             setSale(updated ?? null);
+
             if (updated?.status === 'synced' && updated.sale_id) {
                 clearInterval(interval);
                 router.visit(`/sales/${updated.sale_id}/receipt`);

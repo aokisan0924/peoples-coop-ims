@@ -1,12 +1,13 @@
 import { Head, Link, router } from '@inertiajs/react';
+import { AlertTriangle, Barcode, Package, Pencil, Printer, Search, Tag, Trash2, X, XCircle  } from 'lucide-react';
+import type {LucideIcon} from 'lucide-react';
 import { useMemo, useState } from 'react';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { type Product } from '@/types/inventory';
-import products from '@/routes/products';
-import { AlertTriangle, Barcode, Package, Pencil, Printer, Search, Tag, Trash2, X, XCircle, type LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import products from '@/routes/products';
+import type {Product} from '@/types/inventory';
 
 export default function ProductsIndex({ products: productList }: { products: Product[] }) {
     const [query, setQuery] = useState('');
@@ -26,22 +27,26 @@ export default function ProductsIndex({ products: productList }: { products: Pro
     const categoryOptions = useMemo(() => {
         const set = new Set<string>();
         productList.forEach((p) => {
-            if (p.category?.name) set.add(p.category.name);
+            if (p.category?.name) {
+            set.add(p.category.name);
+        }
         });
+
         return Array.from(set).sort();
     }, [productList]);
 
     const filtered = useMemo(() => {
         const q = query.trim().toLowerCase();
+
         return productList.filter((p) => {
             const matchesQuery = !q || [p.name, p.barcode, p.sku, p.category?.name].some((field) => field?.toLowerCase().includes(q));
             const matchesCategory = category === 'all' || p.category?.name === category;
+
             return matchesQuery && matchesCategory;
         });
     }, [productList, query, category]);
 
     const noResults = !isEmpty && filtered.length === 0;
-    const hasFilters = query.trim() !== '' || category !== 'all';
 
     return (
         <div style={{ '--pos-teal': '#00a79b', '--pos-green': '#8dc645' } as React.CSSProperties}>

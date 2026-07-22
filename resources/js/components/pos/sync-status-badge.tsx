@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
 import { Link } from '@inertiajs/react';
-import { syncEngine, type SyncStatus } from '@/lib/sync-engine';
-import { Badge } from '@/components/ui/badge';
 import { Wifi, WifiOff, RefreshCw, AlertCircle } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Badge } from '@/components/ui/badge';
+import { syncEngine  } from '@/lib/sync-engine';
+import type {SyncStatus} from '@/lib/sync-engine';
 
 export default function SyncStatusBadge() {
     const [status, setStatus] = useState<SyncStatus>({

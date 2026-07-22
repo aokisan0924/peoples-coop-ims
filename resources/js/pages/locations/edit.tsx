@@ -1,14 +1,14 @@
 import { Head, useForm, Link } from '@inertiajs/react';
+import { ArrowLeft, Building2, MapPin, Pencil, Phone } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import locations from '@/routes/locations';
-import { ArrowLeft, Building2, MapPin, Pencil, Phone } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import locations from '@/routes/locations';
 
 interface Location {
     id: number;
