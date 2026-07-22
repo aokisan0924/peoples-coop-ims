@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Location;
 use App\Models\User;
-use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -19,7 +19,7 @@ class UserManagementController extends Controller
         $query = User::with('location', 'roles')->orderBy('name');
 
         // Manager only sees users at their own branch; Owner sees everyone
-        if (!$user->seesAllLocations()) {
+        if (! $user->seesAllLocations()) {
             $query->where('location_id', $user->location_id);
         }
 
@@ -79,11 +79,11 @@ class UserManagementController extends Controller
         }
 
         // Manager can only manage users at their own branch
-        if (!$currentUser->seesAllLocations() && $user->location_id !== $currentUser->location_id) {
+        if (! $currentUser->seesAllLocations() && $user->location_id !== $currentUser->location_id) {
             abort(403);
         }
 
-        $user->update(['is_active' => !$user->is_active]);
+        $user->update(['is_active' => ! $user->is_active]);
 
         $message = $user->is_active ? 'User reactivated.' : 'User deactivated. They can no longer log in.';
 

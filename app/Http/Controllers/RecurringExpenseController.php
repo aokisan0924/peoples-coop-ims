@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Expense;
 use App\Models\Location;
 use App\Models\RecurringExpense;
-use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -20,7 +20,7 @@ class RecurringExpenseController extends Controller
         $user = $request->user();
         $query = RecurringExpense::with('location')->orderBy('category');
 
-        if (!$user->seesAllLocations()) {
+        if (! $user->seesAllLocations()) {
             $query->where('location_id', $user->location_id);
         }
 
@@ -47,7 +47,7 @@ class RecurringExpenseController extends Controller
         $user = $request->user();
         $isOwner = $user->seesAllLocations();
 
-        if (!$isOwner && !$user->location_id) {
+        if (! $isOwner && ! $user->location_id) {
             return back()->withErrors(['location' => 'Only branch-assigned Managers can add recurring bills.']);
         }
 
@@ -81,11 +81,11 @@ class RecurringExpenseController extends Controller
     {
         $user = $request->user();
 
-        if (!$user->seesAllLocations() && $recurringExpense->location_id !== $user->location_id) {
+        if (! $user->seesAllLocations() && $recurringExpense->location_id !== $user->location_id) {
             abort(403);
         }
 
-        $recurringExpense->update(['is_active' => !$recurringExpense->is_active]);
+        $recurringExpense->update(['is_active' => ! $recurringExpense->is_active]);
 
         return back()->with('success', 'Updated.');
     }
@@ -94,7 +94,7 @@ class RecurringExpenseController extends Controller
     {
         $user = $request->user();
 
-        if (!$user->seesAllLocations() && $recurringExpense->location_id !== $user->location_id) {
+        if (! $user->seesAllLocations() && $recurringExpense->location_id !== $user->location_id) {
             abort(403);
         }
 
@@ -114,7 +114,7 @@ class RecurringExpenseController extends Controller
         $user = $request->user();
         $query = RecurringExpense::where('is_active', true);
 
-        if (!$user->seesAllLocations()) {
+        if (! $user->seesAllLocations()) {
             $query->where('location_id', $user->location_id);
         }
 
@@ -166,12 +166,12 @@ class RecurringExpenseController extends Controller
     {
         $query = RecurringExpense::with('location')->where('is_active', true);
 
-        if (!$user->seesAllLocations()) {
+        if (! $user->seesAllLocations()) {
             $query->where('location_id', $user->location_id);
         }
 
         return $query->get()->filter(function (RecurringExpense $template) {
-            return !Expense::where('recurring_expense_id', $template->id)
+            return ! Expense::where('recurring_expense_id', $template->id)
                 ->whereYear('expense_date', now()->year)
                 ->whereMonth('expense_date', now()->month)
                 ->exists();

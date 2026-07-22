@@ -11,7 +11,7 @@ class SaleFactory extends Factory
     public function definition(): array
     {
         return [
-            'receipt_number' => 'PC-TEST-' . strtoupper(Str::random(8)),
+            'receipt_number' => 'PC-TEST-'.strtoupper(Str::random(8)),
             'client_uuid' => Str::uuid()->toString(),
             'cashier_id' => User::factory(),
             'is_member' => true,

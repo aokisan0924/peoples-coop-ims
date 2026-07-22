@@ -7,8 +7,8 @@ use App\Models\Product;
 use App\Models\StockBatch;
 use App\Models\StockTransfer;
 use App\Services\StockDeductionService;
-use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -16,9 +16,7 @@ use RuntimeException;
 
 class StockTransferController extends Controller
 {
-    public function __construct(private StockDeductionService $stockDeduction)
-    {
-    }
+    public function __construct(private StockDeductionService $stockDeduction) {}
 
     public function index(Request $request): Response
     {
@@ -26,7 +24,7 @@ class StockTransferController extends Controller
         $query = StockTransfer::with(['product', 'fromLocation', 'toLocation', 'initiatedBy', 'receivedBy'])
             ->orderByDesc('initiated_at');
 
-        if (!$user->seesAllLocations()) {
+        if (! $user->seesAllLocations()) {
             // Manager sees transfers where they're either the sender or the receiver
             $query->where(fn ($q) => $q->where('from_location_id', $user->location_id)
                 ->orWhere('to_location_id', $user->location_id));
@@ -42,7 +40,7 @@ class StockTransferController extends Controller
         $user = $request->user();
         $isOwner = $user->seesAllLocations();
 
-        if (!$isOwner && !$user->location_id) {
+        if (! $isOwner && ! $user->location_id) {
             abort(403, 'Only branch-assigned Managers can initiate transfers.');
         }
 
@@ -64,7 +62,7 @@ class StockTransferController extends Controller
         $user = $request->user();
         $isOwner = $user->seesAllLocations();
 
-        if (!$isOwner && !$user->location_id) {
+        if (! $isOwner && ! $user->location_id) {
             return back()->withErrors(['location' => 'Only branch-assigned Managers can initiate transfers.']);
         }
 
@@ -122,12 +120,12 @@ class StockTransferController extends Controller
             return back()->withErrors(['transfer' => 'This transfer is no longer in transit.']);
         }
 
-        if (!$user->seesAllLocations() && $user->location_id !== $transfer->to_location_id) {
+        if (! $user->seesAllLocations() && $user->location_id !== $transfer->to_location_id) {
             abort(403, 'Only the receiving branch can confirm this transfer.');
         }
 
         DB::transaction(function () use ($transfer, $user) {
-            if (!empty($transfer->batch_breakdown)) {
+            if (! empty($transfer->batch_breakdown)) {
                 // Preserve the source batches' individual expiry dates and costs —
                 // a transfer spanning two source batches with different expiry
                 // dates becomes two destination batches, not one blended one.
@@ -177,7 +175,7 @@ class StockTransferController extends Controller
             return back()->withErrors(['transfer' => 'Only in-transit transfers can be cancelled.']);
         }
 
-        if (!$user->seesAllLocations() && $user->location_id !== $transfer->from_location_id) {
+        if (! $user->seesAllLocations() && $user->location_id !== $transfer->from_location_id) {
             abort(403, 'Only the sending branch can cancel this transfer.');
         }
 

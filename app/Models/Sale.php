@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Sale extends Model
 {
     use HasFactory;
-    
+
     protected $fillable = [
         'receipt_number', 'client_uuid', 'cashier_id', 'location_id', 'is_member',
         'subtotal', 'vat_amount', 'total',

@@ -9,8 +9,8 @@ use App\Models\Sale;
 use App\Models\ShiftSession;
 use Carbon\CarbonInterface;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -30,7 +30,7 @@ class ShiftSessionController extends Controller
     {
         $user = $request->user();
 
-        if (!$user->location_id) {
+        if (! $user->location_id) {
             return back()->withErrors(['location' => 'Your account has no assigned branch.']);
         }
 
@@ -56,7 +56,7 @@ class ShiftSessionController extends Controller
 
     public function summary(Request $request, ShiftSession $shift): Response
     {
-        if ($shift->cashier_id !== $request->user()->id && !$request->user()->seesAllLocations()) {
+        if ($shift->cashier_id !== $request->user()->id && ! $request->user()->seesAllLocations()) {
             abort(403);
         }
 
@@ -200,7 +200,7 @@ class ShiftSessionController extends Controller
         $user = $request->user();
         $query = ShiftSession::with('cashier', 'location')->orderByDesc('opened_at');
 
-        if (!$user->seesAllLocations()) {
+        if (! $user->seesAllLocations()) {
             $query->where('location_id', $user->location_id);
         }
 

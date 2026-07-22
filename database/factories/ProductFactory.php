@@ -13,7 +13,7 @@ class ProductFactory extends Factory
     {
         return [
             'name' => $this->faker->words(3, true),
-            'sku' => 'PRD-TEST-' . strtoupper(Str::random(6)),
+            'sku' => 'PRD-TEST-'.strtoupper(Str::random(6)),
             'barcode' => strtoupper(Str::random(12)),
             'category_id' => Category::factory(),
             'base_unit_id' => Unit::factory(),

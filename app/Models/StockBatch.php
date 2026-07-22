@@ -15,7 +15,8 @@ class StockBatch extends Model
         'cost_price', 'received_date', 'expiry_date',
     ];
 
-    protected function casts(): array {
+    protected function casts(): array
+    {
         return [
             'cost_price' => 'decimal:2',
             'received_date' => 'date',

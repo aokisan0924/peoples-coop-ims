@@ -3,8 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
-use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -49,7 +50,7 @@ class CategoryController extends Controller
      * Quick-create a category from an inline combobox (e.g. while creating a
      * product) without leaving the current form. Returns JSON, not a redirect.
      */
-    public function quickStore(Request $request): \Illuminate\Http\JsonResponse
+    public function quickStore(Request $request): JsonResponse
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],

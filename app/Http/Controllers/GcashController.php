@@ -6,8 +6,8 @@ use App\Models\GcashFloat;
 use App\Models\GcashTransaction;
 use App\Models\Location;
 use App\Models\ShiftSession;
-use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -22,7 +22,7 @@ class GcashController extends Controller
             : $request->user()->location_id;
 
         // Owner has no home branch — show a branch picker instead (handled in Step 4)
-        if (!$locationId) {
+        if (! $locationId) {
             return Inertia::render('gcash/select-branch', [
                 'locations' => Location::where('is_active', true)->orderBy('name')->get(),
             ]);
@@ -61,7 +61,7 @@ class GcashController extends Controller
     {
         $locationId = $request->user()->location_id;
 
-        if (!$locationId) {
+        if (! $locationId) {
             return back()->withErrors(['location' => 'Your account has no assigned branch.']);
         }
 
@@ -72,7 +72,7 @@ class GcashController extends Controller
             ->where('status', 'open')
             ->exists();
 
-        if (!$hasOpenShift) {
+        if (! $hasOpenShift) {
             return back()->withErrors(['shift' => 'Open your shift before recording GCash transactions.']);
         }
 
@@ -89,7 +89,7 @@ class GcashController extends Controller
             // Lock THIS branch's float row only — other branches' floats are untouched
             $float = GcashFloat::where('location_id', $locationId)->lockForUpdate()->first();
 
-            if (!$float) {
+            if (! $float) {
                 $float = GcashFloat::create(['location_id' => $locationId, 'balance' => 0]);
             }
 
@@ -99,7 +99,7 @@ class GcashController extends Controller
             $newBalance = (float) $float->balance + $delta;
 
             if ($validated['type'] === 'cash_in' && $newBalance < 0) {
-                throw new \RuntimeException('Insufficient GCash float for this Cash-In. Current float: ₱' . number_format($float->balance, 2));
+                throw new \RuntimeException('Insufficient GCash float for this Cash-In. Current float: ₱'.number_format($float->balance, 2));
             }
 
             $float->update(['balance' => $newBalance]);
@@ -128,7 +128,7 @@ class GcashController extends Controller
     {
         $locationId = $request->user()->location_id;
 
-        if (!$locationId) {
+        if (! $locationId) {
             return back()->withErrors(['location' => 'Your account has no assigned branch.']);
         }
 
@@ -153,7 +153,7 @@ class GcashController extends Controller
                 'cashier_id' => $request->user()->id,
                 'location_id' => $locationId,
                 'float_balance_after' => $validated['new_balance'],
-                'notes' => $validated['notes'] . ' (Adjusted by ' . ($adjustment >= 0 ? '+' : '') . number_format($adjustment, 2) . ')',
+                'notes' => $validated['notes'].' (Adjusted by '.($adjustment >= 0 ? '+' : '').number_format($adjustment, 2).')',
             ]);
         });
 

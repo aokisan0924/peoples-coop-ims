@@ -4,29 +4,25 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\Sale;
-use App\Models\SaleItem;
 use App\Models\ShiftSession;
 use App\Services\StockDeductionService;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 use RuntimeException;
 
 class SaleController extends Controller
 {
-    public function __construct(private StockDeductionService $stockDeduction)
-    {
-    }
+    public function __construct(private StockDeductionService $stockDeduction) {}
 
     public function index(Request $request): Response
     {
         $query = Sale::with('cashier')->orderByDesc('created_at');
 
-        if (!$request->user()->seesAllLocations()) {
+        if (! $request->user()->seesAllLocations()) {
             $query->where('location_id', $request->user()->location_id);
         }
 
@@ -49,7 +45,7 @@ class SaleController extends Controller
             'items.*.quantity' => ['required', 'integer', 'min:1'],
         ]);
 
-        if (!$request->user()->location_id) {
+        if (! $request->user()->location_id) {
             return response()->json([
                 'success' => false,
                 'message' => 'Your account has no assigned branch. Only branch-assigned Cashiers/Managers can process sales.',
@@ -70,7 +66,7 @@ class SaleController extends Controller
             ]);
         }
 
-        if (!$openShift) {
+        if (! $openShift) {
             return response()->json([
                 'success' => false,
                 'message' => 'You must open a shift before processing sales.',
@@ -87,7 +83,7 @@ class SaleController extends Controller
                     $product = Product::lockForUpdate()->findOrFail($item['product_id']);
 
                     if ($item['unit_type'] === 'pack') {
-                        if (!$product->pack_conversion_factor) {
+                        if (! $product->pack_conversion_factor) {
                             throw new RuntimeException("\"{$product->name}\" has no pack option configured.");
                         }
                         $baseUnitQty = $item['quantity'] * $product->pack_conversion_factor;
@@ -118,7 +114,7 @@ class SaleController extends Controller
                 }
 
                 $vatAmount = 0;
-                if (!$validated['is_member']) {
+                if (! $validated['is_member']) {
                     $vatRate = config('pricing.vat_rate') / 100;
                     $vatAmount = round($subtotal - ($subtotal / (1 + $vatRate)), 2);
                 }
@@ -212,9 +208,9 @@ class SaleController extends Controller
      */
     private function generateReceiptNumber(): string
     {
-        $prefix = 'PC-' . now()->format('Ymd') . '-';
+        $prefix = 'PC-'.now()->format('Ymd').'-';
 
-        $lastNumber = Sale::where('receipt_number', 'like', $prefix . '%')
+        $lastNumber = Sale::where('receipt_number', 'like', $prefix.'%')
             ->lockForUpdate()
             ->orderByDesc('receipt_number')
             ->value('receipt_number');
@@ -223,10 +219,10 @@ class SaleController extends Controller
             ? ((int) substr($lastNumber, -4)) + 1
             : 1;
 
-        return $prefix . str_pad((string) $nextSeq, 4, '0', STR_PAD_LEFT);
+        return $prefix.str_pad((string) $nextSeq, 4, '0', STR_PAD_LEFT);
     }
 
-    public function mySales(Request $request): \Inertia\Response
+    public function mySales(Request $request): Response
     {
         $date = $request->query('date', now()->toDateString());
 

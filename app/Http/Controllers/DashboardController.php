@@ -19,9 +19,7 @@ use Inertia\Response;
 
 class DashboardController extends Controller
 {
-    public function __construct(private ProfitLossService $profitLoss)
-    {
-    }
+    public function __construct(private ProfitLossService $profitLoss) {}
 
     public function index(Request $request): Response
     {
@@ -182,6 +180,7 @@ class DashboardController extends Controller
         return collect(range(0, $days - 1))->map(function ($daysAgo) use ($today, $days, $rows) {
             $date = $today->copy()->subDays($days - 1 - $daysAgo)->toDateString();
             $row = $rows->get($date);
+
             return ['date' => $date, 'total' => $row ? (float) $row->total : 0];
         });
     }
@@ -228,10 +227,10 @@ class DashboardController extends Controller
         }
 
         return $query->select(
-                'products.name',
-                DB::raw('SUM(sale_items.quantity) as units_sold'),
-                DB::raw('SUM(sale_items.line_total) as revenue')
-            )
+            'products.name',
+            DB::raw('SUM(sale_items.quantity) as units_sold'),
+            DB::raw('SUM(sale_items.line_total) as revenue')
+        )
             ->groupBy('products.id', 'products.name')
             ->orderByDesc('revenue')
             ->limit(10)

@@ -12,13 +12,14 @@ use Tests\TestCase;
 class StockDeductionServiceTest extends TestCase
 {
     private StockDeductionService $service;
+
     private int $locationId;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->service = new StockDeductionService();
+        $this->service = new StockDeductionService;
         $this->locationId = Location::factory()->create()->id;
     }
 

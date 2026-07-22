@@ -42,7 +42,8 @@ class Product extends Model
         return $this->belongsTo(Unit::class, 'pack_unit_id');
     }
 
-    public function stockBatches(): HasMany {
+    public function stockBatches(): HasMany
+    {
         return $this->hasMany(StockBatch::class);
     }
 
@@ -75,6 +76,7 @@ class Product extends Model
         }
 
         $vatRate = config('pricing.vat_rate');
+
         return round($memberPrice * (1 + $vatRate / 100), 2);
     }
 
@@ -90,21 +92,23 @@ class Product extends Model
 
     public function getMemberPackPriceAttribute(): ?float
     {
-        if (!$this->pack_conversion_factor) {
+        if (! $this->pack_conversion_factor) {
             return null;
         }
 
         $packCost = (float) $this->cost_price * $this->pack_conversion_factor;
+
         return $this->calculatePrice($packCost, isMember: true);
     }
 
     public function getNonMemberPackPriceAttribute(): ?float
     {
-        if (!$this->pack_conversion_factor) {
+        if (! $this->pack_conversion_factor) {
             return null;
         }
 
         $packCost = (float) $this->cost_price * $this->pack_conversion_factor;
+
         return $this->calculatePrice($packCost, isMember: false);
     }
 }
