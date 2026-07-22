@@ -41,6 +41,13 @@
     --color-destructive: var(--destructive);
     --color-destructive-foreground: var(--destructive-foreground);
 
+    /* New: the brand's "positive" color (paid, active, in-stock, fees earned)
+       — was previously hand-pasted per page as var(--pos-green). Now a real
+       theme token so Badge (and anything else) can offer a `success` variant
+       instead of every page re-typing the same override string. */
+    --color-success: var(--success);
+    --color-success-foreground: var(--success-foreground);
+
     --color-border: var(--border);
     --color-input: var(--input);
     --color-ring: var(--ring);
@@ -68,8 +75,13 @@
     --card-foreground: oklch(0.145 0 0);
     --popover: oklch(1 0 0);
     --popover-foreground: oklch(0.145 0 0);
-    --primary: oklch(0.205 0 0);
-    --primary-foreground: oklch(0.985 0 0);
+
+    /* Brand teal (#00a79b) replaces the stock near-black --primary. Every
+       plain <Button> and default <Badge> in the app now picks this up for
+       free — no more per-page bg-[var(--pos-teal)] overrides required. */
+    --primary: oklch(0.585 0.09 191.5); /* ≈ #00a79b */
+    --primary-foreground: oklch(1 0 0); /* white */
+
     --secondary: oklch(0.97 0 0);
     --secondary-foreground: oklch(0.205 0 0);
     --muted: oklch(0.97 0 0);
@@ -77,24 +89,38 @@
     --accent: oklch(0.97 0 0);
     --accent-foreground: oklch(0.205 0 0);
     --destructive: oklch(0.577 0.245 27.325);
-    --destructive-foreground: oklch(0.577 0.245 27.325);
+    /* Fixed: this was previously the same reddish value as --destructive
+       itself, which would render as unreadable red-on-red anywhere it was
+       actually used. Now a proper light foreground, matching how Button/Badge
+       already hardcode text-white for their destructive variants. */
+    --destructive-foreground: oklch(0.985 0 0);
+
+    /* Brand green (#8dc645) — "success" state: paid, active, in stock. */
+    --success: oklch(0.735 0.165 128); /* ≈ #8dc645 */
+    --success-foreground: oklch(0.145 0 0); /* near-black reads better than white on this light green */
+
     --border: oklch(0.922 0 0);
     --input: oklch(0.922 0 0);
-    --ring: oklch(0.87 0 0);
+    --ring: oklch(0.585 0.09 191.5); /* matches --primary so focus rings read as brand-teal, not neutral gray */
     --chart-1: oklch(0.646 0.222 41.116);
     --chart-2: oklch(0.6 0.118 184.704);
     --chart-3: oklch(0.398 0.07 227.392);
     --chart-4: oklch(0.828 0.189 84.429);
     --chart-5: oklch(0.769 0.188 70.08);
     --radius: 0.625rem;
+
+    /* Sidebar keeps its own near-black/white identity deliberately — a fully
+       teal sidebar background would fight with the teal active-item highlight
+       nav-main.tsx would need. Only sidebar-primary (the active-item accent)
+       picks up teal below. */
     --sidebar: oklch(0.985 0 0);
     --sidebar-foreground: oklch(0.145 0 0);
-    --sidebar-primary: oklch(0.205 0 0);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
+    --sidebar-primary: oklch(0.585 0.09 191.5); /* active nav item = teal */
+    --sidebar-primary-foreground: oklch(1 0 0);
     --sidebar-accent: oklch(0.97 0 0);
     --sidebar-accent-foreground: oklch(0.205 0 0);
     --sidebar-border: oklch(0.922 0 0);
-    --sidebar-ring: oklch(0.87 0 0);
+    --sidebar-ring: oklch(0.585 0.09 191.5);
 }
 
 .dark {
@@ -104,8 +130,10 @@
     --card-foreground: oklch(0.985 0 0);
     --popover: oklch(0.145 0 0);
     --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.985 0 0);
-    --primary-foreground: oklch(0.205 0 0);
+
+    --primary: oklch(0.585 0.09 191.5); /* same teal — brand color doesn't shift between modes */
+    --primary-foreground: oklch(1 0 0);
+
     --secondary: oklch(0.269 0 0);
     --secondary-foreground: oklch(0.985 0 0);
     --muted: oklch(0.269 0 0);
@@ -113,23 +141,29 @@
     --accent: oklch(0.269 0 0);
     --accent-foreground: oklch(0.985 0 0);
     --destructive: oklch(0.396 0.141 25.723);
-    --destructive-foreground: oklch(0.637 0.237 25.331);
+    /* Fixed: same red-on-red issue as light mode. */
+    --destructive-foreground: oklch(0.985 0 0);
+
+    --success: oklch(0.735 0.165 128);
+    --success-foreground: oklch(0.145 0 0);
+
     --border: oklch(0.269 0 0);
     --input: oklch(0.269 0 0);
-    --ring: oklch(0.439 0 0);
+    --ring: oklch(0.585 0.09 191.5);
     --chart-1: oklch(0.488 0.243 264.376);
     --chart-2: oklch(0.696 0.17 162.48);
     --chart-3: oklch(0.769 0.188 70.08);
     --chart-4: oklch(0.627 0.265 303.9);
     --chart-5: oklch(0.645 0.246 16.439);
+
     --sidebar: oklch(0.205 0 0);
     --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-primary: oklch(0.985 0 0);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
+    --sidebar-primary: oklch(0.585 0.09 191.5);
+    --sidebar-primary-foreground: oklch(1 0 0);
     --sidebar-accent: oklch(0.269 0 0);
     --sidebar-accent-foreground: oklch(0.985 0 0);
     --sidebar-border: oklch(0.269 0 0);
-    --sidebar-ring: oklch(0.439 0 0);
+    --sidebar-ring: oklch(0.585 0.09 191.5);
 }
 
 @layer base {
@@ -142,18 +176,8 @@
     }
 }
 
-@media print {
-    body * {
-        visibility: hidden;
-    }
-    .barcode-label, .barcode-label * {
-        visibility: visible;
-    }
-    .print\:hidden {
-        display: none !important;
-    }
-}
-
+/* Removed: this repeated the block below minus `.receipt, .receipt *` — pure
+   dead weight now that the more complete block below covers both cases. */
 @media print {
     body * {
         visibility: hidden;
