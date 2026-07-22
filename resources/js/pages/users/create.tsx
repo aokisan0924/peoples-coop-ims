@@ -2,7 +2,13 @@ import { Head, useForm, Link } from '@inertiajs/react';
 import { ArrowLeft, Info, UserPlus } from 'lucide-react';
 import { useMemo } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import {
+    Card,
+    CardContent,
+    CardHeader,
+    CardTitle,
+    CardDescription,
+} from '@/components/ui/card';
 import { Combobox } from '@/components/ui/combobox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -39,7 +45,11 @@ export default function CreateUser({ locations, canAssignManagers }: Props) {
         [],
     );
     const locationOptions = useMemo(
-        () => locations.map((loc) => ({ value: String(loc.id), label: loc.name })),
+        () =>
+            locations.map((loc) => ({
+                value: String(loc.id),
+                label: loc.name,
+            })),
         [locations],
     );
 
@@ -50,14 +60,19 @@ export default function CreateUser({ locations, canAssignManagers }: Props) {
         >
             <Head title="Add User" />
 
-            <Button variant="ghost" size="sm" asChild className="mb-3 -ml-2 gap-1.5 text-muted-foreground">
+            <Button
+                variant="ghost"
+                size="sm"
+                asChild
+                className="mb-3 -ml-2 gap-1.5 text-muted-foreground"
+            >
                 <Link href="/users">
                     <ArrowLeft className="size-4" />
                     Users
                 </Link>
             </Button>
 
-            <Card className="animate-in fade-in-0 slide-in-from-bottom-2 shadow-sm duration-300">
+            <Card className="animate-in shadow-sm duration-300 fade-in-0 slide-in-from-bottom-2">
                 <CardHeader>
                     <div className="flex items-center gap-3">
                         <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-[var(--pos-teal)]/10 text-[var(--pos-teal)] ring-1 ring-[var(--pos-teal)]/15">
@@ -65,7 +80,9 @@ export default function CreateUser({ locations, canAssignManagers }: Props) {
                         </div>
                         <div>
                             <CardTitle className="text-lg">Add User</CardTitle>
-                            <CardDescription>Give a new team member access to the system.</CardDescription>
+                            <CardDescription>
+                                Give a new team member access to the system.
+                            </CardDescription>
                         </div>
                     </div>
                 </CardHeader>
@@ -77,11 +94,17 @@ export default function CreateUser({ locations, canAssignManagers }: Props) {
                                 <Input
                                     id="name"
                                     value={data.name}
-                                    onChange={(e) => setData('name', e.target.value)}
+                                    onChange={(e) =>
+                                        setData('name', e.target.value)
+                                    }
                                     className="mt-1.5 focus-visible:ring-[var(--pos-teal)]"
                                     autoFocus
                                 />
-                                {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name}</p>}
+                                {errors.name && (
+                                    <p className="mt-1 text-sm text-red-600">
+                                        {errors.name}
+                                    </p>
+                                )}
                             </div>
 
                             <div>
@@ -90,10 +113,16 @@ export default function CreateUser({ locations, canAssignManagers }: Props) {
                                     id="email"
                                     type="email"
                                     value={data.email}
-                                    onChange={(e) => setData('email', e.target.value)}
+                                    onChange={(e) =>
+                                        setData('email', e.target.value)
+                                    }
                                     className="mt-1.5 focus-visible:ring-[var(--pos-teal)]"
                                 />
-                                {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
+                                {errors.email && (
+                                    <p className="mt-1 text-sm text-red-600">
+                                        {errors.email}
+                                    </p>
+                                )}
                             </div>
 
                             <div className="md:col-span-2">
@@ -102,10 +131,16 @@ export default function CreateUser({ locations, canAssignManagers }: Props) {
                                     id="password"
                                     type="password"
                                     value={data.password}
-                                    onChange={(e) => setData('password', e.target.value)}
+                                    onChange={(e) =>
+                                        setData('password', e.target.value)
+                                    }
                                     className="mt-1.5 max-w-md focus-visible:ring-[var(--pos-teal)]"
                                 />
-                                {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password}</p>}
+                                {errors.password && (
+                                    <p className="mt-1 text-sm text-red-600">
+                                        {errors.password}
+                                    </p>
+                                )}
                             </div>
 
                             {canAssignManagers && (
@@ -116,7 +151,12 @@ export default function CreateUser({ locations, canAssignManagers }: Props) {
                                             id="role"
                                             options={roleOptions}
                                             value={data.role}
-                                            onChange={(v) => setData('role', v as 'Manager' | 'Cashier')}
+                                            onChange={(v) =>
+                                                setData(
+                                                    'role',
+                                                    v as 'Manager' | 'Cashier',
+                                                )
+                                            }
                                             searchPlaceholder="Search roles…"
                                             emptyText="No matching roles."
                                             className="mt-1.5 w-full"
@@ -124,18 +164,33 @@ export default function CreateUser({ locations, canAssignManagers }: Props) {
                                     </div>
 
                                     <div>
-                                        <Label htmlFor="location_id">Branch *</Label>
+                                        <Label htmlFor="location_id">
+                                            Branch *
+                                        </Label>
                                         <Combobox
                                             id="location_id"
                                             options={locationOptions}
-                                            value={data.location_id ? String(data.location_id) : null}
-                                            onChange={(v) => setData('location_id', Number(v))}
+                                            value={
+                                                data.location_id
+                                                    ? String(data.location_id)
+                                                    : null
+                                            }
+                                            onChange={(v) =>
+                                                setData(
+                                                    'location_id',
+                                                    Number(v),
+                                                )
+                                            }
                                             placeholder="Select branch"
                                             searchPlaceholder="Search branches…"
                                             emptyText="No matching branches."
                                             className="mt-1.5 w-full"
                                         />
-                                        {errors.location_id && <p className="mt-1 text-sm text-red-600">{errors.location_id}</p>}
+                                        {errors.location_id && (
+                                            <p className="mt-1 text-sm text-red-600">
+                                                {errors.location_id}
+                                            </p>
+                                        )}
                                     </div>
                                 </>
                             )}
@@ -144,7 +199,8 @@ export default function CreateUser({ locations, canAssignManagers }: Props) {
                         {!canAssignManagers && (
                             <p className="flex items-start gap-2 rounded-lg border bg-muted/30 p-3 text-sm text-muted-foreground">
                                 <Info className="mt-0.5 size-4 shrink-0" />
-                                This user will be added as a Cashier at your branch.
+                                This user will be added as a Cashier at your
+                                branch.
                             </p>
                         )}
 
@@ -159,7 +215,12 @@ export default function CreateUser({ locations, canAssignManagers }: Props) {
                             >
                                 {processing ? 'Saving…' : 'Save User'}
                             </Button>
-                            <Button type="button" variant="outline" asChild className="sm:flex-1">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                asChild
+                                className="sm:flex-1"
+                            >
                                 <Link href="/users">Cancel</Link>
                             </Button>
                         </div>

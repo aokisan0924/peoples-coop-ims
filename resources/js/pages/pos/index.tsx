@@ -17,14 +17,19 @@ import OpenShiftGate from '@/components/pos/open-shift-gate';
 import SyncStatusBadge from '@/components/pos/sync-status-badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import {
+    Sheet,
+    SheetContent,
+    SheetHeader,
+    SheetTitle,
+} from '@/components/ui/sheet';
 import { useCurrentShift } from '@/hooks/use-current-shift';
 import { usePosCart } from '@/hooks/use-pos-cart';
-import { offlineDb  } from '@/lib/offline-db';
-import type {CachedProduct} from '@/lib/offline-db';
+import { offlineDb } from '@/lib/offline-db';
+import type { CachedProduct } from '@/lib/offline-db';
 import { syncEngine } from '@/lib/sync-engine';
 import { cn } from '@/lib/utils';
-import type {CartItem} from '@/types/inventory';
+import type { CartItem } from '@/types/inventory';
 
 const QUICK_CASH = [50, 100, 200, 500, 1000];
 
@@ -35,16 +40,24 @@ function peso(n: number): string {
 type PosCart = ReturnType<typeof usePosCart>;
 
 export default function PosIndex() {
-    const { shift, loading: shiftLoading, refetch: refetchShift } = useCurrentShift();
+    const {
+        shift,
+        loading: shiftLoading,
+        refetch: refetchShift,
+    } = useCurrentShift();
     const [showCloseModal, setShowCloseModal] = useState(false);
     const cart = usePosCart();
-    const [paymentMethod, setPaymentMethod] = useState<'cash' | 'gcash'>('cash');
+    const [paymentMethod, setPaymentMethod] = useState<'cash' | 'gcash'>(
+        'cash',
+    );
     const [amountTendered, setAmountTendered] = useState('');
     const [gcashReference, setGcashReference] = useState('');
     const [processing, setProcessing] = useState(false);
     const [error, setError] = useState('');
     const [cartSheetOpen, setCartSheetOpen] = useState(false);
-    const [isOnline, setIsOnline] = useState(typeof navigator !== 'undefined' ? navigator.onLine : true);
+    const [isOnline, setIsOnline] = useState(
+        typeof navigator !== 'undefined' ? navigator.onLine : true,
+    );
 
     // Product catalog is read from the local offline cache, not fetched live per
     // keystroke — this is what actually makes browsing and search work with no signal.
@@ -81,15 +94,17 @@ export default function PosIndex() {
         const q = query.trim().toLowerCase();
 
         return products.filter((p) => {
-            const matchesCategory = activeCategory === 'All' || (p.category ?? 'Uncategorized') === activeCategory;
+            const matchesCategory =
+                activeCategory === 'All' ||
+                (p.category ?? 'Uncategorized') === activeCategory;
 
             if (!matchesCategory) {
-return false;
-}
+                return false;
+            }
 
             if (q === '') {
-return true;
-}
+                return true;
+            }
 
             return (
                 p.name.toLowerCase().includes(q) ||
@@ -100,7 +115,9 @@ return true;
     }, [products, query, activeCategory]);
 
     const change =
-        paymentMethod === 'cash' && amountTendered ? Math.max(0, parseFloat(amountTendered) - cart.subtotal) : 0;
+        paymentMethod === 'cash' && amountTendered
+            ? Math.max(0, parseFloat(amountTendered) - cart.subtotal)
+            : 0;
 
     function handleSearchKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
         // Barcode scanners send an Enter after the code — if there's exactly one
@@ -117,8 +134,8 @@ return true;
 
     function addTile(product: CachedProduct, unitType: 'piece' | 'pack') {
         if (product.total_stock <= 0) {
-return;
-}
+            return;
+        }
 
         cart.addProduct(product as CartProductInput, unitType);
     }
@@ -132,7 +149,10 @@ return;
             return;
         }
 
-        if (paymentMethod === 'cash' && parseFloat(amountTendered || '0') < cart.subtotal) {
+        if (
+            paymentMethod === 'cash' &&
+            parseFloat(amountTendered || '0') < cart.subtotal
+        ) {
             setError('Amount tendered is less than the total.');
 
             return;
@@ -152,8 +172,12 @@ return;
             const uuid = await syncEngine.queueSale({
                 is_member: cart.isMember,
                 payment_method: paymentMethod,
-                amount_tendered: paymentMethod === 'cash' ? parseFloat(amountTendered) : null,
-                gcash_reference: paymentMethod === 'gcash' ? gcashReference : null,
+                amount_tendered:
+                    paymentMethod === 'cash'
+                        ? parseFloat(amountTendered)
+                        : null,
+                gcash_reference:
+                    paymentMethod === 'gcash' ? gcashReference : null,
                 items: cart.items.map((item) => ({
                     product_id: item.product_id,
                     unit_type: item.unit_type,
@@ -193,7 +217,7 @@ return;
         return (
             <>
                 <Head title="Point of Sale" />
-                <div className="flex items-center justify-center h-[calc(100vh-4rem)] text-muted-foreground">
+                <div className="flex h-[calc(100vh-4rem)] items-center justify-center text-muted-foreground">
                     Loading...
                 </div>
             </>
@@ -213,141 +237,178 @@ return;
         <>
             <div
                 className="pos-terminal"
-                style={{ '--pos-teal': '#00a79b', '--pos-green': '#8dc645' } as React.CSSProperties}
+                style={
+                    {
+                        '--pos-teal': '#00a79b',
+                        '--pos-green': '#8dc645',
+                    } as React.CSSProperties
+                }
             >
-            <Head title="Point of Sale" />
+                <Head title="Point of Sale" />
 
-            <div className="flex h-[calc(100vh-4rem)] flex-col lg:flex-row">
-                {/* Catalog */}
-                <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-                    <div className="sticky top-0 z-10 space-y-3 border-b bg-background/95 p-3 backdrop-blur supports-[backdrop-filter]:bg-background/80 sm:p-4">
-                        <div className="flex items-center gap-2">
-                            <div className="relative flex-1">
-                                <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-                                <Input
-                                    ref={searchRef}
-                                    value={query}
-                                    onChange={(e) => setQuery(e.target.value)}
-                                    onKeyDown={handleSearchKeyDown}
-                                    placeholder="Search product or scan barcode…"
-                                    className="pl-9"
-                                    autoComplete="off"
-                                />
-                            </div>
-
-                            {/* Mobile/tablet: cart is a sheet, opened here or from the bottom bar */}
-                            <div className="lg:hidden">
-                                <CartSheetTrigger cart={cart} onOpen={() => setCartSheetOpen(true)} />
-                            </div>
-
-                            <div className="hidden lg:block">
-                                <SyncStatusBadge />
-                            </div>
-
+                <div className="flex h-[calc(100vh-4rem)] flex-col lg:flex-row">
+                    {/* Catalog */}
+                    <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+                        <div className="sticky top-0 z-10 space-y-3 border-b bg-background/95 p-3 backdrop-blur supports-[backdrop-filter]:bg-background/80 sm:p-4">
                             <div className="flex items-center gap-2">
-                                <span className="text-xs text-muted-foreground">
-                                    Shift started {new Date(shift.opened_at).toLocaleTimeString()}
-                                </span>
-                                <Button variant="outline" size="sm" onClick={() => setShowCloseModal(true)}>
-                                    Close Shift
-                                </Button>
+                                <div className="relative flex-1">
+                                    <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+                                    <Input
+                                        ref={searchRef}
+                                        value={query}
+                                        onChange={(e) =>
+                                            setQuery(e.target.value)
+                                        }
+                                        onKeyDown={handleSearchKeyDown}
+                                        placeholder="Search product or scan barcode…"
+                                        className="pl-9"
+                                        autoComplete="off"
+                                    />
+                                </div>
+
+                                {/* Mobile/tablet: cart is a sheet, opened here or from the bottom bar */}
+                                <div className="lg:hidden">
+                                    <CartSheetTrigger
+                                        cart={cart}
+                                        onOpen={() => setCartSheetOpen(true)}
+                                    />
+                                </div>
+
+                                <div className="hidden lg:block">
+                                    <SyncStatusBadge />
+                                </div>
+
+                                <div className="flex items-center gap-2">
+                                    <span className="text-xs text-muted-foreground">
+                                        Shift started{' '}
+                                        {new Date(
+                                            shift.opened_at,
+                                        ).toLocaleTimeString()}
+                                    </span>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => setShowCloseModal(true)}
+                                    >
+                                        Close Shift
+                                    </Button>
+                                </div>
+                            </div>
+
+                            {!isOnline && (
+                                <div className="flex items-center gap-1.5 text-xs font-medium text-amber-600 dark:text-amber-500">
+                                    <WifiOff className="size-3.5" />
+                                    Working offline — sales are queued on this
+                                    device and will sync automatically.
+                                </div>
+                            )}
+
+                            <div className="flex gap-2 overflow-x-auto pb-1">
+                                {categories.map((cat) => (
+                                    <button
+                                        key={cat}
+                                        type="button"
+                                        onClick={() => setActiveCategory(cat)}
+                                        className={cn(
+                                            'shrink-0 rounded-full border px-3 py-1.5 text-sm font-medium whitespace-nowrap transition-colors',
+                                            activeCategory === cat
+                                                ? 'border-[var(--pos-teal)] bg-[var(--pos-teal)] text-white'
+                                                : 'text-muted-foreground hover:bg-muted',
+                                        )}
+                                    >
+                                        {cat}
+                                    </button>
+                                ))}
                             </div>
                         </div>
 
-                        {!isOnline && (
-                            <div className="flex items-center gap-1.5 text-xs font-medium text-amber-600 dark:text-amber-500">
-                                <WifiOff className="size-3.5" />
-                                Working offline — sales are queued on this device and will sync automatically.
-                            </div>
-                        )}
-
-                        <div className="flex gap-2 overflow-x-auto pb-1">
-                            {categories.map((cat) => (
-                                <button
-                                    key={cat}
-                                    type="button"
-                                    onClick={() => setActiveCategory(cat)}
-                                    className={cn(
-                                        'shrink-0 rounded-full border px-3 py-1.5 text-sm font-medium whitespace-nowrap transition-colors',
-                                        activeCategory === cat
-                                            ? 'border-[var(--pos-teal)] bg-[var(--pos-teal)] text-white'
-                                            : 'text-muted-foreground hover:bg-muted',
-                                    )}
-                                >
-                                    {cat}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-
-                    <div className="flex-1 overflow-y-auto p-3 pb-24 sm:p-4 lg:pb-4">
-                        {products.length === 0 && (
-                            <EmptyState
-                                icon={<PackageSearch className="size-9" />}
-                                title="No products cached yet"
-                                description="Connect once to load your catalog onto this device — from then on, browsing and search work with no signal."
-                            />
-                        )}
-
-                        {products.length > 0 && filteredProducts.length === 0 && (
-                            <EmptyState
-                                icon={<Search className="size-9" />}
-                                title="No products match"
-                                description="Try a different search term or category."
-                            />
-                        )}
-
-                        <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3 lg:grid-cols-3 xl:grid-cols-4">
-                            {filteredProducts.map((product) => (
-                                <ProductTile
-                                    key={product.id}
-                                    product={product}
-                                    isMember={cart.isMember}
-                                    onAdd={(unitType) => addTile(product, unitType)}
+                        <div className="flex-1 overflow-y-auto p-3 pb-24 sm:p-4 lg:pb-4">
+                            {products.length === 0 && (
+                                <EmptyState
+                                    icon={<PackageSearch className="size-9" />}
+                                    title="No products cached yet"
+                                    description="Connect once to load your catalog onto this device — from then on, browsing and search work with no signal."
                                 />
-                            ))}
+                            )}
+
+                            {products.length > 0 &&
+                                filteredProducts.length === 0 && (
+                                    <EmptyState
+                                        icon={<Search className="size-9" />}
+                                        title="No products match"
+                                        description="Try a different search term or category."
+                                    />
+                                )}
+
+                            <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3 lg:grid-cols-3 xl:grid-cols-4">
+                                {filteredProducts.map((product) => (
+                                    <ProductTile
+                                        key={product.id}
+                                        product={product}
+                                        isMember={cart.isMember}
+                                        onAdd={(unitType) =>
+                                            addTile(product, unitType)
+                                        }
+                                    />
+                                ))}
+                            </div>
                         </div>
+                    </div>
+
+                    {/* Desktop / large tablet: cart docked to the side */}
+                    <div className="hidden w-[400px] shrink-0 flex-col border-l bg-card/40 p-4 lg:flex xl:w-[440px]">
+                        <CartPanel {...cartPanelProps} />
                     </div>
                 </div>
 
-                {/* Desktop / large tablet: cart docked to the side */}
-                <div className="hidden w-[400px] shrink-0 flex-col border-l bg-card/40 p-4 lg:flex xl:w-[440px]">
-                    <CartPanel {...cartPanelProps} />
+                {/* Mobile / small tablet: sticky checkout bar + slide-up cart sheet */}
+                <div className="lg:hidden">
+                    {cart.items.length > 0 && !cartSheetOpen && (
+                        <button
+                            type="button"
+                            onClick={() => setCartSheetOpen(true)}
+                            className="fixed inset-x-3 bottom-3 z-20 flex items-center justify-between gap-3 rounded-xl bg-[var(--pos-teal)] px-4 py-3.5 text-white shadow-lg shadow-black/20"
+                        >
+                            <span className="flex items-center gap-2 text-sm font-medium">
+                                <ShoppingCart className="size-4" />
+                                {cart.items.reduce(
+                                    (n, i) => n + i.quantity,
+                                    0,
+                                )}{' '}
+                                item
+                                {cart.items.reduce(
+                                    (n, i) => n + i.quantity,
+                                    0,
+                                ) !== 1
+                                    ? 's'
+                                    : ''}
+                            </span>
+                            <span className="font-mono text-base font-bold tabular-nums">
+                                {peso(cart.subtotal)}
+                            </span>
+                            <span className="text-sm font-medium underline-offset-2">
+                                View cart
+                            </span>
+                        </button>
+                    )}
+
+                    <Sheet open={cartSheetOpen} onOpenChange={setCartSheetOpen}>
+                        <SheetContent
+                            side="bottom"
+                            className="flex h-[92vh] flex-col p-0"
+                        >
+                            <SheetHeader className="border-b px-4 py-3">
+                                <SheetTitle className="flex items-center justify-between text-base">
+                                    Cart
+                                    <SyncStatusBadge />
+                                </SheetTitle>
+                            </SheetHeader>
+                            <div className="flex flex-1 flex-col overflow-hidden p-4">
+                                <CartPanel {...cartPanelProps} />
+                            </div>
+                        </SheetContent>
+                    </Sheet>
                 </div>
-            </div>
-
-            {/* Mobile / small tablet: sticky checkout bar + slide-up cart sheet */}
-            <div className="lg:hidden">
-                {cart.items.length > 0 && !cartSheetOpen && (
-                    <button
-                        type="button"
-                        onClick={() => setCartSheetOpen(true)}
-                        className="fixed inset-x-3 bottom-3 z-20 flex items-center justify-between gap-3 rounded-xl bg-[var(--pos-teal)] px-4 py-3.5 text-white shadow-lg shadow-black/20"
-                    >
-                        <span className="flex items-center gap-2 text-sm font-medium">
-                            <ShoppingCart className="size-4" />
-                            {cart.items.reduce((n, i) => n + i.quantity, 0)} item
-                            {cart.items.reduce((n, i) => n + i.quantity, 0) !== 1 ? 's' : ''}
-                        </span>
-                        <span className="font-mono text-base font-bold tabular-nums">{peso(cart.subtotal)}</span>
-                        <span className="text-sm font-medium underline-offset-2">View cart</span>
-                    </button>
-                )}
-
-                <Sheet open={cartSheetOpen} onOpenChange={setCartSheetOpen}>
-                    <SheetContent side="bottom" className="flex h-[92vh] flex-col p-0">
-                        <SheetHeader className="border-b px-4 py-3">
-                            <SheetTitle className="flex items-center justify-between text-base">
-                                Cart
-                                <SyncStatusBadge />
-                            </SheetTitle>
-                        </SheetHeader>
-                        <div className="flex flex-1 flex-col overflow-hidden p-4">
-                            <CartPanel {...cartPanelProps} />
-                        </div>
-                    </SheetContent>
-                </Sheet>
-            </div>
             </div>
 
             {showCloseModal && (
@@ -365,7 +426,13 @@ return;
 // result type CartItem/addProduct expects — same fields, this just satisfies TS.
 type CartProductInput = Parameters<PosCart['addProduct']>[0];
 
-function CartSheetTrigger({ cart, onOpen }: { cart: PosCart; onOpen: () => void }) {
+function CartSheetTrigger({
+    cart,
+    onOpen,
+}: {
+    cart: PosCart;
+    onOpen: () => void;
+}) {
     const count = cart.items.reduce((n, i) => n + i.quantity, 0);
 
     return (
@@ -385,12 +452,24 @@ function CartSheetTrigger({ cart, onOpen }: { cart: PosCart; onOpen: () => void 
     );
 }
 
-function EmptyState({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }) {
+function EmptyState({
+    icon,
+    title,
+    description,
+}: {
+    icon: React.ReactNode;
+    title: string;
+    description: string;
+}) {
     return (
         <div className="flex flex-col items-center justify-center gap-2 py-16 text-center">
-            <div className="flex size-16 items-center justify-center rounded-full bg-muted text-muted-foreground">{icon}</div>
+            <div className="flex size-16 items-center justify-center rounded-full bg-muted text-muted-foreground">
+                {icon}
+            </div>
             <p className="text-sm font-medium">{title}</p>
-            <p className="max-w-xs text-sm text-muted-foreground">{description}</p>
+            <p className="max-w-xs text-sm text-muted-foreground">
+                {description}
+            </p>
         </div>
     );
 }
@@ -406,8 +485,12 @@ function ProductTile({
 }) {
     const outOfStock = product.total_stock <= 0;
     const lowStock = !outOfStock && product.total_stock <= 10;
-    const piecePrice = isMember ? product.member_piece_price : (product.non_member_piece_price ?? product.member_piece_price);
-    const packPrice = isMember ? product.member_pack_price : product.non_member_pack_price;
+    const piecePrice = isMember
+        ? product.member_piece_price
+        : (product.non_member_piece_price ?? product.member_piece_price);
+    const packPrice = isMember
+        ? product.member_pack_price
+        : product.non_member_pack_price;
 
     return (
         <motion.div
@@ -423,19 +506,25 @@ function ProductTile({
                 disabled={outOfStock}
                 className="flex flex-1 flex-col items-start p-3 text-left disabled:cursor-not-allowed"
             >
-                <p className="line-clamp-2 min-h-[2.5rem] text-sm font-medium">{product.name}</p>
-                <p className="mt-1 font-mono text-base font-semibold tabular-nums text-[var(--pos-teal)]">{peso(piecePrice)}</p>
+                <p className="line-clamp-2 min-h-[2.5rem] text-sm font-medium">
+                    {product.name}
+                </p>
+                <p className="mt-1 font-mono text-base font-semibold text-[var(--pos-teal)] tabular-nums">
+                    {peso(piecePrice)}
+                </p>
                 <span
                     className={cn(
                         'mt-2 rounded-full px-2 py-0.5 text-[11px] font-medium',
                         outOfStock
                             ? 'bg-red-100 text-red-700 dark:bg-red-950/50 dark:text-red-400'
                             : lowStock
-                            ? 'bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:text-amber-400'
-                            : 'bg-muted text-muted-foreground',
+                              ? 'bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:text-amber-400'
+                              : 'bg-muted text-muted-foreground',
                     )}
                 >
-                    {outOfStock ? 'Out of stock' : `${product.total_stock} in stock`}
+                    {outOfStock
+                        ? 'Out of stock'
+                        : `${product.total_stock} in stock`}
                 </span>
             </button>
 
@@ -445,7 +534,8 @@ function ProductTile({
                     onClick={() => onAdd('pack')}
                     className="border-t px-3 py-2 text-[11px] font-medium text-muted-foreground hover:bg-muted hover:text-[var(--pos-teal)]"
                 >
-                    + Pack of {product.pack_conversion_factor} · {packPrice != null ? peso(packPrice) : '—'}
+                    + Pack of {product.pack_conversion_factor} ·{' '}
+                    {packPrice != null ? peso(packPrice) : '—'}
                 </button>
             )}
         </motion.div>
@@ -493,7 +583,9 @@ function CartPanel({
                     disabled={cart.items.length > 0}
                     className={cn(
                         'flex flex-1 items-center justify-center gap-1.5 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60',
-                        cart.isMember ? 'bg-[var(--pos-green)] text-white' : 'text-muted-foreground hover:bg-muted',
+                        cart.isMember
+                            ? 'bg-[var(--pos-green)] text-white'
+                            : 'text-muted-foreground hover:bg-muted',
                     )}
                 >
                     <UserCheck className="size-4" /> Member
@@ -504,14 +596,18 @@ function CartPanel({
                     disabled={cart.items.length > 0}
                     className={cn(
                         'flex flex-1 items-center justify-center gap-1.5 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60',
-                        !cart.isMember ? 'bg-[var(--pos-green)] text-white' : 'text-muted-foreground hover:bg-muted',
+                        !cart.isMember
+                            ? 'bg-[var(--pos-green)] text-white'
+                            : 'text-muted-foreground hover:bg-muted',
                     )}
                 >
                     <Users className="size-4" /> Non-Member
                 </button>
             </div>
             {cart.items.length > 0 && (
-                <p className="-mt-2 mb-3 text-xs text-muted-foreground">Clear the cart to change customer type.</p>
+                <p className="-mt-2 mb-3 text-xs text-muted-foreground">
+                    Clear the cart to change customer type.
+                </p>
             )}
 
             <div className="flex-1 space-y-2 overflow-y-auto">
@@ -520,12 +616,19 @@ function CartPanel({
                         <div className="flex size-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
                             <ShoppingCart className="size-5" />
                         </div>
-                        <p className="text-sm text-muted-foreground">Cart is empty. Tap a product to add it.</p>
+                        <p className="text-sm text-muted-foreground">
+                            Cart is empty. Tap a product to add it.
+                        </p>
                     </div>
                 )}
                 <AnimatePresence initial={false}>
                     {cart.items.map((item, index) => (
-                        <CartRow key={`${item.product_id}-${item.unit_type}`} item={item} index={index} cart={cart} />
+                        <CartRow
+                            key={`${item.product_id}-${item.unit_type}`}
+                            item={item}
+                            index={index}
+                            cart={cart}
+                        />
                     ))}
                 </AnimatePresence>
             </div>
@@ -533,7 +636,9 @@ function CartPanel({
             <div className="mt-3 space-y-3 border-t pt-3">
                 <div className="flex justify-between text-lg font-bold">
                     <span>Total</span>
-                    <span className="font-mono tabular-nums">{peso(cart.subtotal)}</span>
+                    <span className="font-mono tabular-nums">
+                        {peso(cart.subtotal)}
+                    </span>
                 </div>
 
                 <div className="flex overflow-hidden rounded-lg border">
@@ -542,7 +647,9 @@ function CartPanel({
                         onClick={() => setPaymentMethod('cash')}
                         className={cn(
                             'flex-1 py-2 text-sm font-medium transition-colors',
-                            paymentMethod === 'cash' ? 'bg-[var(--pos-teal)] text-white' : 'text-muted-foreground hover:bg-muted',
+                            paymentMethod === 'cash'
+                                ? 'bg-[var(--pos-teal)] text-white'
+                                : 'text-muted-foreground hover:bg-muted',
                         )}
                     >
                         Cash
@@ -552,7 +659,9 @@ function CartPanel({
                         onClick={() => setPaymentMethod('gcash')}
                         className={cn(
                             'flex-1 py-2 text-sm font-medium transition-colors',
-                            paymentMethod === 'gcash' ? 'bg-[var(--pos-teal)] text-white' : 'text-muted-foreground hover:bg-muted',
+                            paymentMethod === 'gcash'
+                                ? 'bg-[var(--pos-teal)] text-white'
+                                : 'text-muted-foreground hover:bg-muted',
                         )}
                     >
                         GCash
@@ -573,24 +682,30 @@ function CartPanel({
                         <div className="mt-2 flex flex-wrap gap-1.5">
                             <button
                                 type="button"
-                                onClick={() => setAmountTendered(cart.subtotal.toFixed(2))}
+                                onClick={() =>
+                                    setAmountTendered(cart.subtotal.toFixed(2))
+                                }
                                 className="rounded-full border px-2.5 py-1 text-xs font-medium hover:border-[var(--pos-teal)] hover:text-[var(--pos-teal)]"
                             >
                                 Exact
                             </button>
-                            {QUICK_CASH.filter((v) => v >= cart.subtotal).map((v) => (
-                                <button
-                                    key={v}
-                                    type="button"
-                                    onClick={() => setAmountTendered(v.toFixed(2))}
-                                    className="rounded-full border px-2.5 py-1 text-xs font-medium hover:border-[var(--pos-teal)] hover:text-[var(--pos-teal)]"
-                                >
-                                    ₱{v}
-                                </button>
-                            ))}
+                            {QUICK_CASH.filter((v) => v >= cart.subtotal).map(
+                                (v) => (
+                                    <button
+                                        key={v}
+                                        type="button"
+                                        onClick={() =>
+                                            setAmountTendered(v.toFixed(2))
+                                        }
+                                        className="rounded-full border px-2.5 py-1 text-xs font-medium hover:border-[var(--pos-teal)] hover:text-[var(--pos-teal)]"
+                                    >
+                                        ₱{v}
+                                    </button>
+                                ),
+                            )}
                         </div>
                         {amountTendered && (
-                            <p className="mt-1.5 font-mono text-sm tabular-nums text-muted-foreground">
+                            <p className="mt-1.5 font-mono text-sm text-muted-foreground tabular-nums">
                                 Change: {peso(change)}
                             </p>
                         )}
@@ -620,16 +735,24 @@ function CartPanel({
                     onClick={onCheckout}
                     disabled={processing || cart.items.length === 0}
                 >
-                    {processing ? 'Processing…' : `Complete Sale · ${peso(cart.subtotal)}`}
+                    {processing
+                        ? 'Processing…'
+                        : `Complete Sale · ${peso(cart.subtotal)}`}
                 </Button>
             </div>
         </div>
-
     );
-
 }
 
-function CartRow({ item, index, cart }: { item: CartItem; index: number; cart: PosCart }) {
+function CartRow({
+    item,
+    index,
+    cart,
+}: {
+    item: CartItem;
+    index: number;
+    cart: PosCart;
+}) {
     return (
         <motion.div
             layout
@@ -643,7 +766,11 @@ function CartRow({ item, index, cart }: { item: CartItem; index: number; cart: P
                 <div>
                     <p className="text-sm font-medium">{item.name}</p>
                     <p className="text-xs text-muted-foreground">
-                        {item.unit_type === 'pack' ? 'Pack' : 'Piece'} · <span className="font-mono tabular-nums">{peso(item.unit_price)}</span> each
+                        {item.unit_type === 'pack' ? 'Pack' : 'Piece'} ·{' '}
+                        <span className="font-mono tabular-nums">
+                            {peso(item.unit_price)}
+                        </span>{' '}
+                        each
                     </p>
                 </div>
                 <button
@@ -658,17 +785,23 @@ function CartRow({ item, index, cart }: { item: CartItem; index: number; cart: P
                 <div className="flex items-center gap-1">
                     <button
                         type="button"
-                        onClick={() => cart.updateQuantity(index, item.quantity - 1)}
+                        onClick={() =>
+                            cart.updateQuantity(index, item.quantity - 1)
+                        }
                         disabled={item.quantity <= 1}
                         className="flex size-8 items-center justify-center rounded-md border disabled:opacity-40"
                         aria-label="Decrease quantity"
                     >
                         <Minus className="size-3.5" />
                     </button>
-                    <span className="w-8 text-center text-sm font-medium tabular-nums">{item.quantity}</span>
+                    <span className="w-8 text-center text-sm font-medium tabular-nums">
+                        {item.quantity}
+                    </span>
                     <button
                         type="button"
-                        onClick={() => cart.updateQuantity(index, item.quantity + 1)}
+                        onClick={() =>
+                            cart.updateQuantity(index, item.quantity + 1)
+                        }
                         disabled={item.quantity >= item.max_available}
                         className="flex size-8 items-center justify-center rounded-md border disabled:opacity-40"
                         aria-label="Increase quantity"
@@ -676,13 +809,13 @@ function CartRow({ item, index, cart }: { item: CartItem; index: number; cart: P
                         <Plus className="size-3.5" />
                     </button>
                 </div>
-                <p className="font-mono text-sm font-semibold tabular-nums">{peso(item.line_total)}</p>
+                <p className="font-mono text-sm font-semibold tabular-nums">
+                    {peso(item.line_total)}
+                </p>
             </div>
         </motion.div>
     );
-
 }
-
 
 PosIndex.layout = {
     breadcrumbs: [{ title: 'Point of Sale', href: '/pos' }],

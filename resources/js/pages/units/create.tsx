@@ -33,7 +33,12 @@ export default function CreateUnit() {
             <div className="mx-auto max-w-4xl space-y-4 p-3 pb-24 sm:p-6 sm:pb-6">
                 {/* Header */}
                 <div className="flex items-center gap-3">
-                    <Button variant="outline" size="icon" asChild className="size-9 shrink-0">
+                    <Button
+                        variant="outline"
+                        size="icon"
+                        asChild
+                        className="size-9 shrink-0"
+                    >
                         <Link href={units.index().url}>
                             <ArrowLeft className="size-4" />
                         </Link>
@@ -43,9 +48,14 @@ export default function CreateUnit() {
                             <div className="flex size-8 items-center justify-center rounded-lg bg-[var(--pos-teal)]/10 text-[var(--pos-teal)]">
                                 <Ruler className="size-4" />
                             </div>
-                            <h1 className="text-xl font-semibold tracking-tight">Add Unit</h1>
+                            <h1 className="text-xl font-semibold tracking-tight">
+                                Add Unit
+                            </h1>
                         </div>
-                        <p className="mt-0.5 text-sm text-muted-foreground">Define a unit of measure for stocking and selling products.</p>
+                        <p className="mt-0.5 text-sm text-muted-foreground">
+                            Define a unit of measure for stocking and selling
+                            products.
+                        </p>
                     </div>
                 </div>
 
@@ -53,7 +63,11 @@ export default function CreateUnit() {
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-5 md:items-start">
                         {/* Form card */}
                         <div className="rounded-xl border bg-card p-4 sm:p-5 md:col-span-3">
-                            <UnitFormFields data={data} setData={setData} errors={errors} />
+                            <UnitFormFields
+                                data={data}
+                                setData={setData}
+                                errors={errors}
+                            />
 
                             {/* Desktop actions, inline with the form card */}
                             <div className="mt-6 hidden gap-2 border-t pt-4 sm:flex">
@@ -65,7 +79,12 @@ export default function CreateUnit() {
                                     <Save className="size-4" />
                                     {processing ? 'Saving…' : 'Save Unit'}
                                 </Button>
-                                <Button type="button" variant="outline" asChild disabled={processing}>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    asChild
+                                    disabled={processing}
+                                >
                                     <Link href={units.index().url}>Cancel</Link>
                                 </Button>
                             </div>
@@ -74,7 +93,9 @@ export default function CreateUnit() {
                         {/* Quick-fill examples */}
                         <div className="rounded-xl border p-4 md:col-span-2">
                             <p className="text-sm font-medium">Common units</p>
-                            <p className="mt-0.5 text-xs text-muted-foreground">Tap one to fill the form, then adjust if needed.</p>
+                            <p className="mt-0.5 text-xs text-muted-foreground">
+                                Tap one to fill the form, then adjust if needed.
+                            </p>
                             <div className="mt-3 flex flex-wrap gap-1.5">
                                 {EXAMPLES.map((ex) => (
                                     <button
@@ -82,11 +103,17 @@ export default function CreateUnit() {
                                         type="button"
                                         onClick={() => {
                                             setData('name', ex.name);
-                                            setData('abbreviation', ex.abbreviation);
+                                            setData(
+                                                'abbreviation',
+                                                ex.abbreviation,
+                                            );
                                         }}
                                         className="rounded-full border px-2.5 py-1 text-xs text-muted-foreground transition-colors hover:border-[var(--pos-teal)] hover:text-[var(--pos-teal)]"
                                     >
-                                        {ex.name} <span className="text-muted-foreground/70">({ex.abbreviation})</span>
+                                        {ex.name}{' '}
+                                        <span className="text-muted-foreground/70">
+                                            ({ex.abbreviation})
+                                        </span>
                                     </button>
                                 ))}
                             </div>
@@ -103,7 +130,13 @@ export default function CreateUnit() {
                             <Save className="size-4" />
                             {processing ? 'Saving…' : 'Save Unit'}
                         </Button>
-                        <Button type="button" variant="outline" asChild disabled={processing} className="flex-1">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            asChild
+                            disabled={processing}
+                            className="flex-1"
+                        >
                             <Link href={units.index().url}>Cancel</Link>
                         </Button>
                     </div>

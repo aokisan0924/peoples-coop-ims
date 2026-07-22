@@ -102,7 +102,10 @@ export default function Login({ status, canResetPassword }: Props) {
                                 <InputError message={errors.password} />
                             </motion.div>
 
-                            <motion.div variants={item} className="flex items-center space-x-3">
+                            <motion.div
+                                variants={item}
+                                className="flex items-center space-x-3"
+                            >
                                 <Checkbox
                                     id="remember"
                                     name="remember"
@@ -137,7 +140,11 @@ export default function Login({ status, canResetPassword }: Props) {
                             transition={{ duration: 0.4, delay: 0.35 }}
                         >
                             Don't have an account?{' '}
-                            <TextLink href={register()} className="text-[#00a79b] decoration-[#00a79b]/40" tabIndex={5}>
+                            <TextLink
+                                href={register()}
+                                className="text-[#00a79b] decoration-[#00a79b]/40"
+                                tabIndex={5}
+                            >
                                 Sign up
                             </TextLink>
                         </motion.div>

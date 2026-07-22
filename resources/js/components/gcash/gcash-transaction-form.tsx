@@ -40,7 +40,11 @@ export default function GcashTransactionForm({ type, onSuccess }: Props) {
 
             <div>
                 <Label htmlFor="amount">
-                    Amount (₱) — {type === 'cash_in' ? 'GCash sent to customer' : 'GCash received from customer'} *
+                    Amount (₱) —{' '}
+                    {type === 'cash_in'
+                        ? 'GCash sent to customer'
+                        : 'GCash received from customer'}{' '}
+                    *
                 </Label>
                 <Input
                     id="amount"
@@ -51,7 +55,9 @@ export default function GcashTransactionForm({ type, onSuccess }: Props) {
                     onChange={(e) => setData('amount', e.target.value)}
                     autoFocus
                 />
-                {errors.amount && <p className="text-sm text-red-600 mt-1">{errors.amount}</p>}
+                {errors.amount && (
+                    <p className="mt-1 text-sm text-red-600">{errors.amount}</p>
+                )}
             </div>
 
             <div>
@@ -65,7 +71,9 @@ export default function GcashTransactionForm({ type, onSuccess }: Props) {
                     onChange={(e) => setData('fee', e.target.value)}
                     placeholder="0.00"
                 />
-                {errors.fee && <p className="text-sm text-red-600 mt-1">{errors.fee}</p>}
+                {errors.fee && (
+                    <p className="mt-1 text-sm text-red-600">{errors.fee}</p>
+                )}
             </div>
 
             <div>
@@ -83,7 +91,9 @@ export default function GcashTransactionForm({ type, onSuccess }: Props) {
                 <Input
                     id="reference_number"
                     value={data.reference_number}
-                    onChange={(e) => setData('reference_number', e.target.value)}
+                    onChange={(e) =>
+                        setData('reference_number', e.target.value)
+                    }
                     placeholder="From the GCash app"
                 />
             </div>
@@ -99,11 +109,15 @@ export default function GcashTransactionForm({ type, onSuccess }: Props) {
             </div>
 
             {errors.amount === undefined && (errors as any).message && (
-                <p className="text-sm text-red-600">{(errors as any).message}</p>
+                <p className="text-sm text-red-600">
+                    {(errors as any).message}
+                </p>
             )}
 
             <Button type="submit" disabled={processing} className="w-full">
-                {processing ? 'Recording...' : `Record ${type === 'cash_in' ? 'Cash-In' : 'Cash-Out'}`}
+                {processing
+                    ? 'Recording...'
+                    : `Record ${type === 'cash_in' ? 'Cash-In' : 'Cash-Out'}`}
             </Button>
         </form>
     );

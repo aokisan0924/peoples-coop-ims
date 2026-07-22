@@ -1,35 +1,58 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { AlertTriangle, Barcode, Package, Pencil, Printer, Search, Tag, Trash2, X, XCircle  } from 'lucide-react';
-import type {LucideIcon} from 'lucide-react';
+import {
+    AlertTriangle,
+    Barcode,
+    Package,
+    Pencil,
+    Printer,
+    Search,
+    Tag,
+    Trash2,
+    X,
+    XCircle,
+} from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import products from '@/routes/products';
-import type {Product} from '@/types/inventory';
+import type { Product } from '@/types/inventory';
 
-export default function ProductsIndex({ products: productList }: { products: Product[] }) {
+export default function ProductsIndex({
+    products: productList,
+}: {
+    products: Product[];
+}) {
     const [query, setQuery] = useState('');
     const [category, setCategory] = useState('all');
 
     function handleDelete(product: Product) {
-        if (confirm(`Remove product "${product.name}"? This cannot be undone.`)) {
+        if (
+            confirm(`Remove product "${product.name}"? This cannot be undone.`)
+        ) {
             router.delete(products.destroy(product.id).url);
         }
     }
 
     const isEmpty = productList.length === 0;
 
-    const lowStockCount = useMemo(() => productList.filter((p) => p.is_low_stock).length, [productList]);
-    const inactiveCount = useMemo(() => productList.filter((p) => !p.is_active).length, [productList]);
+    const lowStockCount = useMemo(
+        () => productList.filter((p) => p.is_low_stock).length,
+        [productList],
+    );
+    const inactiveCount = useMemo(
+        () => productList.filter((p) => !p.is_active).length,
+        [productList],
+    );
 
     const categoryOptions = useMemo(() => {
         const set = new Set<string>();
         productList.forEach((p) => {
             if (p.category?.name) {
-            set.add(p.category.name);
-        }
+                set.add(p.category.name);
+            }
         });
 
         return Array.from(set).sort();
@@ -39,8 +62,13 @@ export default function ProductsIndex({ products: productList }: { products: Pro
         const q = query.trim().toLowerCase();
 
         return productList.filter((p) => {
-            const matchesQuery = !q || [p.name, p.barcode, p.sku, p.category?.name].some((field) => field?.toLowerCase().includes(q));
-            const matchesCategory = category === 'all' || p.category?.name === category;
+            const matchesQuery =
+                !q ||
+                [p.name, p.barcode, p.sku, p.category?.name].some((field) =>
+                    field?.toLowerCase().includes(q),
+                );
+            const matchesCategory =
+                category === 'all' || p.category?.name === category;
 
             return matchesQuery && matchesCategory;
         });
@@ -49,7 +77,14 @@ export default function ProductsIndex({ products: productList }: { products: Pro
     const noResults = !isEmpty && filtered.length === 0;
 
     return (
-        <div style={{ '--pos-teal': '#00a79b', '--pos-green': '#8dc645' } as React.CSSProperties}>
+        <div
+            style={
+                {
+                    '--pos-teal': '#00a79b',
+                    '--pos-green': '#8dc645',
+                } as React.CSSProperties
+            }
+        >
             <Head title="Products" />
 
             <div className="mx-auto max-w-[1600px] space-y-5 p-3 pb-24 sm:p-6 sm:pb-6">
@@ -57,14 +92,23 @@ export default function ProductsIndex({ products: productList }: { products: Pro
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                         <div className="flex items-center gap-2">
-                            <h1 className="text-xl font-semibold tracking-tight">Products</h1>
+                            <h1 className="text-xl font-semibold tracking-tight">
+                                Products
+                            </h1>
                             {!isEmpty && (
-                                <Badge className="border-0 bg-[var(--pos-green)]/15 font-normal text-[var(--pos-green)]">{productList.length}</Badge>
+                                <Badge className="border-0 bg-[var(--pos-green)]/15 font-normal text-[var(--pos-green)]">
+                                    {productList.length}
+                                </Badge>
                             )}
                         </div>
-                        <p className="mt-0.5 text-sm text-muted-foreground">Manage your catalog, stock levels, and pricing.</p>
+                        <p className="mt-0.5 text-sm text-muted-foreground">
+                            Manage your catalog, stock levels, and pricing.
+                        </p>
                     </div>
-                    <Button asChild className="gap-1.5 bg-[var(--pos-teal)] text-white hover:bg-[var(--pos-teal)]/90">
+                    <Button
+                        asChild
+                        className="gap-1.5 bg-[var(--pos-teal)] text-white hover:bg-[var(--pos-teal)]/90"
+                    >
                         <Link href={products.create().url}>
                             <Package className="size-4" />
                             Add Product
@@ -76,9 +120,24 @@ export default function ProductsIndex({ products: productList }: { products: Pro
                     <>
                         {/* Stats */}
                         <div className="grid grid-cols-3 gap-2.5 sm:max-w-xl sm:gap-3">
-                            <StatCard icon={Package} label="Total" value={productList.length} accent="teal" />
-                            <StatCard icon={AlertTriangle} label="Low Stock" value={lowStockCount} accent="amber" />
-                            <StatCard icon={XCircle} label="Inactive" value={inactiveCount} accent="red" />
+                            <StatCard
+                                icon={Package}
+                                label="Total"
+                                value={productList.length}
+                                accent="teal"
+                            />
+                            <StatCard
+                                icon={AlertTriangle}
+                                label="Low Stock"
+                                value={lowStockCount}
+                                accent="amber"
+                            />
+                            <StatCard
+                                icon={XCircle}
+                                label="Inactive"
+                                value={inactiveCount}
+                                accent="red"
+                            />
                         </div>
 
                         {/* Search + category filter */}
@@ -106,7 +165,9 @@ export default function ProductsIndex({ products: productList }: { products: Pro
                             {categoryOptions.length > 0 && (
                                 <select
                                     value={category}
-                                    onChange={(e) => setCategory(e.target.value)}
+                                    onChange={(e) =>
+                                        setCategory(e.target.value)
+                                    }
                                     aria-label="Filter by category"
                                     className="h-9 w-full rounded-md border bg-background px-3 text-sm focus-visible:ring-1 focus-visible:ring-[var(--pos-teal)] focus-visible:outline-none sm:w-48"
                                 >
@@ -139,23 +200,40 @@ export default function ProductsIndex({ products: productList }: { products: Pro
                             <table className="w-full text-sm">
                                 <thead className="bg-muted/60">
                                     <tr>
-                                        <th className="p-3 text-left font-medium text-muted-foreground">Name</th>
-                                        <th className="p-3 text-left font-medium text-muted-foreground">Barcode</th>
-                                        <th className="p-3 text-left font-medium text-muted-foreground">Category</th>
-                                        <th className="p-3 text-left font-medium text-muted-foreground">Stock</th>
-                                        <th className="p-3 text-left font-medium text-muted-foreground">Member Price</th>
-                                        <th className="p-3 text-right font-medium text-muted-foreground">Actions</th>
+                                        <th className="p-3 text-left font-medium text-muted-foreground">
+                                            Name
+                                        </th>
+                                        <th className="p-3 text-left font-medium text-muted-foreground">
+                                            Barcode
+                                        </th>
+                                        <th className="p-3 text-left font-medium text-muted-foreground">
+                                            Category
+                                        </th>
+                                        <th className="p-3 text-left font-medium text-muted-foreground">
+                                            Stock
+                                        </th>
+                                        <th className="p-3 text-left font-medium text-muted-foreground">
+                                            Member Price
+                                        </th>
+                                        <th className="p-3 text-right font-medium text-muted-foreground">
+                                            Actions
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {filtered.map((product) => (
-                                        <tr key={product.id} className="group border-t transition-colors hover:bg-muted/30">
+                                        <tr
+                                            key={product.id}
+                                            className="group border-t transition-colors hover:bg-muted/30"
+                                        >
                                             <td className="p-3 font-medium">
                                                 <div className="flex items-center gap-2.5">
                                                     <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-[var(--pos-teal)]/10 text-[var(--pos-teal)]">
                                                         <Package className="size-4" />
                                                     </div>
-                                                    <span className="truncate">{product.name}</span>
+                                                    <span className="truncate">
+                                                        {product.name}
+                                                    </span>
                                                     {!product.is_active && (
                                                         <Badge className="border-0 bg-red-100 font-normal text-red-700 dark:bg-red-950/50 dark:text-red-400">
                                                             Inactive
@@ -163,8 +241,14 @@ export default function ProductsIndex({ products: productList }: { products: Pro
                                                     )}
                                                 </div>
                                             </td>
-                                            <td className="p-3 font-mono text-xs text-muted-foreground">{product.barcode ?? product.sku ?? '—'}</td>
-                                            <td className="p-3 text-muted-foreground">{product.category?.name ?? '—'}</td>
+                                            <td className="p-3 font-mono text-xs text-muted-foreground">
+                                                {product.barcode ??
+                                                    product.sku ??
+                                                    '—'}
+                                            </td>
+                                            <td className="p-3 text-muted-foreground">
+                                                {product.category?.name ?? '—'}
+                                            </td>
                                             <td className="p-3">
                                                 <div className="flex items-center gap-1.5 tabular-nums">
                                                     {product.total_stock}
@@ -176,7 +260,12 @@ export default function ProductsIndex({ products: productList }: { products: Pro
                                                     )}
                                                 </div>
                                             </td>
-                                            <td className="p-3 tabular-nums">₱{product.member_piece_price?.toFixed(2)}</td>
+                                            <td className="p-3 tabular-nums">
+                                                ₱
+                                                {product.member_piece_price?.toFixed(
+                                                    2,
+                                                )}
+                                            </td>
                                             <td className="p-3 text-right">
                                                 <div className="inline-flex gap-1.5 opacity-80 transition-opacity group-hover:opacity-100">
                                                     <Button
@@ -186,7 +275,13 @@ export default function ProductsIndex({ products: productList }: { products: Pro
                                                         className="size-8 hover:border-[var(--pos-teal)] hover:text-[var(--pos-teal)]"
                                                         title="Edit"
                                                     >
-                                                        <Link href={products.edit(product.id).url}>
+                                                        <Link
+                                                            href={
+                                                                products.edit(
+                                                                    product.id,
+                                                                ).url
+                                                            }
+                                                        >
                                                             <Pencil className="size-3.5" />
                                                         </Link>
                                                     </Button>
@@ -197,7 +292,9 @@ export default function ProductsIndex({ products: productList }: { products: Pro
                                                         className="size-8 hover:border-[var(--pos-teal)] hover:text-[var(--pos-teal)]"
                                                         title="Show barcode"
                                                     >
-                                                        <Link href={`/products/${product.id}/barcode`}>
+                                                        <Link
+                                                            href={`/products/${product.id}/barcode`}
+                                                        >
                                                             <Barcode className="size-3.5" />
                                                         </Link>
                                                     </Button>
@@ -208,14 +305,22 @@ export default function ProductsIndex({ products: productList }: { products: Pro
                                                         className="size-8 hover:border-[var(--pos-teal)] hover:text-[var(--pos-teal)]"
                                                         title="Print label"
                                                     >
-                                                        <a href={`/products/${product.id}/label`} target="_blank" rel="noopener noreferrer">
+                                                        <a
+                                                            href={`/products/${product.id}/label`}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                        >
                                                             <Printer className="size-3.5" />
                                                         </a>
                                                     </Button>
                                                     <Button
                                                         variant="outline"
                                                         size="icon"
-                                                        onClick={() => handleDelete(product)}
+                                                        onClick={() =>
+                                                            handleDelete(
+                                                                product,
+                                                            )
+                                                        }
                                                         className="size-8 text-red-600 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-950/40"
                                                         title="Delete"
                                                     >
@@ -231,7 +336,10 @@ export default function ProductsIndex({ products: productList }: { products: Pro
 
                         <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:hidden">
                             {filtered.map((product) => (
-                                <div key={product.id} className="rounded-xl border bg-card p-3 shadow-sm">
+                                <div
+                                    key={product.id}
+                                    className="rounded-xl border bg-card p-3 shadow-sm"
+                                >
                                     <div className="flex items-start justify-between gap-2">
                                         <div className="flex min-w-0 items-start gap-2.5">
                                             <div className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-lg bg-[var(--pos-teal)]/10 text-[var(--pos-teal)]">
@@ -239,7 +347,9 @@ export default function ProductsIndex({ products: productList }: { products: Pro
                                             </div>
                                             <div className="min-w-0">
                                                 <div className="flex flex-wrap items-center gap-1.5">
-                                                    <p className="truncate font-medium">{product.name}</p>
+                                                    <p className="truncate font-medium">
+                                                        {product.name}
+                                                    </p>
                                                     {!product.is_active && (
                                                         <Badge className="border-0 bg-red-100 font-normal text-red-700 dark:bg-red-950/50 dark:text-red-400">
                                                             Inactive
@@ -252,18 +362,27 @@ export default function ProductsIndex({ products: productList }: { products: Pro
                                                         {product.category.name}
                                                     </p>
                                                 )}
-                                                {(product.barcode ?? product.sku) && (
+                                                {(product.barcode ??
+                                                    product.sku) && (
                                                     <p className="mt-0.5 truncate font-mono text-xs text-muted-foreground">
-                                                        {product.barcode ?? product.sku}
+                                                        {product.barcode ??
+                                                            product.sku}
                                                     </p>
                                                 )}
                                             </div>
                                         </div>
-                                        <p className="shrink-0 text-sm font-semibold tabular-nums">₱{product.member_piece_price?.toFixed(2)}</p>
+                                        <p className="shrink-0 text-sm font-semibold tabular-nums">
+                                            ₱
+                                            {product.member_piece_price?.toFixed(
+                                                2,
+                                            )}
+                                        </p>
                                     </div>
 
                                     <div className="mt-2.5 flex items-center gap-1.5 text-xs text-muted-foreground">
-                                        <span className="tabular-nums">Stock: {product.total_stock}</span>
+                                        <span className="tabular-nums">
+                                            Stock: {product.total_stock}
+                                        </span>
                                         {product.is_low_stock && (
                                             <Badge className="gap-1 border-0 bg-amber-100 font-normal text-amber-700 dark:bg-amber-950/50 dark:text-amber-400">
                                                 <AlertTriangle className="size-3" />
@@ -279,7 +398,12 @@ export default function ProductsIndex({ products: productList }: { products: Pro
                                             asChild
                                             className="gap-1.5 hover:border-[var(--pos-teal)] hover:text-[var(--pos-teal)]"
                                         >
-                                            <Link href={products.edit(product.id).url}>
+                                            <Link
+                                                href={
+                                                    products.edit(product.id)
+                                                        .url
+                                                }
+                                            >
                                                 <Pencil className="size-3.5" />
                                                 Edit
                                             </Link>
@@ -287,7 +411,9 @@ export default function ProductsIndex({ products: productList }: { products: Pro
                                         <Button
                                             variant="outline"
                                             size="sm"
-                                            onClick={() => handleDelete(product)}
+                                            onClick={() =>
+                                                handleDelete(product)
+                                            }
                                             className="gap-1.5 text-red-600 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-950/40"
                                         >
                                             <Trash2 className="size-3.5" />
@@ -299,7 +425,9 @@ export default function ProductsIndex({ products: productList }: { products: Pro
                                             asChild
                                             className="gap-1.5 hover:border-[var(--pos-teal)] hover:text-[var(--pos-teal)]"
                                         >
-                                            <Link href={`/products/${product.id}/barcode`}>
+                                            <Link
+                                                href={`/products/${product.id}/barcode`}
+                                            >
                                                 <Barcode className="size-3.5" />
                                                 Barcode
                                             </Link>
@@ -310,7 +438,11 @@ export default function ProductsIndex({ products: productList }: { products: Pro
                                             asChild
                                             className="gap-1.5 hover:border-[var(--pos-teal)] hover:text-[var(--pos-teal)]"
                                         >
-                                            <a href={`/products/${product.id}/label`} target="_blank" rel="noopener noreferrer">
+                                            <a
+                                                href={`/products/${product.id}/label`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                            >
                                                 <Printer className="size-3.5" />
                                                 Print
                                             </a>
@@ -326,7 +458,17 @@ export default function ProductsIndex({ products: productList }: { products: Pro
     );
 }
 
-function StatCard({ icon: Icon, label, value, accent }: { icon: LucideIcon; label: string; value: number; accent: 'teal' | 'amber' | 'red' }) {
+function StatCard({
+    icon: Icon,
+    label,
+    value,
+    accent,
+}: {
+    icon: LucideIcon;
+    label: string;
+    value: number;
+    accent: 'teal' | 'amber' | 'red';
+}) {
     const styles = {
         teal: 'bg-[var(--pos-teal)]/10 text-[var(--pos-teal)]',
         amber: 'bg-amber-100 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400',
@@ -335,12 +477,19 @@ function StatCard({ icon: Icon, label, value, accent }: { icon: LucideIcon; labe
 
     return (
         <div className="flex items-center gap-2.5 rounded-xl border bg-card p-3">
-            <div className={cn('flex size-9 shrink-0 items-center justify-center rounded-lg', styles)}>
+            <div
+                className={cn(
+                    'flex size-9 shrink-0 items-center justify-center rounded-lg',
+                    styles,
+                )}
+            >
                 <Icon className="size-4" />
             </div>
             <div className="min-w-0">
                 <p className="text-lg leading-none font-semibold">{value}</p>
-                <p className="mt-1 truncate text-xs text-muted-foreground">{label}</p>
+                <p className="mt-1 truncate text-xs text-muted-foreground">
+                    {label}
+                </p>
             </div>
         </div>
     );
@@ -353,8 +502,14 @@ function EmptyState() {
                 <Package className="size-7" />
             </div>
             <p className="text-sm font-medium">No products yet</p>
-            <p className="max-w-xs text-sm text-muted-foreground">Add your first product to start tracking stock and pricing.</p>
-            <Button asChild size="sm" className="mt-2 gap-1.5 bg-[var(--pos-teal)] text-white hover:bg-[var(--pos-teal)]/90">
+            <p className="max-w-xs text-sm text-muted-foreground">
+                Add your first product to start tracking stock and pricing.
+            </p>
+            <Button
+                asChild
+                size="sm"
+                className="mt-2 gap-1.5 bg-[var(--pos-teal)] text-white hover:bg-[var(--pos-teal)]/90"
+            >
                 <Link href={products.create().url}>
                     <Package className="size-4" />
                     Add Product
@@ -370,9 +525,18 @@ function NoResults({ onClear }: { onClear: () => void }) {
             <div className="flex size-14 items-center justify-center rounded-full bg-muted text-muted-foreground">
                 <Search className="size-7" />
             </div>
-            <p className="text-sm font-medium">No products match your filters</p>
-            <p className="max-w-xs text-sm text-muted-foreground">Try a different search term or category.</p>
-            <Button variant="outline" size="sm" className="mt-2" onClick={onClear}>
+            <p className="text-sm font-medium">
+                No products match your filters
+            </p>
+            <p className="max-w-xs text-sm text-muted-foreground">
+                Try a different search term or category.
+            </p>
+            <Button
+                variant="outline"
+                size="sm"
+                className="mt-2"
+                onClick={onClear}
+            >
                 Clear filters
             </Button>
         </div>

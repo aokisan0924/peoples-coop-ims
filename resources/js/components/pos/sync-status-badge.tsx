@@ -2,8 +2,8 @@ import { Link } from '@inertiajs/react';
 import { Wifi, WifiOff, RefreshCw, AlertCircle } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
-import { syncEngine  } from '@/lib/sync-engine';
-import type {SyncStatus} from '@/lib/sync-engine';
+import { syncEngine } from '@/lib/sync-engine';
+import type { SyncStatus } from '@/lib/sync-engine';
 
 export default function SyncStatusBadge() {
     const [status, setStatus] = useState<SyncStatus>({
@@ -18,14 +18,17 @@ export default function SyncStatusBadge() {
     }, []);
 
     // Any state worth clicking through to the review page for
-    const isClickable = !status.isOnline || status.pendingCount > 0 || status.lastError;
+    const isClickable =
+        !status.isOnline || status.pendingCount > 0 || status.lastError;
 
     const badge = (() => {
         if (!status.isOnline) {
             return (
                 <Badge variant="destructive" className="gap-1">
                     <WifiOff className="size-3" />
-                    Offline {status.pendingCount > 0 && `— ${status.pendingCount} pending`}
+                    Offline{' '}
+                    {status.pendingCount > 0 &&
+                        `— ${status.pendingCount} pending`}
                 </Badge>
             );
         }
@@ -42,14 +45,20 @@ export default function SyncStatusBadge() {
         if (status.syncing || status.pendingCount > 0) {
             return (
                 <Badge variant="secondary" className="gap-1">
-                    <RefreshCw className={`size-3 ${status.syncing ? 'animate-spin' : ''}`} />
-                    Syncing {status.pendingCount} sale{status.pendingCount !== 1 ? 's' : ''}...
+                    <RefreshCw
+                        className={`size-3 ${status.syncing ? 'animate-spin' : ''}`}
+                    />
+                    Syncing {status.pendingCount} sale
+                    {status.pendingCount !== 1 ? 's' : ''}...
                 </Badge>
             );
         }
 
         return (
-            <Badge variant="outline" className="gap-1 text-green-600 border-green-600">
+            <Badge
+                variant="outline"
+                className="gap-1 border-green-600 text-green-600"
+            >
                 <Wifi className="size-3" />
                 Online — Synced
             </Badge>
@@ -58,7 +67,10 @@ export default function SyncStatusBadge() {
 
     if (isClickable) {
         return (
-            <Link href="/pos/sync-review" className="hover:opacity-80 transition-opacity">
+            <Link
+                href="/pos/sync-review"
+                className="transition-opacity hover:opacity-80"
+            >
                 {badge}
             </Link>
         );

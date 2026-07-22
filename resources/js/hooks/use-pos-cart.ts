@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import type {CartItem} from '@/types/inventory';
+import type { CartItem } from '@/types/inventory';
 
 interface ProductResult {
     id: number;
@@ -19,15 +19,24 @@ export function usePosCart() {
     const [items, setItems] = useState<CartItem[]>([]);
     const [isMember, setIsMember] = useState(true);
 
-    function addProduct(product: ProductResult, unitType: 'piece' | 'pack' = 'piece') {
+    function addProduct(
+        product: ProductResult,
+        unitType: 'piece' | 'pack' = 'piece',
+    ) {
         setItems((prev) => {
             const existingIndex = prev.findIndex(
-                (i) => i.product_id === product.id && i.unit_type === unitType
+                (i) => i.product_id === product.id && i.unit_type === unitType,
             );
 
-            const unitPrice = unitType === 'pack'
-                ? (isMember ? product.member_pack_price : product.non_member_pack_price) ?? 0
-                : (isMember ? product.member_piece_price : product.non_member_piece_price ?? product.member_piece_price);
+            const unitPrice =
+                unitType === 'pack'
+                    ? ((isMember
+                          ? product.member_pack_price
+                          : product.non_member_pack_price) ?? 0)
+                    : isMember
+                      ? product.member_piece_price
+                      : (product.non_member_piece_price ??
+                        product.member_piece_price);
 
             if (existingIndex >= 0) {
                 const updated = [...prev];
@@ -54,7 +63,8 @@ export function usePosCart() {
                     line_total: round2(unitPrice),
                     max_available: product.total_stock,
                     has_pack_option: !!product.pack_conversion_factor,
-                    pack_conversion_factor: product.pack_conversion_factor ?? null,
+                    pack_conversion_factor:
+                        product.pack_conversion_factor ?? null,
                 },
             ];
         });
@@ -62,8 +72,8 @@ export function usePosCart() {
 
     function updateQuantity(index: number, quantity: number) {
         if (quantity < 1) {
-return;
-}
+            return;
+        }
 
         setItems((prev) => {
             const updated = [...prev];
@@ -88,7 +98,7 @@ return;
 
     const subtotal = useMemo(
         () => round2(items.reduce((sum, item) => sum + item.line_total, 0)),
-        [items]
+        [items],
     );
 
     return {

@@ -29,27 +29,40 @@ export default function ShiftSummary({ shift }: { shift: Shift }) {
         <>
             <Head title="Shift Summary" />
 
-            <div className="p-4 flex flex-col items-center">
-                <div className="w-full max-w-sm border rounded-lg p-6 text-center">
-                    <h1 className="text-xl font-semibold mb-4">Shift Closed</h1>
+            <div className="flex flex-col items-center p-4">
+                <div className="w-full max-w-sm rounded-lg border p-6 text-center">
+                    <h1 className="mb-4 text-xl font-semibold">Shift Closed</h1>
 
                     <div className="space-y-2 text-left text-sm">
                         <div className="flex justify-between">
-                            <span className="text-muted-foreground">Starting Cash</span>
+                            <span className="text-muted-foreground">
+                                Starting Cash
+                            </span>
                             <span>{peso(shift.starting_cash)}</span>
                         </div>
                         <div className="flex justify-between">
-                            <span className="text-muted-foreground">Expected Cash</span>
+                            <span className="text-muted-foreground">
+                                Expected Cash
+                            </span>
                             <span>{peso(shift.expected_cash)}</span>
                         </div>
                         <div className="flex justify-between">
-                            <span className="text-muted-foreground">Actual Counted</span>
+                            <span className="text-muted-foreground">
+                                Actual Counted
+                            </span>
                             <span>{peso(shift.actual_cash)}</span>
                         </div>
-                        <div className="border-t pt-2 flex justify-between font-semibold">
+                        <div className="flex justify-between border-t pt-2 font-semibold">
                             <span>Variance</span>
-                            <span className={isBalanced ? 'text-green-600' : 'text-red-600'}>
-                                {variance > 0 ? '+' : ''}{peso(variance)}
+                            <span
+                                className={
+                                    isBalanced
+                                        ? 'text-green-600'
+                                        : 'text-red-600'
+                                }
+                            >
+                                {variance > 0 ? '+' : ''}
+                                {peso(variance)}
                             </span>
                         </div>
                     </div>
@@ -58,32 +71,48 @@ export default function ShiftSummary({ shift }: { shift: Shift }) {
                         {isBalanced ? (
                             <Badge className="bg-green-600">Balanced ✓</Badge>
                         ) : isShort ? (
-                            <Badge variant="destructive">Short by {peso(Math.abs(variance))}</Badge>
+                            <Badge variant="destructive">
+                                Short by {peso(Math.abs(variance))}
+                            </Badge>
                         ) : (
-                            <Badge className="bg-amber-500">Over by {peso(variance)}</Badge>
+                            <Badge className="bg-amber-500">
+                                Over by {peso(variance)}
+                            </Badge>
                         )}
                     </div>
 
-                    {shift.cash_breakdown && shift.cash_breakdown.some((row) => row.count > 0) && (
-                        <div className="mt-4 border-t pt-3 text-left">
-                            <p className="mb-1.5 text-xs font-medium text-muted-foreground">Cash Count</p>
-                            <div className="space-y-0.5 text-sm">
-                                {shift.cash_breakdown
-                                    .filter((row) => row.count > 0)
-                                    .map((row) => (
-                                        <div key={row.denomination} className="flex justify-between font-mono tabular-nums">
-                                            <span className="text-muted-foreground">
-                                                ₱{row.denomination} × {row.count}
-                                            </span>
-                                            <span>{peso(row.denomination * row.count)}</span>
-                                        </div>
-                                    ))}
+                    {shift.cash_breakdown &&
+                        shift.cash_breakdown.some((row) => row.count > 0) && (
+                            <div className="mt-4 border-t pt-3 text-left">
+                                <p className="mb-1.5 text-xs font-medium text-muted-foreground">
+                                    Cash Count
+                                </p>
+                                <div className="space-y-0.5 text-sm">
+                                    {shift.cash_breakdown
+                                        .filter((row) => row.count > 0)
+                                        .map((row) => (
+                                            <div
+                                                key={row.denomination}
+                                                className="flex justify-between font-mono tabular-nums"
+                                            >
+                                                <span className="text-muted-foreground">
+                                                    ₱{row.denomination} ×{' '}
+                                                    {row.count}
+                                                </span>
+                                                <span>
+                                                    {peso(
+                                                        row.denomination *
+                                                            row.count,
+                                                    )}
+                                                </span>
+                                            </div>
+                                        ))}
+                                </div>
                             </div>
-                        </div>
-                    )}
+                        )}
 
                     {shift.notes && (
-                        <p className="text-sm text-muted-foreground mt-4 text-left border-t pt-3">
+                        <p className="mt-4 border-t pt-3 text-left text-sm text-muted-foreground">
                             {shift.notes}
                         </p>
                     )}

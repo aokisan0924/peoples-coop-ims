@@ -10,7 +10,13 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 import { apiPost } from '@/lib/api-post';
 
 interface ParentOption {
@@ -69,15 +75,22 @@ export default function CategoryQuickCreateDialog({
         setError('');
 
         try {
-            const category = await apiPost<CreatedCategory>('/categories/quick-create', {
-                name: name.trim(),
-                parent_id: parentId === 'none' ? null : Number(parentId),
-            });
+            const category = await apiPost<CreatedCategory>(
+                '/categories/quick-create',
+                {
+                    name: name.trim(),
+                    parent_id: parentId === 'none' ? null : Number(parentId),
+                },
+            );
 
             onCreated(category);
             onOpenChange(false);
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Could not create category.');
+            setError(
+                err instanceof Error
+                    ? err.message
+                    : 'Could not create category.',
+            );
         } finally {
             setSubmitting(false);
         }
@@ -90,13 +103,16 @@ export default function CategoryQuickCreateDialog({
                     <DialogHeader>
                         <DialogTitle>Add Category</DialogTitle>
                         <DialogDescription>
-                            Creates the category immediately and selects it here — no need to leave this form.
+                            Creates the category immediately and selects it here
+                            — no need to leave this form.
                         </DialogDescription>
                     </DialogHeader>
 
                     <div className="mt-4 space-y-4">
                         <div>
-                            <Label htmlFor="quick-category-name">Category Name *</Label>
+                            <Label htmlFor="quick-category-name">
+                                Category Name *
+                            </Label>
                             <Input
                                 id="quick-category-name"
                                 autoFocus
@@ -107,15 +123,28 @@ export default function CategoryQuickCreateDialog({
                         </div>
 
                         <div>
-                            <Label htmlFor="quick-category-parent">Parent Category (optional)</Label>
-                            <Select value={parentId} onValueChange={setParentId}>
-                                <SelectTrigger id="quick-category-parent" className="w-full">
+                            <Label htmlFor="quick-category-parent">
+                                Parent Category (optional)
+                            </Label>
+                            <Select
+                                value={parentId}
+                                onValueChange={setParentId}
+                            >
+                                <SelectTrigger
+                                    id="quick-category-parent"
+                                    className="w-full"
+                                >
                                     <SelectValue placeholder="None (top-level category)" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="none">None (top-level category)</SelectItem>
+                                    <SelectItem value="none">
+                                        None (top-level category)
+                                    </SelectItem>
                                     {parentOptions.map((option) => (
-                                        <SelectItem key={option.id} value={String(option.id)}>
+                                        <SelectItem
+                                            key={option.id}
+                                            value={String(option.id)}
+                                        >
                                             {option.name}
                                         </SelectItem>
                                     ))}
@@ -123,11 +152,17 @@ export default function CategoryQuickCreateDialog({
                             </Select>
                         </div>
 
-                        {error && <p className="text-sm text-red-600">{error}</p>}
+                        {error && (
+                            <p className="text-sm text-red-600">{error}</p>
+                        )}
                     </div>
 
                     <DialogFooter className="mt-6">
-                        <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => onOpenChange(false)}
+                        >
                             Cancel
                         </Button>
                         <Button type="submit" disabled={submitting}>

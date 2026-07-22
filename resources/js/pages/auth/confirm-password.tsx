@@ -29,7 +29,12 @@ export default function ConfirmPassword() {
 
             <Form {...store.form()} resetOnSuccess={['password']}>
                 {({ processing, errors }) => (
-                    <motion.div className="space-y-6" variants={container} initial="hidden" animate="visible">
+                    <motion.div
+                        className="space-y-6"
+                        variants={container}
+                        initial="hidden"
+                        animate="visible"
+                    >
                         <motion.div variants={item} className="grid gap-2">
                             <Label htmlFor="password">Password</Label>
                             <PasswordInput

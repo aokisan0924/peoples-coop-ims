@@ -1,5 +1,5 @@
-import { offlineDb  } from '@/lib/offline-db';
-import type {PendingSale} from '@/lib/offline-db';
+import { offlineDb } from '@/lib/offline-db';
+import type { PendingSale } from '@/lib/offline-db';
 
 type SyncListener = (status: SyncStatus) => void;
 
@@ -40,7 +40,10 @@ class SyncEngine {
     }
 
     private async notify() {
-        const pendingCount = await offlineDb.pendingSales.where('status').anyOf(['pending', 'failed']).count();
+        const pendingCount = await offlineDb.pendingSales
+            .where('status')
+            .anyOf(['pending', 'failed'])
+            .count();
         const status: SyncStatus = {
             isOnline: navigator.onLine,
             pendingCount,
@@ -86,7 +89,9 @@ class SyncEngine {
      * Best-effort total from whatever's cached locally — display only. The
      * server always recomputes the authoritative total from live prices on sync.
      */
-    private async estimateTotal(payload: PendingSale['payload']): Promise<number> {
+    private async estimateTotal(
+        payload: PendingSale['payload'],
+    ): Promise<number> {
         let total = 0;
 
         for (const item of payload.items) {
@@ -96,9 +101,14 @@ class SyncEngine {
                 continue;
             }
 
-            const unitPrice = item.unit_type === 'pack'
-                ? (payload.is_member ? product.member_pack_price : product.non_member_pack_price)
-                : (payload.is_member ? product.member_piece_price : product.non_member_piece_price);
+            const unitPrice =
+                item.unit_type === 'pack'
+                    ? payload.is_member
+                        ? product.member_pack_price
+                        : product.non_member_pack_price
+                    : payload.is_member
+                      ? product.member_piece_price
+                      : product.non_member_piece_price;
 
             total += (unitPrice ?? 0) * item.quantity;
         }
@@ -112,8 +122,8 @@ class SyncEngine {
      */
     async syncPending(): Promise<void> {
         if (this.syncing) {
-        return;
-    } // avoid overlapping sync runs
+            return;
+        } // avoid overlapping sync runs
 
         this.syncing = true;
         this.notify();
@@ -143,7 +153,10 @@ class SyncEngine {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content ?? '',
+                    'X-CSRF-TOKEN':
+                        document.querySelector<HTMLMetaElement>(
+                            'meta[name="csrf-token"]',
+                        )?.content ?? '',
                 },
                 body: JSON.stringify({
                     client_uuid: sale.uuid,
@@ -166,11 +179,15 @@ class SyncEngine {
                     status: 'failed',
                     error_message: data.message ?? 'Sync failed',
                 });
-                this.lastError = data.message ?? 'A sale failed to sync — needs manager review.';
+                this.lastError =
+                    data.message ??
+                    'A sale failed to sync — needs manager review.';
             }
         } catch {
             // Network error mid-sync — leave as pending, will retry automatically
-            await offlineDb.pendingSales.update(sale.uuid, { status: 'pending' });
+            await offlineDb.pendingSales.update(sale.uuid, {
+                status: 'pending',
+            });
         }
     }
 
@@ -180,27 +197,32 @@ class SyncEngine {
      */
     async refreshProductCache(): Promise<void> {
         if (!navigator.onLine) {
-        return;
-    }
-
-    try {
-        const response = await fetch('/products/offline-snapshot', {
-            headers: { Accept: 'application/json' },
-        });
-
-        if (!response.ok) {
-            console.warn(`Offline product cache refresh failed: HTTP ${response.status}`);
-
             return;
         }
 
-        const data = await response.json();
+        try {
+            const response = await fetch('/products/offline-snapshot', {
+                headers: { Accept: 'application/json' },
+            });
 
-        await offlineDb.cachedProducts.clear();
-        await offlineDb.cachedProducts.bulkAdd(
-            data.products.map((p: any) => ({ ...p, cached_at: new Date().toISOString() }))
-        );
-    } catch (e) {
+            if (!response.ok) {
+                console.warn(
+                    `Offline product cache refresh failed: HTTP ${response.status}`,
+                );
+
+                return;
+            }
+
+            const data = await response.json();
+
+            await offlineDb.cachedProducts.clear();
+            await offlineDb.cachedProducts.bulkAdd(
+                data.products.map((p: any) => ({
+                    ...p,
+                    cached_at: new Date().toISOString(),
+                })),
+            );
+        } catch (e) {
             console.warn('Offline product cache refresh failed:', e);
         }
     }

@@ -3,7 +3,7 @@ import { ArrowLeft, Pencil, Ruler, Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import UnitFormFields from '@/components/units/unit-form-fields';
 import units from '@/routes/units';
-import type {Unit} from '@/types/inventory';
+import type { Unit } from '@/types/inventory';
 
 export default function EditUnit({ unit }: { unit: Unit }) {
     const { data, setData, put, processing, errors } = useForm({
@@ -23,7 +23,12 @@ export default function EditUnit({ unit }: { unit: Unit }) {
             <div className="mx-auto max-w-4xl space-y-4 p-3 pb-24 sm:p-6 sm:pb-6">
                 {/* Header */}
                 <div className="flex items-center gap-3">
-                    <Button variant="outline" size="icon" asChild className="size-9 shrink-0">
+                    <Button
+                        variant="outline"
+                        size="icon"
+                        asChild
+                        className="size-9 shrink-0"
+                    >
                         <Link href={units.index().url}>
                             <ArrowLeft className="size-4" />
                         </Link>
@@ -33,9 +38,13 @@ export default function EditUnit({ unit }: { unit: Unit }) {
                             <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-[var(--pos-teal)]/10 text-[var(--pos-teal)]">
                                 <Pencil className="size-4" />
                             </div>
-                            <h1 className="truncate text-xl font-semibold tracking-tight">Edit Unit</h1>
+                            <h1 className="truncate text-xl font-semibold tracking-tight">
+                                Edit Unit
+                            </h1>
                         </div>
-                        <p className="mt-0.5 text-sm text-muted-foreground">Update details for {unit.name}.</p>
+                        <p className="mt-0.5 text-sm text-muted-foreground">
+                            Update details for {unit.name}.
+                        </p>
                     </div>
                 </div>
 
@@ -43,7 +52,11 @@ export default function EditUnit({ unit }: { unit: Unit }) {
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-5 md:items-start">
                         {/* Form card */}
                         <div className="rounded-xl border bg-card p-4 sm:p-5 md:col-span-3">
-                            <UnitFormFields data={data} setData={setData} errors={errors} />
+                            <UnitFormFields
+                                data={data}
+                                setData={setData}
+                                errors={errors}
+                            />
 
                             {/* Desktop actions, inline with the form card */}
                             <div className="mt-6 hidden gap-2 border-t pt-4 sm:flex">
@@ -55,7 +68,12 @@ export default function EditUnit({ unit }: { unit: Unit }) {
                                     <Save className="size-4" />
                                     {processing ? 'Updating…' : 'Update Unit'}
                                 </Button>
-                                <Button type="button" variant="outline" asChild disabled={processing}>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    asChild
+                                    disabled={processing}
+                                >
                                     <Link href={units.index().url}>Cancel</Link>
                                 </Button>
                             </div>
@@ -68,8 +86,12 @@ export default function EditUnit({ unit }: { unit: Unit }) {
                                     <Ruler className="size-4" />
                                 </div>
                                 <div className="min-w-0">
-                                    <p className="truncate text-sm font-medium">{unit.name}</p>
-                                    <p className="text-xs text-muted-foreground">Unit #{unit.id}</p>
+                                    <p className="truncate text-sm font-medium">
+                                        {unit.name}
+                                    </p>
+                                    <p className="text-xs text-muted-foreground">
+                                        Unit #{unit.id}
+                                    </p>
                                 </div>
                             </div>
                         </div>
@@ -85,7 +107,13 @@ export default function EditUnit({ unit }: { unit: Unit }) {
                             <Save className="size-4" />
                             {processing ? 'Updating…' : 'Update Unit'}
                         </Button>
-                        <Button type="button" variant="outline" asChild disabled={processing} className="flex-1">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            asChild
+                            disabled={processing}
+                            className="flex-1"
+                        >
                             <Link href={units.index().url}>Cancel</Link>
                         </Button>
                     </div>

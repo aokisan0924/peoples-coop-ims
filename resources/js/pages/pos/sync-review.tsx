@@ -1,10 +1,17 @@
 import { Head, Link } from '@inertiajs/react';
-import { AlertTriangle, ArrowLeft, CheckCircle2, Clock, RefreshCw, Trash2 } from 'lucide-react';
+import {
+    AlertTriangle,
+    ArrowLeft,
+    CheckCircle2,
+    Clock,
+    RefreshCw,
+    Trash2,
+} from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { offlineDb  } from '@/lib/offline-db';
-import type {PendingSale} from '@/lib/offline-db';
+import { offlineDb } from '@/lib/offline-db';
+import type { PendingSale } from '@/lib/offline-db';
 import { syncEngine } from '@/lib/sync-engine';
 import { cn } from '@/lib/utils';
 
@@ -13,7 +20,10 @@ export default function SyncReview() {
     const [retryingUuid, setRetryingUuid] = useState<string | null>(null);
 
     async function loadSales() {
-        const all = await offlineDb.pendingSales.orderBy('created_at').reverse().toArray();
+        const all = await offlineDb.pendingSales
+            .orderBy('created_at')
+            .reverse()
+            .toArray();
         setSales(all);
     }
 
@@ -38,7 +48,9 @@ export default function SyncReview() {
         const failed = sales.filter((s) => s.status === 'failed');
 
         for (const sale of failed) {
-            await offlineDb.pendingSales.update(sale.uuid, { status: 'pending' });
+            await offlineDb.pendingSales.update(sale.uuid, {
+                status: 'pending',
+            });
         }
 
         await syncEngine.syncPending();
@@ -46,7 +58,11 @@ export default function SyncReview() {
     }
 
     async function handleDiscard(uuid: string) {
-        if (!confirm('Discard this sale permanently? This CANNOT be undone — the transaction will be lost and no stock will be deducted for it.')) {
+        if (
+            !confirm(
+                'Discard this sale permanently? This CANNOT be undone — the transaction will be lost and no stock will be deducted for it.',
+            )
+        ) {
             return;
         }
 
@@ -55,7 +71,9 @@ export default function SyncReview() {
     }
 
     const failedSales = sales.filter((s) => s.status === 'failed');
-    const pendingSales = sales.filter((s) => s.status === 'pending' || s.status === 'syncing');
+    const pendingSales = sales.filter(
+        (s) => s.status === 'pending' || s.status === 'syncing',
+    );
     const syncedSales = sales.filter((s) => s.status === 'synced').slice(0, 10); // recent history only
 
     function computeTotal(sale: PendingSale): number {
@@ -71,13 +89,19 @@ export default function SyncReview() {
             <div className="mx-auto max-w-2xl space-y-4 p-3 sm:space-y-6 sm:p-6">
                 <div className="flex items-center justify-between gap-2">
                     <div>
-                        <h1 className="text-lg font-semibold sm:text-xl">Offline Sync Review</h1>
-                        <p className="text-sm text-muted-foreground">Sales queued on this device, and how they synced.</p>
+                        <h1 className="text-lg font-semibold sm:text-xl">
+                            Offline Sync Review
+                        </h1>
+                        <p className="text-sm text-muted-foreground">
+                            Sales queued on this device, and how they synced.
+                        </p>
                     </div>
                     <Button variant="outline" size="sm" asChild>
                         <Link href="/pos" className="gap-1.5">
                             <ArrowLeft className="size-4" />
-                            <span className="hidden sm:inline">Back to POS</span>
+                            <span className="hidden sm:inline">
+                                Back to POS
+                            </span>
                         </Link>
                     </Button>
                 </div>
@@ -90,7 +114,11 @@ export default function SyncReview() {
                             Failed Sales ({failedSales.length})
                         </h2>
                         {failedSales.length > 0 && (
-                            <Button size="sm" onClick={handleRetryAll} className="gap-1.5 bg-[#00a79b] text-white hover:bg-[#00a79b]/90">
+                            <Button
+                                size="sm"
+                                onClick={handleRetryAll}
+                                className="gap-1.5 bg-[#00a79b] text-white hover:bg-[#00a79b]/90"
+                            >
                                 <RefreshCw className="size-3.5" />
                                 Retry All
                             </Button>
@@ -99,7 +127,10 @@ export default function SyncReview() {
 
                     <div className="p-4">
                         {failedSales.length === 0 ? (
-                            <p className="text-sm text-muted-foreground">No failed sales. Everything's synced or pending normally.</p>
+                            <p className="text-sm text-muted-foreground">
+                                No failed sales. Everything's synced or pending
+                                normally.
+                            </p>
                         ) : (
                             <div className="space-y-3">
                                 {failedSales.map((sale) => (
@@ -109,26 +140,52 @@ export default function SyncReview() {
                                     >
                                         <div className="min-w-0">
                                             <p className="text-sm font-medium">
-                                                {sale.payload.items.length} item(s) · {computeTotal(sale)} unit(s)
+                                                {sale.payload.items.length}{' '}
+                                                item(s) · {computeTotal(sale)}{' '}
+                                                unit(s)
                                             </p>
                                             <p className="mt-1 text-xs text-muted-foreground">
-                                                Recorded {new Date(sale.created_at).toLocaleString()}
+                                                Recorded{' '}
+                                                {new Date(
+                                                    sale.created_at,
+                                                ).toLocaleString()}
                                             </p>
                                             <p className="mt-2 text-sm font-medium text-red-600 dark:text-red-400">
-                                                {sale.error_message ?? 'Unknown error'}
+                                                {sale.error_message ??
+                                                    'Unknown error'}
                                             </p>
                                         </div>
                                         <div className="flex shrink-0 gap-2">
                                             <Button
                                                 size="sm"
                                                 className="flex-1 gap-1.5 bg-[#00a79b] text-white hover:bg-[#00a79b]/90 sm:flex-none"
-                                                onClick={() => handleRetry(sale.uuid)}
-                                                disabled={retryingUuid === sale.uuid}
+                                                onClick={() =>
+                                                    handleRetry(sale.uuid)
+                                                }
+                                                disabled={
+                                                    retryingUuid === sale.uuid
+                                                }
                                             >
-                                                <RefreshCw className={cn('size-3.5', retryingUuid === sale.uuid && 'animate-spin')} />
-                                                {retryingUuid === sale.uuid ? 'Retrying…' : 'Retry'}
+                                                <RefreshCw
+                                                    className={cn(
+                                                        'size-3.5',
+                                                        retryingUuid ===
+                                                            sale.uuid &&
+                                                            'animate-spin',
+                                                    )}
+                                                />
+                                                {retryingUuid === sale.uuid
+                                                    ? 'Retrying…'
+                                                    : 'Retry'}
                                             </Button>
-                                            <Button size="sm" variant="destructive" onClick={() => handleDiscard(sale.uuid)} aria-label="Discard sale">
+                                            <Button
+                                                size="sm"
+                                                variant="destructive"
+                                                onClick={() =>
+                                                    handleDiscard(sale.uuid)
+                                                }
+                                                aria-label="Discard sale"
+                                            >
                                                 <Trash2 className="size-3.5" />
                                             </Button>
                                         </div>
@@ -144,16 +201,29 @@ export default function SyncReview() {
                     <section className="overflow-hidden rounded-xl border">
                         <div className="flex items-center gap-2 border-b bg-muted/40 px-4 py-3">
                             <Clock className="size-4 text-muted-foreground" />
-                            <h2 className="text-sm font-medium">Pending / Syncing ({pendingSales.length})</h2>
+                            <h2 className="text-sm font-medium">
+                                Pending / Syncing ({pendingSales.length})
+                            </h2>
                         </div>
                         <div className="divide-y">
                             {pendingSales.map((sale) => (
-                                <div key={sale.uuid} className="flex items-center justify-between px-4 py-2.5 text-sm">
+                                <div
+                                    key={sale.uuid}
+                                    className="flex items-center justify-between px-4 py-2.5 text-sm"
+                                >
                                     <span>
-                                        {sale.payload.items.length} item(s) — {new Date(sale.created_at).toLocaleTimeString()}
+                                        {sale.payload.items.length} item(s) —{' '}
+                                        {new Date(
+                                            sale.created_at,
+                                        ).toLocaleTimeString()}
                                     </span>
-                                    <Badge variant="secondary" className="gap-1">
-                                        {sale.status === 'syncing' && <RefreshCw className="size-3 animate-spin" />}
+                                    <Badge
+                                        variant="secondary"
+                                        className="gap-1"
+                                    >
+                                        {sale.status === 'syncing' && (
+                                            <RefreshCw className="size-3 animate-spin" />
+                                        )}
                                         {sale.status}
                                     </Badge>
                                 </div>
@@ -167,13 +237,23 @@ export default function SyncReview() {
                     <section className="overflow-hidden rounded-xl border">
                         <div className="flex items-center gap-2 border-b bg-muted/40 px-4 py-3">
                             <CheckCircle2 className="size-4 text-emerald-600 dark:text-emerald-500" />
-                            <h2 className="text-sm font-medium">Recently Synced</h2>
+                            <h2 className="text-sm font-medium">
+                                Recently Synced
+                            </h2>
                         </div>
                         <div className="divide-y">
                             {syncedSales.map((sale) => (
-                                <div key={sale.uuid} className="flex items-center justify-between px-4 py-2.5 text-sm">
-                                    <span className="font-mono tabular-nums">{sale.receipt_number ?? '—'}</span>
-                                    <Badge variant="outline" className="border-emerald-600 text-emerald-600 dark:border-emerald-500 dark:text-emerald-500">
+                                <div
+                                    key={sale.uuid}
+                                    className="flex items-center justify-between px-4 py-2.5 text-sm"
+                                >
+                                    <span className="font-mono tabular-nums">
+                                        {sale.receipt_number ?? '—'}
+                                    </span>
+                                    <Badge
+                                        variant="outline"
+                                        className="border-emerald-600 text-emerald-600 dark:border-emerald-500 dark:text-emerald-500"
+                                    >
                                         Synced
                                     </Badge>
                                 </div>
@@ -186,7 +266,9 @@ export default function SyncReview() {
                     <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed py-16 text-center">
                         <CheckCircle2 className="size-8 text-muted-foreground" />
                         <p className="text-sm font-medium">Nothing queued</p>
-                        <p className="max-w-xs text-sm text-muted-foreground">Sales you ring up will show here while they sync.</p>
+                        <p className="max-w-xs text-sm text-muted-foreground">
+                            Sales you ring up will show here while they sync.
+                        </p>
                     </div>
                 )}
             </div>

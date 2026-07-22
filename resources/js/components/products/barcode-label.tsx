@@ -8,7 +8,12 @@ interface Props {
     size?: 'label' | 'display';
 }
 
-export default function BarcodeLabel({ barcode, productName, price, size = 'label' }: Props) {
+export default function BarcodeLabel({
+    barcode,
+    productName,
+    price,
+    size = 'label',
+}: Props) {
     const svgRef = useRef<SVGSVGElement>(null);
 
     useEffect(() => {
@@ -27,12 +32,30 @@ export default function BarcodeLabel({ barcode, productName, price, size = 'labe
     }, [barcode, size]);
 
     return (
-        <div className={`barcode-label border border-dashed border-gray-300 p-2 flex flex-col items-center justify-center text-center break-inside-avoid ${size === 'display' ? 'bg-white p-8 rounded-xl' : ''}`}>
-            <p className={size === 'display' ? 'text-lg font-semibold mb-2' : 'text-xs font-medium truncate w-full'}>
+        <div
+            className={`barcode-label flex break-inside-avoid flex-col items-center justify-center border border-dashed border-gray-300 p-2 text-center ${size === 'display' ? 'rounded-xl bg-white p-8' : ''}`}
+        >
+            <p
+                className={
+                    size === 'display'
+                        ? 'mb-2 text-lg font-semibold'
+                        : 'w-full truncate text-xs font-medium'
+                }
+            >
                 {productName}
             </p>
             <svg ref={svgRef}></svg>
-            {price && <p className={size === 'display' ? 'text-2xl font-bold mt-2' : 'text-sm font-semibold'}>₱{price}</p>}
+            {price && (
+                <p
+                    className={
+                        size === 'display'
+                            ? 'mt-2 text-2xl font-bold'
+                            : 'text-sm font-semibold'
+                    }
+                >
+                    ₱{price}
+                </p>
+            )}
         </div>
     );
 }

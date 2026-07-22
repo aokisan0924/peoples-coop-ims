@@ -2,9 +2,15 @@ import { Head, useForm, Link } from '@inertiajs/react';
 import { ArrowLeft, Pencil } from 'lucide-react';
 import CategoryFormFields from '@/components/categories/category-form-fields';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import {
+    Card,
+    CardContent,
+    CardHeader,
+    CardTitle,
+    CardDescription,
+} from '@/components/ui/card';
 import categories from '@/routes/categories';
-import type {Category} from '@/types/inventory';
+import type { Category } from '@/types/inventory';
 
 interface ParentOption {
     id: number;
@@ -39,28 +45,42 @@ export default function EditCategory({
                 className="mx-auto max-w-xl p-3 pb-28 sm:p-6 sm:pb-6"
                 style={{ '--pos-teal': '#00a79b' } as React.CSSProperties}
             >
-                <Button variant="ghost" size="sm" asChild className="mb-3 -ml-2 gap-1.5 text-muted-foreground">
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    asChild
+                    className="mb-3 -ml-2 gap-1.5 text-muted-foreground"
+                >
                     <Link href={categories.index().url}>
                         <ArrowLeft className="size-4" />
                         Categories
                     </Link>
                 </Button>
 
-                <Card className="animate-in fade-in-0 slide-in-from-bottom-2 shadow-sm duration-300">
+                <Card className="animate-in shadow-sm duration-300 fade-in-0 slide-in-from-bottom-2">
                     <CardHeader>
                         <div className="flex items-center gap-3">
                             <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-[var(--pos-teal)]/10 text-[var(--pos-teal)] ring-1 ring-[var(--pos-teal)]/15">
                                 <Pencil className="size-5" />
                             </div>
                             <div className="min-w-0">
-                                <CardTitle className="text-lg">Edit Category</CardTitle>
-                                <CardDescription className="truncate">Editing "{category.name}"</CardDescription>
+                                <CardTitle className="text-lg">
+                                    Edit Category
+                                </CardTitle>
+                                <CardDescription className="truncate">
+                                    Editing "{category.name}"
+                                </CardDescription>
                             </div>
                         </div>
                     </CardHeader>
                     <CardContent>
                         <form onSubmit={handleSubmit}>
-                            <CategoryFormFields data={data} setData={setData} errors={errors} parentOptions={parentOptions} />
+                            <CategoryFormFields
+                                data={data}
+                                setData={setData}
+                                errors={errors}
+                                parentOptions={parentOptions}
+                            />
 
                             {/* On mobile, actions pin to the bottom of the viewport so they stay
                                 reachable no matter how far the form scrolls; on larger screens
@@ -73,8 +93,15 @@ export default function EditCategory({
                                 >
                                     {processing ? 'Saving…' : 'Update Category'}
                                 </Button>
-                                <Button type="button" variant="outline" asChild className="sm:flex-1">
-                                    <Link href={categories.index().url}>Cancel</Link>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    asChild
+                                    className="sm:flex-1"
+                                >
+                                    <Link href={categories.index().url}>
+                                        Cancel
+                                    </Link>
                                 </Button>
                             </div>
                         </form>

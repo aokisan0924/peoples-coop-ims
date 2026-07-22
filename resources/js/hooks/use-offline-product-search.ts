@@ -18,7 +18,9 @@ interface ProductResult {
 export function useOfflineProductSearch(query: string) {
     const [results, setResults] = useState<ProductResult[]>([]);
     const [loading, setLoading] = useState(false);
-    const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+    const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(
+        undefined,
+    );
 
     useEffect(() => {
         clearTimeout(debounceRef.current);
@@ -33,7 +35,9 @@ export function useOfflineProductSearch(query: string) {
         debounceRef.current = setTimeout(async () => {
             try {
                 if (navigator.onLine) {
-                    const res = await fetch(`/products/search?q=${encodeURIComponent(query)}`);
+                    const res = await fetch(
+                        `/products/search?q=${encodeURIComponent(query)}`,
+                    );
                     const data = await res.json();
                     setResults(data.products);
                 } else {
@@ -45,7 +49,7 @@ export function useOfflineProductSearch(query: string) {
                             (p) =>
                                 p.name.toLowerCase().includes(q) ||
                                 p.barcode?.toLowerCase().includes(q) ||
-                                p.sku.toLowerCase().includes(q)
+                                p.sku.toLowerCase().includes(q),
                         )
                         .slice(0, 20);
                     setResults(matches);
@@ -57,8 +61,12 @@ export function useOfflineProductSearch(query: string) {
                 const all = await offlineDb.cachedProducts.toArray();
                 setResults(
                     all
-                        .filter((p) => p.name.toLowerCase().includes(q) || p.barcode?.toLowerCase().includes(q))
-                        .slice(0, 20)
+                        .filter(
+                            (p) =>
+                                p.name.toLowerCase().includes(q) ||
+                                p.barcode?.toLowerCase().includes(q),
+                        )
+                        .slice(0, 20),
                 );
             } finally {
                 setLoading(false);

@@ -3,9 +3,13 @@ import { ArrowLeft, Printer, Tags } from 'lucide-react';
 import BarcodeLabel from '@/components/products/barcode-label';
 import { Button } from '@/components/ui/button';
 import products from '@/routes/products';
-import type {Product} from '@/types/inventory';
+import type { Product } from '@/types/inventory';
 
-export default function LabelsBatch({ products: productList }: { products: Product[] }) {
+export default function LabelsBatch({
+    products: productList,
+}: {
+    products: Product[];
+}) {
     function handlePrint() {
         window.print();
     }
@@ -13,22 +17,38 @@ export default function LabelsBatch({ products: productList }: { products: Produ
     const isEmpty = productList.length === 0;
 
     return (
-        <div className="mx-auto max-w-[1600px] p-3 sm:p-6" style={{ '--pos-teal': '#00a79b' } as React.CSSProperties}>
+        <div
+            className="mx-auto max-w-[1600px] p-3 sm:p-6"
+            style={{ '--pos-teal': '#00a79b' } as React.CSSProperties}
+        >
             <Head title="Print Labels" />
 
             <div className="mb-4 flex items-center justify-between gap-3 print:hidden">
                 <div>
-                    <Button variant="ghost" size="sm" asChild className="-ml-2 gap-1.5 text-muted-foreground">
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        asChild
+                        className="-ml-2 gap-1.5 text-muted-foreground"
+                    >
                         <Link href={products.index().url}>
                             <ArrowLeft className="size-4" />
                             Products
                         </Link>
                     </Button>
-                    <h1 className="mt-1 text-xl font-semibold tracking-tight">Print Labels ({productList.length})</h1>
-                    <p className="text-sm text-muted-foreground">Labels are laid out 3 across when printed, matching standard label sheets.</p>
+                    <h1 className="mt-1 text-xl font-semibold tracking-tight">
+                        Print Labels ({productList.length})
+                    </h1>
+                    <p className="text-sm text-muted-foreground">
+                        Labels are laid out 3 across when printed, matching
+                        standard label sheets.
+                    </p>
                 </div>
                 {!isEmpty && (
-                    <Button onClick={handlePrint} className="gap-1.5 bg-[var(--pos-teal)] text-white hover:bg-[var(--pos-teal)]/90">
+                    <Button
+                        onClick={handlePrint}
+                        className="gap-1.5 bg-[var(--pos-teal)] text-white hover:bg-[var(--pos-teal)]/90"
+                    >
                         <Printer className="size-4" />
                         Print All
                     </Button>
@@ -41,9 +61,18 @@ export default function LabelsBatch({ products: productList }: { products: Produ
                         <Tags className="size-7" />
                     </div>
                     <p className="text-sm font-medium">No products selected</p>
-                    <p className="max-w-xs text-sm text-muted-foreground">Pick products from your catalog to print labels for them.</p>
-                    <Button asChild size="sm" className="mt-2 bg-[var(--pos-teal)] text-white hover:bg-[var(--pos-teal)]/90">
-                        <Link href={products.index().url}>Back to Products</Link>
+                    <p className="max-w-xs text-sm text-muted-foreground">
+                        Pick products from your catalog to print labels for
+                        them.
+                    </p>
+                    <Button
+                        asChild
+                        size="sm"
+                        className="mt-2 bg-[var(--pos-teal)] text-white hover:bg-[var(--pos-teal)]/90"
+                    >
+                        <Link href={products.index().url}>
+                            Back to Products
+                        </Link>
                     </Button>
                 </div>
             ) : (

@@ -16,12 +16,20 @@ interface ParentOption {
 
 interface Props {
     data: CategoryFormData;
-    setData: <K extends keyof CategoryFormData>(key: K, value: CategoryFormData[K]) => void;
+    setData: <K extends keyof CategoryFormData>(
+        key: K,
+        value: CategoryFormData[K],
+    ) => void;
     errors: Partial<Record<keyof CategoryFormData, string>>;
     parentOptions: ParentOption[];
 }
 
-export default function CategoryFormFields({ data, setData, errors, parentOptions }: Props) {
+export default function CategoryFormFields({
+    data,
+    setData,
+    errors,
+    parentOptions,
+}: Props) {
     const [localParentOptions, setLocalParentOptions] = useState(parentOptions);
     const [dialogOpen, setDialogOpen] = useState(false);
     const [search, setSearch] = useState('');
@@ -29,7 +37,10 @@ export default function CategoryFormFields({ data, setData, errors, parentOption
     const options = useMemo(
         () => [
             { value: 'none', label: 'None (top-level category)' },
-            ...localParentOptions.map((option) => ({ value: String(option.id), label: option.name })),
+            ...localParentOptions.map((option) => ({
+                value: String(option.id),
+                label: option.name,
+            })),
         ],
         [localParentOptions],
     );
@@ -44,7 +55,9 @@ export default function CategoryFormFields({ data, setData, errors, parentOption
                     onChange={(e) => setData('name', e.target.value)}
                     placeholder="e.g. Grocery, Dairy, Hardware"
                 />
-                {errors.name && <p className="text-sm text-red-600 mt-1">{errors.name}</p>}
+                {errors.name && (
+                    <p className="mt-1 text-sm text-red-600">{errors.name}</p>
+                )}
             </div>
 
             <div>
@@ -53,7 +66,12 @@ export default function CategoryFormFields({ data, setData, errors, parentOption
                     id="parent_id"
                     options={options}
                     value={data.parent_id ? String(data.parent_id) : 'none'}
-                    onChange={(value) => setData('parent_id', value === 'none' ? null : Number(value))}
+                    onChange={(value) =>
+                        setData(
+                            'parent_id',
+                            value === 'none' ? null : Number(value),
+                        )
+                    }
                     placeholder="None (top-level category)"
                     searchPlaceholder="Search categories…"
                     emptyText="No matching categories."
@@ -63,9 +81,15 @@ export default function CategoryFormFields({ data, setData, errors, parentOption
                         onSelect: () => setDialogOpen(true),
                     }}
                 />
-                {errors.parent_id && <p className="text-sm text-red-600 mt-1">{errors.parent_id}</p>}
-                <p className="text-xs text-muted-foreground mt-1">
-                    Leave blank for a top-level category (e.g. "Grocery"). Select a parent to make this a subcategory (e.g. "Dairy" under "Grocery").
+                {errors.parent_id && (
+                    <p className="mt-1 text-sm text-red-600">
+                        {errors.parent_id}
+                    </p>
+                )}
+                <p className="mt-1 text-xs text-muted-foreground">
+                    Leave blank for a top-level category (e.g. "Grocery").
+                    Select a parent to make this a subcategory (e.g. "Dairy"
+                    under "Grocery").
                 </p>
             </div>
 
@@ -75,7 +99,11 @@ export default function CategoryFormFields({ data, setData, errors, parentOption
                 parentOptions={localParentOptions}
                 initialName={search}
                 onCreated={(category) => {
-                    setLocalParentOptions((prev) => [...prev, category].sort((a, b) => a.name.localeCompare(b.name)));
+                    setLocalParentOptions((prev) =>
+                        [...prev, category].sort((a, b) =>
+                            a.name.localeCompare(b.name),
+                        ),
+                    );
                     setData('parent_id', category.id);
                 }}
             />

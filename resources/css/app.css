@@ -97,11 +97,15 @@
 
     /* Brand green (#8dc645) — "success" state: paid, active, in stock. */
     --success: oklch(0.735 0.165 128); /* ≈ #8dc645 */
-    --success-foreground: oklch(0.145 0 0); /* near-black reads better than white on this light green */
+    --success-foreground: oklch(
+        0.145 0 0
+    ); /* near-black reads better than white on this light green */
 
     --border: oklch(0.922 0 0);
     --input: oklch(0.922 0 0);
-    --ring: oklch(0.585 0.09 191.5); /* matches --primary so focus rings read as brand-teal, not neutral gray */
+    --ring: oklch(
+        0.585 0.09 191.5
+    ); /* matches --primary so focus rings read as brand-teal, not neutral gray */
     --chart-1: oklch(0.646 0.222 41.116);
     --chart-2: oklch(0.6 0.118 184.704);
     --chart-3: oklch(0.398 0.07 227.392);
@@ -131,7 +135,9 @@
     --popover: oklch(0.145 0 0);
     --popover-foreground: oklch(0.985 0 0);
 
-    --primary: oklch(0.585 0.09 191.5); /* same teal — brand color doesn't shift between modes */
+    --primary: oklch(
+        0.585 0.09 191.5
+    ); /* same teal — brand color doesn't shift between modes */
     --primary-foreground: oklch(1 0 0);
 
     --secondary: oklch(0.269 0 0);
@@ -182,8 +188,10 @@
     body * {
         visibility: hidden;
     }
-    .barcode-label, .barcode-label *,
-    .receipt, .receipt * {
+    .barcode-label,
+    .barcode-label *,
+    .receipt,
+    .receipt * {
         visibility: visible;
     }
     .print\:hidden {

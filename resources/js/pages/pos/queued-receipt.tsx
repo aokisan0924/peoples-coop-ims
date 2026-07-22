@@ -3,8 +3,8 @@ import { motion } from 'framer-motion';
 import { AlertTriangle, CheckCircle2, Clock, RefreshCw } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { offlineDb  } from '@/lib/offline-db';
-import type {PendingSale} from '@/lib/offline-db';
+import { offlineDb } from '@/lib/offline-db';
+import type { PendingSale } from '@/lib/offline-db';
 import { cn } from '@/lib/utils';
 
 function peso(n: number): string {
@@ -53,7 +53,8 @@ export default function QueuedReceipt({ uuid }: { uuid: string }) {
             label: 'Sale recorded — offline',
             tone: 'text-amber-600 dark:text-amber-500',
             ring: 'ring-amber-500/20 bg-amber-500/10',
-            message: "This sale is saved on this device and will sync automatically once you're back online.",
+            message:
+                "This sale is saved on this device and will sync automatically once you're back online.",
             spin: false,
         },
         syncing: {
@@ -69,7 +70,9 @@ export default function QueuedReceipt({ uuid }: { uuid: string }) {
             label: 'Needs review',
             tone: 'text-red-600 dark:text-red-500',
             ring: 'ring-red-500/20 bg-red-500/10',
-            message: sale.error_message ?? 'This sale needs manager review before it can sync.',
+            message:
+                sale.error_message ??
+                'This sale needs manager review before it can sync.',
             spin: false,
         },
         synced: {
@@ -96,18 +99,35 @@ export default function QueuedReceipt({ uuid }: { uuid: string }) {
                     transition={{ duration: 0.25 }}
                     className="w-full max-w-sm rounded-2xl border bg-card p-6 text-center shadow-sm sm:p-8"
                 >
-                    <div className={cn('mx-auto mb-4 flex size-16 items-center justify-center rounded-full ring-8', meta.ring)}>
-                        <StatusIcon className={cn('size-7', meta.tone, meta.spin && 'animate-spin')} />
+                    <div
+                        className={cn(
+                            'mx-auto mb-4 flex size-16 items-center justify-center rounded-full ring-8',
+                            meta.ring,
+                        )}
+                    >
+                        <StatusIcon
+                            className={cn(
+                                'size-7',
+                                meta.tone,
+                                meta.spin && 'animate-spin',
+                            )}
+                        />
                     </div>
 
-                    <p className={cn('text-lg font-semibold', meta.tone)}>{meta.label}</p>
-                    <p className="mx-auto mt-2 max-w-xs text-sm text-muted-foreground">{meta.message}</p>
+                    <p className={cn('text-lg font-semibold', meta.tone)}>
+                        {meta.label}
+                    </p>
+                    <p className="mx-auto mt-2 max-w-xs text-sm text-muted-foreground">
+                        {meta.message}
+                    </p>
 
                     <p className="mt-6 font-mono text-3xl font-bold tabular-nums">
                         ≈ {peso(sale.estimated_total ?? 0)}
                     </p>
                     {sale.status === 'pending' && (
-                        <p className="mt-1 text-xs text-muted-foreground">Final total confirmed once this syncs</p>
+                        <p className="mt-1 text-xs text-muted-foreground">
+                            Final total confirmed once this syncs
+                        </p>
                     )}
 
                     <p className="mt-3 text-xs text-muted-foreground">
@@ -116,11 +136,20 @@ export default function QueuedReceipt({ uuid }: { uuid: string }) {
                 </motion.div>
 
                 <div className="mt-6 flex w-full max-w-sm flex-col gap-2 sm:flex-row">
-                    <Button asChild size="lg" className="flex-1 bg-[#00a79b] text-white hover:bg-[#00a79b]/90">
+                    <Button
+                        asChild
+                        size="lg"
+                        className="flex-1 bg-[#00a79b] text-white hover:bg-[#00a79b]/90"
+                    >
                         <Link href="/pos">New Sale</Link>
                     </Button>
                     {sale.status === 'failed' && (
-                        <Button asChild size="lg" variant="outline" className="flex-1">
+                        <Button
+                            asChild
+                            size="lg"
+                            variant="outline"
+                            className="flex-1"
+                        >
                             <Link href="/pos/sync-review">Review</Link>
                         </Button>
                     )}

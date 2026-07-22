@@ -44,7 +44,11 @@ export default function ForgotPassword({ status }: { status?: string }) {
             <div className="space-y-6">
                 <Form {...email.form()}>
                     {({ processing, errors }) => (
-                        <motion.div variants={container} initial="hidden" animate="visible">
+                        <motion.div
+                            variants={container}
+                            initial="hidden"
+                            animate="visible"
+                        >
                             <motion.div variants={item} className="grid gap-2">
                                 <Label htmlFor="email">Email address</Label>
                                 <Input
@@ -60,7 +64,10 @@ export default function ForgotPassword({ status }: { status?: string }) {
                                 <InputError message={errors.email} />
                             </motion.div>
 
-                            <motion.div variants={item} className="my-6 flex items-center justify-start">
+                            <motion.div
+                                variants={item}
+                                className="my-6 flex items-center justify-start"
+                            >
                                 <motion.div
                                     className="w-full"
                                     whileHover={{ scale: 1.01 }}
@@ -89,7 +96,12 @@ export default function ForgotPassword({ status }: { status?: string }) {
                     transition={{ duration: 0.4, delay: 0.3 }}
                 >
                     <span>Or, return to</span>
-                    <TextLink href={login()} className="text-[#00a79b] decoration-[#00a79b]/40">log in</TextLink>
+                    <TextLink
+                        href={login()}
+                        className="text-[#00a79b] decoration-[#00a79b]/40"
+                    >
+                        log in
+                    </TextLink>
                 </motion.div>
             </div>
         </>

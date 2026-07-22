@@ -14,9 +14,12 @@ export default function SelectBranch({ locations }: { locations: Location[] }) {
 
             <div className="mx-auto max-w-[1600px] p-4 sm:p-6">
                 <div className="mb-6">
-                    <h1 className="text-xl font-semibold tracking-tight">Select a Branch</h1>
+                    <h1 className="text-xl font-semibold tracking-tight">
+                        Select a Branch
+                    </h1>
                     <p className="mt-1 text-sm text-muted-foreground">
-                        As Owner, choose which branch's GCash float you want to view or manage.
+                        As Owner, choose which branch's GCash float you want to
+                        view or manage.
                     </p>
                 </div>
 
@@ -25,7 +28,9 @@ export default function SelectBranch({ locations }: { locations: Location[] }) {
                         <div className="flex size-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
                             <MapPinOff className="size-5" />
                         </div>
-                        <p className="text-sm font-medium">No branches available</p>
+                        <p className="text-sm font-medium">
+                            No branches available
+                        </p>
                         <p className="max-w-xs text-sm text-muted-foreground">
                             Branches will appear here once they're set up.
                         </p>
@@ -44,7 +49,9 @@ export default function SelectBranch({ locations }: { locations: Location[] }) {
                                         <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-[var(--pos-teal)]/10 text-[var(--pos-teal)]">
                                             <Building2 className="size-4" />
                                         </span>
-                                        <span className="font-medium">{loc.name}</span>
+                                        <span className="font-medium">
+                                            {loc.name}
+                                        </span>
                                     </span>
                                     <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
                                 </Link>

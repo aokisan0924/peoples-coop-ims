@@ -9,7 +9,10 @@ interface Props {
     onSuccess: () => void;
 }
 
-export default function FloatAdjustmentForm({ currentBalance, onSuccess }: Props) {
+export default function FloatAdjustmentForm({
+    currentBalance,
+    onSuccess,
+}: Props) {
     const { data, setData, post, processing, errors, reset } = useForm({
         new_balance: String(currentBalance),
         notes: '',
@@ -28,11 +31,16 @@ export default function FloatAdjustmentForm({ currentBalance, onSuccess }: Props
     return (
         <form onSubmit={handleSubmit} className="space-y-4">
             <p className="text-sm text-muted-foreground">
-                Current system float: <span className="font-semibold">₱{currentBalance.toFixed(2)}</span>
+                Current system float:{' '}
+                <span className="font-semibold">
+                    ₱{currentBalance.toFixed(2)}
+                </span>
             </p>
 
             <div>
-                <Label htmlFor="new_balance">Actual GCash App Balance (₱) *</Label>
+                <Label htmlFor="new_balance">
+                    Actual GCash App Balance (₱) *
+                </Label>
                 <Input
                     id="new_balance"
                     type="number"
@@ -42,7 +50,11 @@ export default function FloatAdjustmentForm({ currentBalance, onSuccess }: Props
                     onChange={(e) => setData('new_balance', e.target.value)}
                     autoFocus
                 />
-                {errors.new_balance && <p className="text-sm text-red-600 mt-1">{errors.new_balance}</p>}
+                {errors.new_balance && (
+                    <p className="mt-1 text-sm text-red-600">
+                        {errors.new_balance}
+                    </p>
+                )}
             </div>
 
             <div>
@@ -53,7 +65,9 @@ export default function FloatAdjustmentForm({ currentBalance, onSuccess }: Props
                     onChange={(e) => setData('notes', e.target.value)}
                     placeholder="e.g. Loaded additional funds, corrected drift from miscount"
                 />
-                {errors.notes && <p className="text-sm text-red-600 mt-1">{errors.notes}</p>}
+                {errors.notes && (
+                    <p className="mt-1 text-sm text-red-600">{errors.notes}</p>
+                )}
             </div>
 
             <Button type="submit" disabled={processing} className="w-full">

@@ -45,7 +45,13 @@ const easeOut = [0.16, 1, 0.3, 1] as const;
 
 // Simple leaf silhouette echoing the mark in the coop logo, reused as a
 // drifting background motif at low opacity.
-function Leaf({ className, style }: { className?: string; style?: React.CSSProperties }) {
+function Leaf({
+    className,
+    style,
+}: {
+    className?: string;
+    style?: React.CSSProperties;
+}) {
     return (
         <svg
             viewBox="0 0 24 24"
@@ -214,7 +220,12 @@ export default function AuthPcgmLayout({
                 {/* ambient drifting color + leaf accents, purely decorative — kept as CSS loops */}
                 <div
                     className="pcgm-orb h-56 w-56"
-                    style={{ background: 'var(--teal)', opacity: 0.28, top: '-4rem', right: '-3rem' }}
+                    style={{
+                        background: 'var(--teal)',
+                        opacity: 0.28,
+                        top: '-4rem',
+                        right: '-3rem',
+                    }}
                 />
                 <div
                     className="pcgm-orb h-64 w-64"
@@ -236,7 +247,11 @@ export default function AuthPcgmLayout({
                 />
                 <Leaf
                     className="pcgm-leaf h-12 w-12 text-[var(--teal)]/25"
-                    style={{ bottom: '30%', left: '8%', animationDelay: '1.2s' }}
+                    style={{
+                        bottom: '30%',
+                        left: '8%',
+                        animationDelay: '1.2s',
+                    }}
                 />
 
                 <motion.div
@@ -246,21 +261,36 @@ export default function AuthPcgmLayout({
                     transition={{ duration: 0.6, ease: easeOut }}
                 >
                     <Link href={home()} className="flex items-center gap-3">
-                        <img src="/images/pcgm_logo.png" alt="" className="h-10 w-10 object-contain" />
-                        <span className="text-lg font-bold tracking-tight">People&rsquo;s Coop Gen. Mdse.</span>
+                        <img
+                            src="/images/pcgm_logo.png"
+                            alt=""
+                            className="h-10 w-10 object-contain"
+                        />
+                        <span className="text-lg font-bold tracking-tight">
+                            People&rsquo;s Coop Gen. Mdse.
+                        </span>
                     </Link>
 
                     <motion.div
                         className="hidden flex-col items-end text-right sm:flex"
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6, delay: 0.15, ease: easeOut }}
+                        transition={{
+                            duration: 0.6,
+                            delay: 0.15,
+                            ease: easeOut,
+                        }}
                     >
                         <div className="flex items-center gap-1.5 text-xs text-white/70">
-                            <span className="pcgm-live-dot h-1.5 w-1.5 rounded-full" style={{ background: 'var(--green)' }} />
+                            <span
+                                className="pcgm-live-dot h-1.5 w-1.5 rounded-full"
+                                style={{ background: 'var(--green)' }}
+                            />
                             {dateLabel}
                         </div>
-                        <span className="text-sm font-medium tabular-nums">{timeLabel}</span>
+                        <span className="text-sm font-medium tabular-nums">
+                            {timeLabel}
+                        </span>
                     </motion.div>
                 </motion.div>
 
@@ -287,14 +317,23 @@ export default function AuthPcgmLayout({
                         <motion.div
                             key={featureIndex}
                             className="flex flex-col gap-3"
-                            initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 8 }}
+                            initial={{
+                                opacity: 0,
+                                y: prefersReducedMotion ? 0 : 8,
+                            }}
                             animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: prefersReducedMotion ? 0 : -8 }}
+                            exit={{
+                                opacity: 0,
+                                y: prefersReducedMotion ? 0 : -8,
+                            }}
                             transition={{ duration: 0.4, ease: easeOut }}
                         >
                             <span
                                 className="flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold"
-                                style={{ background: 'var(--green)', color: 'var(--ink)' }}
+                                style={{
+                                    background: 'var(--green)',
+                                    color: 'var(--ink)',
+                                }}
                             >
                                 {String(featureIndex + 1).padStart(2, '0')}
                             </span>
@@ -309,7 +348,11 @@ export default function AuthPcgmLayout({
                         </motion.div>
                     </AnimatePresence>
 
-                    <div className="flex items-center gap-1.5" role="tablist" aria-label="System features">
+                    <div
+                        className="flex items-center gap-1.5"
+                        role="tablist"
+                        aria-label="System features"
+                    >
                         {FEATURES.map((p, i) => (
                             <button
                                 key={p.title}
@@ -320,7 +363,10 @@ export default function AuthPcgmLayout({
                                 onClick={() => setFeatureIndex(i)}
                                 className="h-1.5 rounded-full transition-all duration-300"
                                 style={{
-                                    width: i === featureIndex ? '1.5rem' : '0.375rem',
+                                    width:
+                                        i === featureIndex
+                                            ? '1.5rem'
+                                            : '0.375rem',
                                     background:
                                         i === featureIndex
                                             ? 'var(--green)'
@@ -346,10 +392,19 @@ export default function AuthPcgmLayout({
                 {/* mobile-only brand bar — on lg the left panel already covers this */}
                 <div
                     className="flex items-center justify-center gap-2 px-6 py-5 text-white lg:hidden"
-                    style={{ background: 'linear-gradient(135deg, var(--ink) 0%, #0a3a33 100%)' }}
+                    style={{
+                        background:
+                            'linear-gradient(135deg, var(--ink) 0%, #0a3a33 100%)',
+                    }}
                 >
-                    <img src="/images/pcgm_logo.png" alt="" className="h-8 w-8 object-contain" />
-                    <span className="text-sm font-bold tracking-tight">People&rsquo;s Coop Gen. Mdse.</span>
+                    <img
+                        src="/images/pcgm_logo.png"
+                        alt=""
+                        className="h-8 w-8 object-contain"
+                    />
+                    <span className="text-sm font-bold tracking-tight">
+                        People&rsquo;s Coop Gen. Mdse.
+                    </span>
                 </div>
 
                 <motion.div
@@ -363,25 +418,39 @@ export default function AuthPcgmLayout({
                             href={home()}
                             className="relative z-20 mb-6 hidden items-center justify-center gap-2 lg:flex"
                         >
-                            <img src="/images/pcgm_logo.png" alt="" className="h-9 w-9 object-contain" />
-                            <span className="font-bold tracking-tight">People&rsquo;s Coop Gen. Mdse.</span>
+                            <img
+                                src="/images/pcgm_logo.png"
+                                alt=""
+                                className="h-9 w-9 object-contain"
+                            />
+                            <span className="font-bold tracking-tight">
+                                People&rsquo;s Coop Gen. Mdse.
+                            </span>
                         </Link>
 
                         <div className="rounded-xl border border-black/5 bg-white p-6 shadow-[0_1px_2px_rgba(5,41,37,0.04),0_12px_32px_-12px_rgba(5,41,37,0.18)] sm:p-8">
                             <div
                                 className="-mx-6 -mt-6 mb-6 h-1 rounded-t-xl sm:-mx-8 sm:-mt-8"
-                                style={{ background: 'linear-gradient(90deg, var(--teal) 0%, var(--green) 100%)' }}
+                                style={{
+                                    background:
+                                        'linear-gradient(90deg, var(--teal) 0%, var(--green) 100%)',
+                                }}
                             />
                             <div className="mb-6 flex flex-col items-start gap-1.5 text-left">
-                                <h1 className="text-xl font-semibold tracking-tight text-[var(--ink)]">{title}</h1>
-                                <p className="text-sm text-balance text-muted-foreground">{description}</p>
+                                <h1 className="text-xl font-semibold tracking-tight text-[var(--ink)]">
+                                    {title}
+                                </h1>
+                                <p className="text-sm text-balance text-muted-foreground">
+                                    {description}
+                                </p>
                             </div>
                             {children}
                         </div>
 
                         <div className="mt-5 flex items-center justify-center gap-1.5 text-center text-[11px] text-muted-foreground">
                             <ShieldCheck className="h-3.5 w-3.5 text-[var(--teal)]" />
-                            Access restricted to authorized PCGM staff. Contact IT for account issues.
+                            Access restricted to authorized PCGM staff. Contact
+                            IT for account issues.
                         </div>
                     </div>
                 </motion.div>

@@ -26,7 +26,12 @@ export default function CreateSupplier() {
             <div className="mx-auto max-w-5xl space-y-4 p-3 pb-24 sm:p-6 sm:pb-6">
                 {/* Header */}
                 <div className="flex items-center gap-3">
-                    <Button variant="outline" size="icon" asChild className="size-9 shrink-0">
+                    <Button
+                        variant="outline"
+                        size="icon"
+                        asChild
+                        className="size-9 shrink-0"
+                    >
                         <Link href={suppliers.index().url}>
                             <ArrowLeft className="size-4" />
                         </Link>
@@ -36,9 +41,13 @@ export default function CreateSupplier() {
                             <div className="flex size-8 items-center justify-center rounded-lg bg-[var(--pos-teal)]/10 text-[var(--pos-teal)]">
                                 <Truck className="size-4" />
                             </div>
-                            <h1 className="text-xl font-semibold tracking-tight">Add Supplier</h1>
+                            <h1 className="text-xl font-semibold tracking-tight">
+                                Add Supplier
+                            </h1>
                         </div>
-                        <p className="mt-0.5 text-sm text-muted-foreground">Add a vendor you receive stock from.</p>
+                        <p className="mt-0.5 text-sm text-muted-foreground">
+                            Add a vendor you receive stock from.
+                        </p>
                     </div>
                 </div>
 
@@ -46,7 +55,11 @@ export default function CreateSupplier() {
                     <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:items-start">
                         {/* Form card */}
                         <div className="rounded-xl border bg-card p-4 sm:p-5 lg:col-span-2">
-                            <SupplierFormFields data={data} setData={setData} errors={errors} />
+                            <SupplierFormFields
+                                data={data}
+                                setData={setData}
+                                errors={errors}
+                            />
 
                             {/* Desktop actions, inline with the form card */}
                             <div className="mt-6 hidden gap-2 border-t pt-4 sm:flex">
@@ -58,8 +71,15 @@ export default function CreateSupplier() {
                                     <Save className="size-4" />
                                     {processing ? 'Saving…' : 'Save Supplier'}
                                 </Button>
-                                <Button type="button" variant="outline" asChild disabled={processing}>
-                                    <Link href={suppliers.index().url}>Cancel</Link>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    asChild
+                                    disabled={processing}
+                                >
+                                    <Link href={suppliers.index().url}>
+                                        Cancel
+                                    </Link>
                                 </Button>
                             </div>
                         </div>
@@ -69,12 +89,23 @@ export default function CreateSupplier() {
                             <div className="rounded-xl border bg-[var(--pos-teal)]/5 p-4">
                                 <div className="flex items-center gap-2 text-[var(--pos-teal)]">
                                     <Info className="size-4 shrink-0" />
-                                    <p className="text-sm font-medium">Why add suppliers</p>
+                                    <p className="text-sm font-medium">
+                                        Why add suppliers
+                                    </p>
                                 </div>
                                 <ul className="mt-2 space-y-1.5 text-xs text-muted-foreground">
-                                    <li>• Link received stock batches to where they came from.</li>
-                                    <li>• Keep a contact on file for reorders and follow-ups.</li>
-                                    <li>• Payment terms help you track what's owed and when.</li>
+                                    <li>
+                                        • Link received stock batches to where
+                                        they came from.
+                                    </li>
+                                    <li>
+                                        • Keep a contact on file for reorders
+                                        and follow-ups.
+                                    </li>
+                                    <li>
+                                        • Payment terms help you track what's
+                                        owed and when.
+                                    </li>
                                 </ul>
                             </div>
                         </div>
@@ -90,7 +121,13 @@ export default function CreateSupplier() {
                             <Save className="size-4" />
                             {processing ? 'Saving…' : 'Save Supplier'}
                         </Button>
-                        <Button type="button" variant="outline" asChild disabled={processing} className="flex-1">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            asChild
+                            disabled={processing}
+                            className="flex-1"
+                        >
                             <Link href={suppliers.index().url}>Cancel</Link>
                         </Button>
                     </div>

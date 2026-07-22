@@ -12,7 +12,12 @@ export default function Appearance() {
             <h1 className="sr-only">Appearance settings</h1>
 
             <div className="space-y-6">
-                <Heading icon={Palette} variant="small" title="Appearance settings" description="Update the appearance settings for your account" />
+                <Heading
+                    icon={Palette}
+                    variant="small"
+                    title="Appearance settings"
+                    description="Update the appearance settings for your account"
+                />
 
                 <div className="rounded-xl border bg-card p-4 sm:p-6">
                     <AppearanceTabs />

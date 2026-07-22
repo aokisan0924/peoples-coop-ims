@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import units from '@/routes/units';
-import type {Unit} from '@/types/inventory';
+import type { Unit } from '@/types/inventory';
 
 export default function UnitsIndex({ units: unitList }: { units: Unit[] }) {
     const [query, setQuery] = useState('');
@@ -17,16 +17,27 @@ export default function UnitsIndex({ units: unitList }: { units: Unit[] }) {
         const q = query.trim().toLowerCase();
 
         if (!q) {
-return unitList;
-}
+            return unitList;
+        }
 
-        return unitList.filter((u) => u.name.toLowerCase().includes(q) || u.abbreviation.toLowerCase().includes(q));
+        return unitList.filter(
+            (u) =>
+                u.name.toLowerCase().includes(q) ||
+                u.abbreviation.toLowerCase().includes(q),
+        );
     }, [unitList, query]);
 
     const noResults = !isEmpty && filtered.length === 0 && !adding;
 
     return (
-        <div style={{ '--pos-teal': '#00a79b', '--pos-green': '#8dc645' } as React.CSSProperties}>
+        <div
+            style={
+                {
+                    '--pos-teal': '#00a79b',
+                    '--pos-green': '#8dc645',
+                } as React.CSSProperties
+            }
+        >
             <Head title="Units" />
 
             <div className="mx-auto max-w-[1600px] space-y-5 p-3 pb-24 sm:p-6 sm:pb-6">
@@ -34,12 +45,19 @@ return unitList;
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                         <div className="flex items-center gap-2">
-                            <h1 className="text-xl font-semibold tracking-tight">Units of Measure</h1>
+                            <h1 className="text-xl font-semibold tracking-tight">
+                                Units of Measure
+                            </h1>
                             {!isEmpty && (
-                                <Badge className="border-0 bg-[var(--pos-green)]/15 font-normal text-[var(--pos-green)]">{unitList.length}</Badge>
+                                <Badge className="border-0 bg-[var(--pos-green)]/15 font-normal text-[var(--pos-green)]">
+                                    {unitList.length}
+                                </Badge>
                             )}
                         </div>
-                        <p className="mt-0.5 text-sm text-muted-foreground">Add, rename, or remove units right here — no separate page needed.</p>
+                        <p className="mt-0.5 text-sm text-muted-foreground">
+                            Add, rename, or remove units right here — no
+                            separate page needed.
+                        </p>
                     </div>
                     <Button
                         onClick={() => setAdding(true)}
@@ -101,8 +119,8 @@ function AddRow({ onDone }: { onDone: () => void }) {
 
     function save() {
         if (!name.trim() || !abbreviation.trim()) {
-return;
-}
+            return;
+        }
 
         setSaving(true);
         setError(null);
@@ -114,7 +132,11 @@ return;
                 onSuccess: () => onDone(),
                 onError: (errs) => {
                     setSaving(false);
-                    setError(errs.name ?? errs.abbreviation ?? 'Could not save this unit.');
+                    setError(
+                        errs.name ??
+                            errs.abbreviation ??
+                            'Could not save this unit.',
+                    );
                 },
             },
         );
@@ -141,7 +163,13 @@ return;
             </div>
             {error && <p className="mt-1.5 text-xs text-red-600">{error}</p>}
             <div className="mt-2 flex justify-end gap-1.5">
-                <Button size="sm" variant="ghost" className="h-7 gap-1" onClick={onDone} disabled={saving}>
+                <Button
+                    size="sm"
+                    variant="ghost"
+                    className="h-7 gap-1"
+                    onClick={onDone}
+                    disabled={saving}
+                >
                     <X className="size-3.5" />
                     Cancel
                 </Button>
@@ -168,8 +196,8 @@ function UnitRow({ unit }: { unit: Unit }) {
 
     function save() {
         if (!name.trim() || !abbreviation.trim()) {
-return;
-}
+            return;
+        }
 
         setSaving(true);
         setError(null);
@@ -184,7 +212,11 @@ return;
                 },
                 onError: (errs) => {
                     setSaving(false);
-                    setError(errs.name ?? errs.abbreviation ?? 'Could not save this unit.');
+                    setError(
+                        errs.name ??
+                            errs.abbreviation ??
+                            'Could not save this unit.',
+                    );
                 },
             },
         );
@@ -221,16 +253,27 @@ return;
                         className="h-8 w-20 text-sm"
                     />
                 </div>
-                {error && <p className="mt-1.5 text-xs text-red-600">{error}</p>}
+                {error && (
+                    <p className="mt-1.5 text-xs text-red-600">{error}</p>
+                )}
                 <div className="mt-2 flex justify-end gap-1.5">
-                    <Button size="icon" variant="ghost" className="size-7" onClick={cancel} disabled={saving} title="Cancel">
+                    <Button
+                        size="icon"
+                        variant="ghost"
+                        className="size-7"
+                        onClick={cancel}
+                        disabled={saving}
+                        title="Cancel"
+                    >
                         <X className="size-3.5" />
                     </Button>
                     <Button
                         size="icon"
                         className="size-7 bg-[var(--pos-teal)] text-white hover:bg-[var(--pos-teal)]/90"
                         onClick={save}
-                        disabled={saving || !name.trim() || !abbreviation.trim()}
+                        disabled={
+                            saving || !name.trim() || !abbreviation.trim()
+                        }
                         title="Save"
                     >
                         <Check className="size-3.5" />
@@ -245,10 +288,20 @@ return;
             <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-[var(--pos-teal)]/10 text-[var(--pos-teal)]">
                 <Ruler className="size-4" />
             </div>
-            <p className="min-w-0 flex-1 truncate text-sm font-medium">{unit.name}</p>
-            <span className="shrink-0 rounded-md bg-muted px-2 py-0.5 font-mono text-xs font-medium">{unit.abbreviation}</span>
-            <div className="flex shrink-0 gap-1 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">
-                <Button variant="ghost" size="icon" className="size-7" onClick={() => setEditing(true)} title="Edit">
+            <p className="min-w-0 flex-1 truncate text-sm font-medium">
+                {unit.name}
+            </p>
+            <span className="shrink-0 rounded-md bg-muted px-2 py-0.5 font-mono text-xs font-medium">
+                {unit.abbreviation}
+            </span>
+            <div className="flex shrink-0 gap-1 opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100">
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    className="size-7"
+                    onClick={() => setEditing(true)}
+                    title="Edit"
+                >
                     <Pencil className="size-3.5" />
                 </Button>
                 <Button
@@ -272,8 +325,14 @@ function EmptyState({ onAdd }: { onAdd: () => void }) {
                 <Ruler className="size-7" />
             </div>
             <p className="text-sm font-medium">No units yet</p>
-            <p className="max-w-xs text-sm text-muted-foreground">Add your first one, e.g. Piece (pc) or Kilogram (kg).</p>
-            <Button onClick={onAdd} size="sm" className="mt-2 gap-1.5 bg-[var(--pos-teal)] text-white hover:bg-[var(--pos-teal)]/90">
+            <p className="max-w-xs text-sm text-muted-foreground">
+                Add your first one, e.g. Piece (pc) or Kilogram (kg).
+            </p>
+            <Button
+                onClick={onAdd}
+                size="sm"
+                className="mt-2 gap-1.5 bg-[var(--pos-teal)] text-white hover:bg-[var(--pos-teal)]/90"
+            >
                 <Plus className="size-4" />
                 Add Unit
             </Button>
@@ -288,8 +347,15 @@ function NoResults({ onClear }: { onClear: () => void }) {
                 <Search className="size-7" />
             </div>
             <p className="text-sm font-medium">No units match your search</p>
-            <p className="max-w-xs text-sm text-muted-foreground">Try a different name or abbreviation.</p>
-            <Button variant="outline" size="sm" className="mt-2" onClick={onClear}>
+            <p className="max-w-xs text-sm text-muted-foreground">
+                Try a different name or abbreviation.
+            </p>
+            <Button
+                variant="outline"
+                size="sm"
+                className="mt-2"
+                onClick={onClear}
+            >
                 Clear search
             </Button>
         </div>

@@ -26,12 +26,12 @@ interface Props {
 
 function cellTone(qty: number, threshold: number): string {
     if (qty <= 0) {
-return 'bg-red-50 text-red-700 font-semibold dark:bg-red-950/30 dark:text-red-400';
-}
+        return 'bg-red-50 text-red-700 font-semibold dark:bg-red-950/30 dark:text-red-400';
+    }
 
     if (qty <= threshold) {
-return 'bg-amber-50 text-amber-700 font-medium dark:bg-amber-950/30 dark:text-amber-400';
-}
+        return 'bg-amber-50 text-amber-700 font-medium dark:bg-amber-950/30 dark:text-amber-400';
+    }
 
     return 'text-foreground';
 }
@@ -44,17 +44,23 @@ export default function StockByBranch({ locations, products }: Props) {
         const q = query.trim().toLowerCase();
 
         return products.filter((p) => {
-            const matchesQuery = !q || p.name.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q);
+            const matchesQuery =
+                !q ||
+                p.name.toLowerCase().includes(q) ||
+                p.sku.toLowerCase().includes(q);
 
             if (!matchesQuery) {
-return false;
-}
+                return false;
+            }
 
             if (!lowOnly) {
-return true;
-}
+                return true;
+            }
 
-            return locations.some((loc) => (p.stock_by_location[loc.id] ?? 0) <= p.low_stock_threshold);
+            return locations.some(
+                (loc) =>
+                    (p.stock_by_location[loc.id] ?? 0) <= p.low_stock_threshold,
+            );
         });
     }, [products, query, lowOnly, locations]);
 
@@ -70,10 +76,14 @@ return true;
                             Stock by Branch
                         </h1>
                         <p className="text-sm text-muted-foreground">
-                            Current stock per product, side by side across every branch.
+                            Current stock per product, side by side across every
+                            branch.
                         </p>
                     </div>
-                    <Link href="/stock-batches" className="text-sm text-[var(--pos-teal)] hover:underline">
+                    <Link
+                        href="/stock-batches"
+                        className="text-sm text-[var(--pos-teal)] hover:underline"
+                    >
                         &larr; Back to Stock Batches
                     </Link>
                 </div>
@@ -94,14 +104,19 @@ return true;
                             variant={lowOnly ? 'default' : 'outline'}
                             size="sm"
                             onClick={() => setLowOnly((v) => !v)}
-                            className={cn('gap-1.5', lowOnly && 'bg-[var(--pos-teal)] hover:bg-[var(--pos-teal)]/90')}
+                            className={cn(
+                                'gap-1.5',
+                                lowOnly &&
+                                    'bg-[var(--pos-teal)] hover:bg-[var(--pos-teal)]/90',
+                            )}
                         >
                             <AlertTriangle className="size-3.5" />
                             Low stock only
                         </Button>
                     </div>
                     <p className="text-xs text-muted-foreground">
-                        {filtered.length} product{filtered.length !== 1 ? 's' : ''}
+                        {filtered.length} product
+                        {filtered.length !== 1 ? 's' : ''}
                         {lowOnly || query ? ` of ${products.length}` : ''}
                     </p>
                 </div>
@@ -110,47 +125,76 @@ return true;
                     <table className="w-full text-sm">
                         <thead className="bg-muted/50 text-xs text-muted-foreground uppercase">
                             <tr>
-                                <th className="sticky left-0 bg-muted/50 px-4 py-2.5 text-left font-medium">Product</th>
+                                <th className="sticky left-0 bg-muted/50 px-4 py-2.5 text-left font-medium">
+                                    Product
+                                </th>
                                 {locations.map((loc) => (
-                                    <th key={loc.id} className="px-4 py-2.5 text-right font-medium whitespace-nowrap">
+                                    <th
+                                        key={loc.id}
+                                        className="px-4 py-2.5 text-right font-medium whitespace-nowrap"
+                                    >
                                         {loc.name}
                                     </th>
                                 ))}
-                                <th className="bg-muted/70 px-4 py-2.5 text-right font-medium whitespace-nowrap">Total</th>
+                                <th className="bg-muted/70 px-4 py-2.5 text-right font-medium whitespace-nowrap">
+                                    Total
+                                </th>
                             </tr>
                         </thead>
                         <tbody className="divide-y">
                             {filtered.map((p) => (
-                                <tr key={p.id} className="group hover:bg-muted/30">
+                                <tr
+                                    key={p.id}
+                                    className="group hover:bg-muted/30"
+                                >
                                     <td className="sticky left-0 bg-background px-4 py-2.5 group-hover:bg-muted/30">
                                         <p className="font-medium">{p.name}</p>
-                                        <p className="text-xs text-muted-foreground">{p.sku}</p>
+                                        <p className="text-xs text-muted-foreground">
+                                            {p.sku}
+                                        </p>
                                     </td>
                                     {locations.map((loc) => {
-                                        const qty = p.stock_by_location[loc.id] ?? 0;
+                                        const qty =
+                                            p.stock_by_location[loc.id] ?? 0;
 
                                         return (
                                             <td
                                                 key={loc.id}
-                                                className={cn('px-4 py-2.5 text-right tabular-nums', cellTone(qty, p.low_stock_threshold))}
+                                                className={cn(
+                                                    'px-4 py-2.5 text-right tabular-nums',
+                                                    cellTone(
+                                                        qty,
+                                                        p.low_stock_threshold,
+                                                    ),
+                                                )}
                                             >
                                                 {qty}
                                             </td>
                                         );
                                     })}
-                                    <td className="bg-muted/20 px-4 py-2.5 text-right font-semibold tabular-nums">{p.total_stock}</td>
+                                    <td className="bg-muted/20 px-4 py-2.5 text-right font-semibold tabular-nums">
+                                        {p.total_stock}
+                                    </td>
                                 </tr>
                             ))}
                             {filtered.length === 0 && (
                                 <tr>
-                                    <td colSpan={locations.length + 2} className="px-4 py-14">
+                                    <td
+                                        colSpan={locations.length + 2}
+                                        className="px-4 py-14"
+                                    >
                                         <div className="flex flex-col items-center gap-2 text-center">
                                             <div className="flex size-11 items-center justify-center rounded-full bg-muted text-muted-foreground">
                                                 <Search className="size-5" />
                                             </div>
-                                            <p className="text-sm font-medium">No products match</p>
+                                            <p className="text-sm font-medium">
+                                                No products match
+                                            </p>
                                             <p className="text-sm text-muted-foreground">
-                                                {lowOnly ? 'Try turning off "Low stock only," or adjust' : 'Adjust'} your search.
+                                                {lowOnly
+                                                    ? 'Try turning off "Low stock only," or adjust'
+                                                    : 'Adjust'}{' '}
+                                                your search.
                                             </p>
                                         </div>
                                     </td>
@@ -162,13 +206,16 @@ return true;
 
                 <div className="mt-3 flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
                     <span className="flex items-center gap-1.5">
-                        <span className="inline-block size-2.5 rounded-full bg-red-200 dark:bg-red-900" /> Out of stock
+                        <span className="inline-block size-2.5 rounded-full bg-red-200 dark:bg-red-900" />{' '}
+                        Out of stock
                     </span>
                     <span className="flex items-center gap-1.5">
-                        <span className="inline-block size-2.5 rounded-full bg-amber-200 dark:bg-amber-900" /> At or below threshold
+                        <span className="inline-block size-2.5 rounded-full bg-amber-200 dark:bg-amber-900" />{' '}
+                        At or below threshold
                     </span>
                     <span className="flex items-center gap-1.5">
-                        <span className="inline-block size-2.5 rounded-full bg-muted-foreground/20" /> Healthy stock
+                        <span className="inline-block size-2.5 rounded-full bg-muted-foreground/20" />{' '}
+                        Healthy stock
                     </span>
                 </div>
             </div>

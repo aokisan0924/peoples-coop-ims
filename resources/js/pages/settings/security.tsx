@@ -38,7 +38,11 @@ export default function Security(props: Props) {
                             options={{
                                 preserveScroll: true,
                             }}
-                            resetOnError={['password', 'password_confirmation', 'current_password']}
+                            resetOnError={[
+                                'password',
+                                'password_confirmation',
+                                'current_password',
+                            ]}
                             resetOnSuccess
                             onError={(errors) => {
                                 if (errors.password) {
@@ -53,7 +57,9 @@ export default function Security(props: Props) {
                             {({ errors, processing }) => (
                                 <div className="space-y-5">
                                     <div className="grid gap-2">
-                                        <Label htmlFor="current_password">Current password</Label>
+                                        <Label htmlFor="current_password">
+                                            Current password
+                                        </Label>
                                         <div className="relative">
                                             <Lock className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
                                             <PasswordInput
@@ -65,12 +71,16 @@ export default function Security(props: Props) {
                                                 placeholder="Current password"
                                             />
                                         </div>
-                                        <InputError message={errors.current_password} />
+                                        <InputError
+                                            message={errors.current_password}
+                                        />
                                     </div>
 
                                     <div className="grid gap-5 sm:grid-cols-2">
                                         <div className="grid gap-2">
-                                            <Label htmlFor="password">New password</Label>
+                                            <Label htmlFor="password">
+                                                New password
+                                            </Label>
                                             <div className="relative">
                                                 <Lock className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
                                                 <PasswordInput
@@ -80,14 +90,20 @@ export default function Security(props: Props) {
                                                     className="pl-9"
                                                     autoComplete="new-password"
                                                     placeholder="New password"
-                                                    passwordrules={props.passwordRules}
+                                                    passwordrules={
+                                                        props.passwordRules
+                                                    }
                                                 />
                                             </div>
-                                            <InputError message={errors.password} />
+                                            <InputError
+                                                message={errors.password}
+                                            />
                                         </div>
 
                                         <div className="grid gap-2">
-                                            <Label htmlFor="password_confirmation">Confirm password</Label>
+                                            <Label htmlFor="password_confirmation">
+                                                Confirm password
+                                            </Label>
                                             <div className="relative">
                                                 <Lock className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
                                                 <PasswordInput
@@ -96,10 +112,16 @@ export default function Security(props: Props) {
                                                     className="pl-9"
                                                     autoComplete="new-password"
                                                     placeholder="Confirm password"
-                                                    passwordrules={props.passwordRules}
+                                                    passwordrules={
+                                                        props.passwordRules
+                                                    }
                                                 />
                                             </div>
-                                            <InputError message={errors.password_confirmation} />
+                                            <InputError
+                                                message={
+                                                    errors.password_confirmation
+                                                }
+                                            />
                                         </div>
                                     </div>
 

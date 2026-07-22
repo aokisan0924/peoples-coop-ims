@@ -1,23 +1,38 @@
 import { Head, Link, router } from '@inertiajs/react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ChevronDown, FolderTree, Pencil, Plus, Search, Trash2 } from 'lucide-react';
+import {
+    ChevronDown,
+    FolderTree,
+    Pencil,
+    Plus,
+    Search,
+    Trash2,
+} from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import categories from '@/routes/categories';
-import type {Category} from '@/types/inventory';
+import type { Category } from '@/types/inventory';
 
 type CategoryWithChildren = Category & { childCategories: Category[] };
 
-export default function CategoriesIndex({ categories: categoryList }: { categories: Category[] }) {
+export default function CategoriesIndex({
+    categories: categoryList,
+}: {
+    categories: Category[];
+}) {
     const [query, setQuery] = useState('');
     const [activeGroup, setActiveGroup] = useState('All');
     const [collapsed, setCollapsed] = useState<Record<number, boolean>>({});
 
     function handleDelete(category: Category) {
-        if (confirm(`Remove category "${category.name}"? This cannot be undone.`)) {
+        if (
+            confirm(
+                `Remove category "${category.name}"? This cannot be undone.`,
+            )
+        ) {
             router.delete(categories.destroy(category.id).url);
         }
     }
@@ -43,14 +58,17 @@ export default function CategoriesIndex({ categories: categoryList }: { categori
             }
         });
 
-        const sortByName = (a: Category, b: Category) => a.name.localeCompare(b.name);
+        const sortByName = (a: Category, b: Category) =>
+            a.name.localeCompare(b.name);
 
         const roots = categoryList
             .filter((c) => !c.parent_id)
             .sort(sortByName)
             .map((root) => {
                 consumed.add(root.id);
-                const kids = (childrenByParent.get(root.id) ?? []).sort(sortByName);
+                const kids = (childrenByParent.get(root.id) ?? []).sort(
+                    sortByName,
+                );
                 kids.forEach((k) => consumed.add(k.id));
 
                 return { ...root, childCategories: kids };
@@ -69,14 +87,17 @@ export default function CategoriesIndex({ categories: categoryList }: { categori
 
     // Quick-filter chips — one per top-level group, so a large catalog can be
     // narrowed to a single branch at a glance instead of scanning the whole grid.
-    const groupNames = useMemo(() => ['All', ...tree.map((r) => r.name)], [tree]);
+    const groupNames = useMemo(
+        () => ['All', ...tree.map((r) => r.name)],
+        [tree],
+    );
 
     const searchResults = useMemo(() => {
         const q = query.trim().toLowerCase();
 
         if (q === '') {
-return null;
-}
+            return null;
+        }
 
         return categoryList
             .filter((c) => c.name.toLowerCase().includes(q))
@@ -84,14 +105,25 @@ return null;
     }, [categoryList, query]);
 
     const visibleTree = useMemo(
-        () => (activeGroup === 'All' ? tree : tree.filter((r) => r.name === activeGroup)),
+        () =>
+            activeGroup === 'All'
+                ? tree
+                : tree.filter((r) => r.name === activeGroup),
         [tree, activeGroup],
     );
 
     const isEmpty = categoryList.length === 0;
 
     return (
-        <div className="cat-manager" style={{ '--pos-teal': '#00a79b', '--pos-green': '#8dc645' } as React.CSSProperties}>
+        <div
+            className="cat-manager"
+            style={
+                {
+                    '--pos-teal': '#00a79b',
+                    '--pos-green': '#8dc645',
+                } as React.CSSProperties
+            }
+        >
             <Head title="Categories" />
 
             <div className="mx-auto max-w-[1600px] pb-24 sm:pb-8">
@@ -101,7 +133,9 @@ return null;
                     <div className="flex items-center gap-2">
                         <div>
                             <div className="flex items-center gap-2">
-                                <h1 className="text-xl font-semibold tracking-tight">Categories</h1>
+                                <h1 className="text-xl font-semibold tracking-tight">
+                                    Categories
+                                </h1>
                                 {!isEmpty && (
                                     <Badge className="border-0 bg-[var(--pos-green)]/15 font-normal text-[var(--pos-green)] dark:text-[var(--pos-green)]">
                                         {categoryList.length}
@@ -113,10 +147,15 @@ return null;
                             </p>
                         </div>
                         <div className="ml-auto">
-                            <Button asChild className="gap-1.5 bg-[var(--pos-teal)] text-white hover:bg-[var(--pos-teal)]/90">
+                            <Button
+                                asChild
+                                className="gap-1.5 bg-[var(--pos-teal)] text-white hover:bg-[var(--pos-teal)]/90"
+                            >
                                 <Link href={categories.create().url}>
                                     <Plus className="size-4" />
-                                    <span className="hidden sm:inline">Add Category</span>
+                                    <span className="hidden sm:inline">
+                                        Add Category
+                                    </span>
                                 </Link>
                             </Button>
                         </div>
@@ -134,25 +173,28 @@ return null;
                                 />
                             </div>
 
-                            {searchResults === null && groupNames.length > 2 && (
-                                <div className="flex gap-2 overflow-x-auto pb-1">
-                                    {groupNames.map((name) => (
-                                        <button
-                                            key={name}
-                                            type="button"
-                                            onClick={() => setActiveGroup(name)}
-                                            className={cn(
-                                                'shrink-0 rounded-full border px-3 py-1.5 text-sm font-medium whitespace-nowrap transition-colors',
-                                                activeGroup === name
-                                                    ? 'border-[var(--pos-teal)] bg-[var(--pos-teal)] text-white'
-                                                    : 'text-muted-foreground hover:bg-muted',
-                                            )}
-                                        >
-                                            {name}
-                                        </button>
-                                    ))}
-                                </div>
-                            )}
+                            {searchResults === null &&
+                                groupNames.length > 2 && (
+                                    <div className="flex gap-2 overflow-x-auto pb-1">
+                                        {groupNames.map((name) => (
+                                            <button
+                                                key={name}
+                                                type="button"
+                                                onClick={() =>
+                                                    setActiveGroup(name)
+                                                }
+                                                className={cn(
+                                                    'shrink-0 rounded-full border px-3 py-1.5 text-sm font-medium whitespace-nowrap transition-colors',
+                                                    activeGroup === name
+                                                        ? 'border-[var(--pos-teal)] bg-[var(--pos-teal)] text-white'
+                                                        : 'text-muted-foreground hover:bg-muted',
+                                                )}
+                                            >
+                                                {name}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
                         </>
                     )}
                 </div>
@@ -164,7 +206,11 @@ return null;
                             title="No categories yet"
                             description='Add your first one to start organizing products (e.g. "Grocery", "Hardware").'
                             action={
-                                <Button asChild size="sm" className="gap-1.5 bg-[var(--pos-teal)] text-white hover:bg-[var(--pos-teal)]/90">
+                                <Button
+                                    asChild
+                                    size="sm"
+                                    className="gap-1.5 bg-[var(--pos-teal)] text-white hover:bg-[var(--pos-teal)]/90"
+                                >
                                     <Link href={categories.create().url}>
                                         <Plus className="size-4" />
                                         Add Category
@@ -186,8 +232,15 @@ return null;
                                 </div>
                             ) : (
                                 searchResults.map((category) => (
-                                    <div key={category.id} className="overflow-hidden rounded-xl border bg-card shadow-sm transition-shadow hover:shadow-md">
-                                        <CategoryRow category={category} onDelete={handleDelete} showParentBadge />
+                                    <div
+                                        key={category.id}
+                                        className="overflow-hidden rounded-xl border bg-card shadow-sm transition-shadow hover:shadow-md"
+                                    >
+                                        <CategoryRow
+                                            category={category}
+                                            onDelete={handleDelete}
+                                            showParentBadge
+                                        />
                                     </div>
                                 ))
                             )}
@@ -201,8 +254,10 @@ return null;
                                 className="grid grid-cols-1 gap-3 sm:grid-cols-2 2xl:grid-cols-3"
                             >
                                 {visibleTree.map((root) => {
-                                    const hasChildren = root.childCategories.length > 0;
-                                    const isCollapsed = collapsed[root.id] ?? false;
+                                    const hasChildren =
+                                        root.childCategories.length > 0;
+                                    const isCollapsed =
+                                        collapsed[root.id] ?? false;
 
                                     return (
                                         <motion.div
@@ -212,31 +267,70 @@ return null;
                                             animate={{ opacity: 1, y: 0 }}
                                             exit={{ opacity: 0 }}
                                             transition={{ duration: 0.15 }}
-                                            className="h-fit overflow-hidden rounded-xl border bg-card shadow-sm transition-shadow hover:shadow-md hover:border-[var(--pos-teal)]/40"
+                                            className="h-fit overflow-hidden rounded-xl border bg-card shadow-sm transition-shadow hover:border-[var(--pos-teal)]/40 hover:shadow-md"
                                         >
                                             <CategoryRow
                                                 category={root}
                                                 onDelete={handleDelete}
-                                                childCount={hasChildren ? root.childCategories.length : undefined}
+                                                childCount={
+                                                    hasChildren
+                                                        ? root.childCategories
+                                                              .length
+                                                        : undefined
+                                                }
                                                 collapsed={isCollapsed}
-                                                onToggleCollapsed={hasChildren ? () => toggleCollapsed(root.id) : undefined}
+                                                onToggleCollapsed={
+                                                    hasChildren
+                                                        ? () =>
+                                                              toggleCollapsed(
+                                                                  root.id,
+                                                              )
+                                                        : undefined
+                                                }
                                             />
                                             <AnimatePresence initial={false}>
-                                                {hasChildren && !isCollapsed && (
-                                                    <motion.div
-                                                        initial={{ height: 0, opacity: 0 }}
-                                                        animate={{ height: 'auto', opacity: 1 }}
-                                                        exit={{ height: 0, opacity: 0 }}
-                                                        transition={{ duration: 0.15 }}
-                                                        className="space-y-1 border-t bg-muted/30 p-2 pl-4"
-                                                    >
-                                                        {root.childCategories.map((child) => (
-                                                            <div key={child.id} className="border-l-2 pl-3">
-                                                                <CategoryRow category={child} onDelete={handleDelete} compact />
-                                                            </div>
-                                                        ))}
-                                                    </motion.div>
-                                                )}
+                                                {hasChildren &&
+                                                    !isCollapsed && (
+                                                        <motion.div
+                                                            initial={{
+                                                                height: 0,
+                                                                opacity: 0,
+                                                            }}
+                                                            animate={{
+                                                                height: 'auto',
+                                                                opacity: 1,
+                                                            }}
+                                                            exit={{
+                                                                height: 0,
+                                                                opacity: 0,
+                                                            }}
+                                                            transition={{
+                                                                duration: 0.15,
+                                                            }}
+                                                            className="space-y-1 border-t bg-muted/30 p-2 pl-4"
+                                                        >
+                                                            {root.childCategories.map(
+                                                                (child) => (
+                                                                    <div
+                                                                        key={
+                                                                            child.id
+                                                                        }
+                                                                        className="border-l-2 pl-3"
+                                                                    >
+                                                                        <CategoryRow
+                                                                            category={
+                                                                                child
+                                                                            }
+                                                                            onDelete={
+                                                                                handleDelete
+                                                                            }
+                                                                            compact
+                                                                        />
+                                                                    </div>
+                                                                ),
+                                                            )}
+                                                        </motion.div>
+                                                    )}
                                             </AnimatePresence>
                                         </motion.div>
                                     );
@@ -255,7 +349,10 @@ return null;
                     size="icon"
                     className="fixed right-4 bottom-4 z-20 size-12 rounded-full bg-[var(--pos-teal)] text-white shadow-lg shadow-black/20 hover:bg-[var(--pos-teal)]/90 sm:hidden"
                 >
-                    <Link href={categories.create().url} aria-label="Add Category">
+                    <Link
+                        href={categories.create().url}
+                        aria-label="Add Category"
+                    >
                         <Plus className="size-5" />
                     </Link>
                 </Button>
@@ -277,9 +374,13 @@ function EmptyState({
 }) {
     return (
         <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed py-16 text-center">
-            <div className="flex size-14 items-center justify-center rounded-full bg-muted text-muted-foreground">{icon}</div>
+            <div className="flex size-14 items-center justify-center rounded-full bg-muted text-muted-foreground">
+                {icon}
+            </div>
             <p className="text-sm font-medium">{title}</p>
-            <p className="max-w-xs text-sm text-muted-foreground">{description}</p>
+            <p className="max-w-xs text-sm text-muted-foreground">
+                {description}
+            </p>
             {action && <div className="mt-2">{action}</div>}
         </div>
     );
@@ -303,12 +404,20 @@ function CategoryRow({
     onToggleCollapsed?: () => void;
 }) {
     return (
-        <div className={cn('flex items-center justify-between gap-3 rounded-lg', compact ? 'py-1.5' : 'p-3 sm:p-4')}>
+        <div
+            className={cn(
+                'flex items-center justify-between gap-3 rounded-lg',
+                compact ? 'py-1.5' : 'p-3 sm:p-4',
+            )}
+        >
             <button
                 type="button"
                 onClick={onToggleCollapsed}
                 disabled={!onToggleCollapsed}
-                className={cn('flex min-w-0 flex-1 items-center gap-2 text-left', onToggleCollapsed && 'cursor-pointer')}
+                className={cn(
+                    'flex min-w-0 flex-1 items-center gap-2 text-left',
+                    onToggleCollapsed && 'cursor-pointer',
+                )}
             >
                 {onToggleCollapsed && (
                     <ChevronDown
@@ -320,9 +429,19 @@ function CategoryRow({
                 )}
                 <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                        <p className={cn('truncate font-medium', compact && 'text-sm')}>{category.name}</p>
+                        <p
+                            className={cn(
+                                'truncate font-medium',
+                                compact && 'text-sm',
+                            )}
+                        >
+                            {category.name}
+                        </p>
                         {childCount !== undefined && (
-                            <Badge variant="outline" className="shrink-0 font-normal text-muted-foreground">
+                            <Badge
+                                variant="outline"
+                                className="shrink-0 font-normal text-muted-foreground"
+                            >
                                 {childCount}
                             </Badge>
                         )}

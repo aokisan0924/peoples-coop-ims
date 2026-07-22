@@ -32,7 +32,12 @@ export default function Profile({
             <h1 className="sr-only">Profile settings</h1>
 
             <div className="space-y-8">
-                <Heading icon={UserIcon} variant="small" title="Profile" description="Update your name and email address" />
+                <Heading
+                    icon={UserIcon}
+                    variant="small"
+                    title="Profile"
+                    description="Update your name and email address"
+                />
 
                 <div className="rounded-xl border bg-card p-4 sm:p-6">
                     <Form
@@ -62,7 +67,9 @@ export default function Profile({
                                     </div>
 
                                     <div className="grid gap-2">
-                                        <Label htmlFor="email">Email address</Label>
+                                        <Label htmlFor="email">
+                                            Email address
+                                        </Label>
                                         <div className="relative">
                                             <Mail className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
                                             <Input
@@ -80,29 +87,35 @@ export default function Profile({
                                     </div>
                                 </div>
 
-                                {mustVerifyEmail && auth.user.email_verified_at === null && (
-                                    <div className="flex items-start gap-2.5 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm dark:border-amber-950 dark:bg-amber-950/20">
-                                        <Mail className="mt-0.5 size-4 shrink-0 text-amber-600 dark:text-amber-400" />
-                                        <div>
-                                            <p className="text-amber-800 dark:text-amber-300">
-                                                Your email address is unverified.{' '}
-                                                <Link
-                                                    href={send()}
-                                                    as="button"
-                                                    className="font-medium underline decoration-amber-400 underline-offset-4 hover:decoration-amber-600"
-                                                >
-                                                    Click here to re-send the verification email.
-                                                </Link>
-                                            </p>
-
-                                            {status === 'verification-link-sent' && (
-                                                <p className="mt-1 font-medium text-green-600">
-                                                    A new verification link has been sent to your email address.
+                                {mustVerifyEmail &&
+                                    auth.user.email_verified_at === null && (
+                                        <div className="flex items-start gap-2.5 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm dark:border-amber-950 dark:bg-amber-950/20">
+                                            <Mail className="mt-0.5 size-4 shrink-0 text-amber-600 dark:text-amber-400" />
+                                            <div>
+                                                <p className="text-amber-800 dark:text-amber-300">
+                                                    Your email address is
+                                                    unverified.{' '}
+                                                    <Link
+                                                        href={send()}
+                                                        as="button"
+                                                        className="font-medium underline decoration-amber-400 underline-offset-4 hover:decoration-amber-600"
+                                                    >
+                                                        Click here to re-send
+                                                        the verification email.
+                                                    </Link>
                                                 </p>
-                                            )}
+
+                                                {status ===
+                                                    'verification-link-sent' && (
+                                                    <p className="mt-1 font-medium text-green-600">
+                                                        A new verification link
+                                                        has been sent to your
+                                                        email address.
+                                                    </p>
+                                                )}
+                                            </div>
                                         </div>
-                                    </div>
-                                )}
+                                    )}
 
                                 <div className="flex items-center gap-4 border-t pt-5">
                                     <Button

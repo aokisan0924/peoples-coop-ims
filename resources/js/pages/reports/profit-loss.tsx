@@ -1,5 +1,11 @@
 import { Head, router } from '@inertiajs/react';
-import { Banknote, Building2, Receipt, TrendingDown, TrendingUp } from 'lucide-react';
+import {
+    Banknote,
+    Building2,
+    Receipt,
+    TrendingDown,
+    TrendingUp,
+} from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -45,61 +51,109 @@ function peso(n: number): string {
     return `₱${n.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
-export default function ProfitLoss({ summary, startDate, endDate, isOwner, locations, selectedLocationId, branchBreakdown }: Props) {
+export default function ProfitLoss({
+    summary,
+    startDate,
+    endDate,
+    isOwner,
+    locations,
+    selectedLocationId,
+    branchBreakdown,
+}: Props) {
     function updateFilters(updates: Record<string, string>) {
-        router.get('/reports/profit-loss', {
-            start_date: startDate,
-            end_date: endDate,
-            location_id: selectedLocationId ?? '',
-            ...updates,
-        }, { preserveState: true });
+        router.get(
+            '/reports/profit-loss',
+            {
+                start_date: startDate,
+                end_date: endDate,
+                location_id: selectedLocationId ?? '',
+                ...updates,
+            },
+            { preserveState: true },
+        );
     }
 
     const isProfitable = summary.net_profit >= 0;
 
     return (
-        <div style={{ '--pos-teal': '#00a79b', '--pos-green': '#8dc645' } as React.CSSProperties}>
+        <div
+            style={
+                {
+                    '--pos-teal': '#00a79b',
+                    '--pos-green': '#8dc645',
+                } as React.CSSProperties
+            }
+        >
             <Head title="Profit & Loss" />
 
             <div className="mx-auto max-w-[1600px] space-y-5 p-3 sm:space-y-6 sm:p-6">
                 <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
-                    <h1 className="text-xl font-semibold tracking-tight">Profit &amp; Loss</h1>
+                    <h1 className="text-xl font-semibold tracking-tight">
+                        Profit &amp; Loss
+                    </h1>
 
                     <div className="flex flex-wrap items-center gap-2">
                         <div>
-                            <Label htmlFor="start_date" className="sr-only">Start</Label>
+                            <Label htmlFor="start_date" className="sr-only">
+                                Start
+                            </Label>
                             <Input
                                 id="start_date"
                                 type="date"
                                 value={startDate}
-                                onChange={(e) => updateFilters({ start_date: e.target.value })}
+                                onChange={(e) =>
+                                    updateFilters({
+                                        start_date: e.target.value,
+                                    })
+                                }
                                 className="focus-visible:ring-[var(--pos-teal)]"
                             />
                         </div>
-                        <span className="text-sm text-muted-foreground">to</span>
+                        <span className="text-sm text-muted-foreground">
+                            to
+                        </span>
                         <div>
-                            <Label htmlFor="end_date" className="sr-only">End</Label>
+                            <Label htmlFor="end_date" className="sr-only">
+                                End
+                            </Label>
                             <Input
                                 id="end_date"
                                 type="date"
                                 value={endDate}
-                                onChange={(e) => updateFilters({ end_date: e.target.value })}
+                                onChange={(e) =>
+                                    updateFilters({ end_date: e.target.value })
+                                }
                                 className="focus-visible:ring-[var(--pos-teal)]"
                             />
                         </div>
 
                         {isOwner && (
                             <Select
-                                value={selectedLocationId ? String(selectedLocationId) : 'all'}
-                                onValueChange={(v) => updateFilters({ location_id: v === 'all' ? '' : v })}
+                                value={
+                                    selectedLocationId
+                                        ? String(selectedLocationId)
+                                        : 'all'
+                                }
+                                onValueChange={(v) =>
+                                    updateFilters({
+                                        location_id: v === 'all' ? '' : v,
+                                    })
+                                }
                             >
                                 <SelectTrigger className="w-[160px] focus:ring-[var(--pos-teal)]">
                                     <SelectValue placeholder="All Branches" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="all">All Branches</SelectItem>
+                                    <SelectItem value="all">
+                                        All Branches
+                                    </SelectItem>
                                     {locations.map((loc) => (
-                                        <SelectItem key={loc.id} value={String(loc.id)}>{loc.name}</SelectItem>
+                                        <SelectItem
+                                            key={loc.id}
+                                            value={String(loc.id)}
+                                        >
+                                            {loc.name}
+                                        </SelectItem>
                                     ))}
                                 </SelectContent>
                             </Select>
@@ -110,7 +164,11 @@ export default function ProfitLoss({ summary, startDate, endDate, isOwner, locat
                 {/* Headline numbers — the three figures anyone opening this report
                     actually wants first, before the line-by-line breakdown. */}
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
-                    <HeroStat icon={<Banknote className="size-4" />} label="Revenue" value={summary.revenue} />
+                    <HeroStat
+                        icon={<Banknote className="size-4" />}
+                        label="Revenue"
+                        value={summary.revenue}
+                    />
                     <HeroStat
                         icon={<Receipt className="size-4" />}
                         label="Gross Profit"
@@ -118,7 +176,13 @@ export default function ProfitLoss({ summary, startDate, endDate, isOwner, locat
                         subtitle={`${summary.gross_margin_pct}% margin`}
                     />
                     <HeroStat
-                        icon={isProfitable ? <TrendingUp className="size-4" /> : <TrendingDown className="size-4" />}
+                        icon={
+                            isProfitable ? (
+                                <TrendingUp className="size-4" />
+                            ) : (
+                                <TrendingDown className="size-4" />
+                            )
+                        }
                         label="Net Profit"
                         value={summary.net_profit}
                         subtitle={`${summary.net_margin_pct}% margin`}
@@ -132,10 +196,29 @@ export default function ProfitLoss({ summary, startDate, endDate, isOwner, locat
                     <table className="w-full text-sm">
                         <tbody>
                             <Row label="Revenue" value={summary.revenue} />
-                            <Row label="Cost of Goods Sold (COGS)" value={-summary.cogs} isDeduction />
-                            <Row label="Gross Profit" value={summary.gross_profit} isBold subtitle={`${summary.gross_margin_pct}% margin`} />
-                            <Row label="Expenses" value={-summary.expenses} isDeduction />
-                            <Row label="Net Profit" value={summary.net_profit} isBold isFinal subtitle={`${summary.net_margin_pct}% margin`} />
+                            <Row
+                                label="Cost of Goods Sold (COGS)"
+                                value={-summary.cogs}
+                                isDeduction
+                            />
+                            <Row
+                                label="Gross Profit"
+                                value={summary.gross_profit}
+                                isBold
+                                subtitle={`${summary.gross_margin_pct}% margin`}
+                            />
+                            <Row
+                                label="Expenses"
+                                value={-summary.expenses}
+                                isDeduction
+                            />
+                            <Row
+                                label="Net Profit"
+                                value={summary.net_profit}
+                                isBold
+                                isFinal
+                                subtitle={`${summary.net_margin_pct}% margin`}
+                            />
                         </tbody>
                     </table>
                 </div>
@@ -152,24 +235,47 @@ export default function ProfitLoss({ summary, startDate, endDate, isOwner, locat
                             <table className="w-full text-sm">
                                 <thead className="bg-muted/60">
                                     <tr>
-                                        <th className="p-2.5 text-left font-medium text-muted-foreground">Branch</th>
-                                        <th className="p-2.5 text-left font-medium text-muted-foreground">Revenue</th>
-                                        <th className="p-2.5 text-left font-medium text-muted-foreground">COGS</th>
-                                        <th className="p-2.5 text-left font-medium text-muted-foreground">Expenses</th>
-                                        <th className="p-2.5 text-left font-medium text-muted-foreground">Net Profit</th>
+                                        <th className="p-2.5 text-left font-medium text-muted-foreground">
+                                            Branch
+                                        </th>
+                                        <th className="p-2.5 text-left font-medium text-muted-foreground">
+                                            Revenue
+                                        </th>
+                                        <th className="p-2.5 text-left font-medium text-muted-foreground">
+                                            COGS
+                                        </th>
+                                        <th className="p-2.5 text-left font-medium text-muted-foreground">
+                                            Expenses
+                                        </th>
+                                        <th className="p-2.5 text-left font-medium text-muted-foreground">
+                                            Net Profit
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {branchBreakdown.map((b) => (
-                                        <tr key={b.id} className="border-t transition-colors hover:bg-muted/30">
-                                            <td className="p-2.5 font-medium">{b.name}</td>
-                                            <td className="p-2.5 font-mono tabular-nums">{peso(b.revenue)}</td>
-                                            <td className="p-2.5 font-mono tabular-nums text-muted-foreground">{peso(b.cogs)}</td>
-                                            <td className="p-2.5 font-mono tabular-nums text-muted-foreground">{peso(b.expenses)}</td>
+                                        <tr
+                                            key={b.id}
+                                            className="border-t transition-colors hover:bg-muted/30"
+                                        >
+                                            <td className="p-2.5 font-medium">
+                                                {b.name}
+                                            </td>
+                                            <td className="p-2.5 font-mono tabular-nums">
+                                                {peso(b.revenue)}
+                                            </td>
+                                            <td className="p-2.5 font-mono text-muted-foreground tabular-nums">
+                                                {peso(b.cogs)}
+                                            </td>
+                                            <td className="p-2.5 font-mono text-muted-foreground tabular-nums">
+                                                {peso(b.expenses)}
+                                            </td>
                                             <td
                                                 className={cn(
                                                     'p-2.5 font-mono font-medium tabular-nums',
-                                                    b.net_profit >= 0 ? 'text-[var(--pos-green)]' : 'text-red-600 dark:text-red-400',
+                                                    b.net_profit >= 0
+                                                        ? 'text-[var(--pos-green)]'
+                                                        : 'text-red-600 dark:text-red-400',
                                                 )}
                                             >
                                                 {peso(b.net_profit)}
@@ -182,13 +288,18 @@ export default function ProfitLoss({ summary, startDate, endDate, isOwner, locat
 
                         <div className="grid grid-cols-1 gap-2.5 sm:hidden">
                             {branchBreakdown.map((b) => (
-                                <div key={b.id} className="rounded-lg border p-3">
+                                <div
+                                    key={b.id}
+                                    className="rounded-lg border p-3"
+                                >
                                     <div className="flex items-center justify-between">
                                         <p className="font-medium">{b.name}</p>
                                         <p
                                             className={cn(
                                                 'font-mono text-sm font-semibold tabular-nums',
-                                                b.net_profit >= 0 ? 'text-[var(--pos-green)]' : 'text-red-600 dark:text-red-400',
+                                                b.net_profit >= 0
+                                                    ? 'text-[var(--pos-green)]'
+                                                    : 'text-red-600 dark:text-red-400',
                                             )}
                                         >
                                             {peso(b.net_profit)}
@@ -228,8 +339,12 @@ function HeroStat({
         <div
             className={cn(
                 'rounded-xl border p-4 shadow-sm',
-                highlight && tone === 'positive' && 'bg-gradient-to-br from-[var(--pos-green)]/10 via-[var(--pos-green)]/5 to-transparent',
-                highlight && tone === 'negative' && 'bg-gradient-to-br from-red-500/10 via-red-500/5 to-transparent',
+                highlight &&
+                    tone === 'positive' &&
+                    'bg-gradient-to-br from-[var(--pos-green)]/10 via-[var(--pos-green)]/5 to-transparent',
+                highlight &&
+                    tone === 'negative' &&
+                    'bg-gradient-to-br from-red-500/10 via-red-500/5 to-transparent',
                 !highlight && 'bg-card',
             )}
         >
@@ -246,7 +361,9 @@ function HeroStat({
             >
                 {peso(value)}
             </p>
-            {subtitle && <p className="mt-1 text-xs text-muted-foreground">{subtitle}</p>}
+            {subtitle && (
+                <p className="mt-1 text-xs text-muted-foreground">{subtitle}</p>
+            )}
         </div>
     );
 }
@@ -267,16 +384,26 @@ function Row({
     subtitle?: string;
 }) {
     return (
-        <tr className={cn('border-t first:border-t-0', isFinal && 'bg-muted/50')}>
+        <tr
+            className={cn(
+                'border-t first:border-t-0',
+                isFinal && 'bg-muted/50',
+            )}
+        >
             <td className={cn('p-3', isBold && 'font-semibold')}>
                 {label}
-                {subtitle && <span className="ml-2 text-xs text-muted-foreground">({subtitle})</span>}
+                {subtitle && (
+                    <span className="ml-2 text-xs text-muted-foreground">
+                        ({subtitle})
+                    </span>
+                )}
             </td>
             <td
                 className={cn(
                     'p-3 text-right font-mono tabular-nums',
                     isBold && 'font-semibold',
-                    (isDeduction || value < 0) && 'text-red-600 dark:text-red-400',
+                    (isDeduction || value < 0) &&
+                        'text-red-600 dark:text-red-400',
                 )}
             >
                 {peso(value)}

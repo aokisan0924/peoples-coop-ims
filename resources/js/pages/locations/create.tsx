@@ -1,7 +1,13 @@
 import { Head, useForm, Link } from '@inertiajs/react';
 import { ArrowLeft, Building2, MapPin, Phone, Store } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import {
+    Card,
+    CardContent,
+    CardHeader,
+    CardTitle,
+    CardDescription,
+} from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -21,10 +27,18 @@ export default function CreateLocation() {
     }
 
     return (
-        <div className="mx-auto max-w-7xl p-3 pb-28 sm:p-6 lg:pb-6" style={{ '--pos-teal': '#00a79b' } as React.CSSProperties}>
+        <div
+            className="mx-auto max-w-7xl p-3 pb-28 sm:p-6 lg:pb-6"
+            style={{ '--pos-teal': '#00a79b' } as React.CSSProperties}
+        >
             <Head title="Add Branch" />
 
-            <Button variant="ghost" size="sm" asChild className="mb-3 -ml-2 gap-1.5 text-muted-foreground">
+            <Button
+                variant="ghost"
+                size="sm"
+                asChild
+                className="mb-3 -ml-2 gap-1.5 text-muted-foreground"
+            >
                 <Link href={locations.index().url}>
                     <ArrowLeft className="size-4" />
                     Branches
@@ -34,15 +48,19 @@ export default function CreateLocation() {
             {/* Two columns on wide screens so the form isn't stranded in a narrow
                 centered card — a live preview + tips fill the extra space. */}
             <div className="lg:grid lg:grid-cols-[1fr_360px] lg:items-start lg:gap-6">
-                <Card className="mx-auto w-full max-w-3xl animate-in fade-in-0 slide-in-from-bottom-2 shadow-sm duration-300 lg:mx-0 lg:max-w-none">
+                <Card className="mx-auto w-full max-w-3xl animate-in shadow-sm duration-300 fade-in-0 slide-in-from-bottom-2 lg:mx-0 lg:max-w-none">
                     <CardHeader className="sm:px-8 sm:pt-8">
                         <div className="flex items-center gap-3">
                             <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-[var(--pos-teal)]/10 text-[var(--pos-teal)] ring-1 ring-[var(--pos-teal)]/15">
                                 <Store className="size-5" />
                             </div>
                             <div>
-                                <CardTitle className="text-lg">Add Branch</CardTitle>
-                                <CardDescription>Set up a new store location.</CardDescription>
+                                <CardTitle className="text-lg">
+                                    Add Branch
+                                </CardTitle>
+                                <CardDescription>
+                                    Set up a new store location.
+                                </CardDescription>
                             </div>
                         </div>
                     </CardHeader>
@@ -56,13 +74,19 @@ export default function CreateLocation() {
                                         <Input
                                             id="name"
                                             value={data.name}
-                                            onChange={(e) => setData('name', e.target.value)}
+                                            onChange={(e) =>
+                                                setData('name', e.target.value)
+                                            }
                                             className="pl-9 focus-visible:ring-[var(--pos-teal)]"
                                             placeholder="e.g. Downtown Branch"
                                             autoFocus
                                         />
                                     </div>
-                                    {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name}</p>}
+                                    {errors.name && (
+                                        <p className="mt-1 text-sm text-red-600">
+                                            {errors.name}
+                                        </p>
+                                    )}
                                 </div>
 
                                 <div>
@@ -72,12 +96,18 @@ export default function CreateLocation() {
                                         <Input
                                             id="phone"
                                             value={data.phone}
-                                            onChange={(e) => setData('phone', e.target.value)}
+                                            onChange={(e) =>
+                                                setData('phone', e.target.value)
+                                            }
                                             className="pl-9 focus-visible:ring-[var(--pos-teal)]"
                                             placeholder="e.g. (555) 123-4567"
                                         />
                                     </div>
-                                    {errors.phone && <p className="mt-1 text-sm text-red-600">{errors.phone}</p>}
+                                    {errors.phone && (
+                                        <p className="mt-1 text-sm text-red-600">
+                                            {errors.phone}
+                                        </p>
+                                    )}
                                 </div>
                             </div>
 
@@ -88,13 +118,19 @@ export default function CreateLocation() {
                                     <Textarea
                                         id="address"
                                         value={data.address}
-                                        onChange={(e) => setData('address', e.target.value)}
+                                        onChange={(e) =>
+                                            setData('address', e.target.value)
+                                        }
                                         className="pl-9 focus-visible:ring-[var(--pos-teal)]"
                                         placeholder="Street, city, postal code"
                                         rows={4}
                                     />
                                 </div>
-                                {errors.address && <p className="mt-1 text-sm text-red-600">{errors.address}</p>}
+                                {errors.address && (
+                                    <p className="mt-1 text-sm text-red-600">
+                                        {errors.address}
+                                    </p>
+                                )}
                             </div>
 
                             {/* On mobile/tablet, actions pin to the bottom of the viewport so they
@@ -108,8 +144,15 @@ export default function CreateLocation() {
                                 >
                                     {processing ? 'Saving…' : 'Save Branch'}
                                 </Button>
-                                <Button type="button" variant="outline" asChild className="sm:flex-1">
-                                    <Link href={locations.index().url}>Cancel</Link>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    asChild
+                                    className="sm:flex-1"
+                                >
+                                    <Link href={locations.index().url}>
+                                        Cancel
+                                    </Link>
                                 </Button>
                             </div>
                         </form>
@@ -119,7 +162,11 @@ export default function CreateLocation() {
                 {/* Sidebar — hidden below lg where there isn't room to show it without
                     pushing the form off-balance. */}
                 <div className="mt-4 hidden space-y-4 lg:sticky lg:top-6 lg:mt-0 lg:block">
-                    <PreviewCard name={data.name} address={data.address} phone={data.phone} />
+                    <PreviewCard
+                        name={data.name}
+                        address={data.address}
+                        phone={data.phone}
+                    />
                     <TipsCard />
                 </div>
             </div>
@@ -127,11 +174,21 @@ export default function CreateLocation() {
     );
 }
 
-function PreviewCard({ name, address, phone }: { name: string; address: string; phone: string }) {
+function PreviewCard({
+    name,
+    address,
+    phone,
+}: {
+    name: string;
+    address: string;
+    phone: string;
+}) {
     return (
         <Card className="shadow-sm">
             <CardHeader className="pb-3">
-                <CardDescription className="text-xs font-medium tracking-wide text-muted-foreground uppercase">Preview</CardDescription>
+                <CardDescription className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+                    Preview
+                </CardDescription>
             </CardHeader>
             <CardContent className="pt-0">
                 <div className="rounded-xl border bg-muted/30 p-3">
@@ -140,11 +197,20 @@ function PreviewCard({ name, address, phone }: { name: string; address: string; 
                             <Building2 className="size-4" />
                         </div>
                         <div className="min-w-0">
-                            <p className={cn('truncate font-medium', !name && 'text-muted-foreground italic')}>{name || 'Your branch name'}</p>
+                            <p
+                                className={cn(
+                                    'truncate font-medium',
+                                    !name && 'text-muted-foreground italic',
+                                )}
+                            >
+                                {name || 'Your branch name'}
+                            </p>
                             {address && (
                                 <p className="mt-0.5 flex items-start gap-1 text-xs text-muted-foreground">
                                     <MapPin className="mt-0.5 size-3 shrink-0" />
-                                    <span className="line-clamp-2">{address}</span>
+                                    <span className="line-clamp-2">
+                                        {address}
+                                    </span>
                                 </p>
                             )}
                             {phone && (
@@ -156,7 +222,9 @@ function PreviewCard({ name, address, phone }: { name: string; address: string; 
                         </div>
                     </div>
                 </div>
-                <p className="mt-3 text-xs text-muted-foreground">This is how the branch will appear in your branch list.</p>
+                <p className="mt-3 text-xs text-muted-foreground">
+                    This is how the branch will appear in your branch list.
+                </p>
             </CardContent>
         </Card>
     );
@@ -172,7 +240,9 @@ function TipsCard() {
     return (
         <Card className="shadow-sm">
             <CardHeader className="pb-3">
-                <CardDescription className="text-xs font-medium tracking-wide text-muted-foreground uppercase">Tips</CardDescription>
+                <CardDescription className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+                    Tips
+                </CardDescription>
             </CardHeader>
             <CardContent className="pt-0">
                 <ul className="space-y-2.5 text-sm text-muted-foreground">

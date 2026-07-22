@@ -1,5 +1,5 @@
 import Dexie from 'dexie';
-import type {Table} from 'dexie';
+import type { Table } from 'dexie';
 
 export interface PendingSale {
     uuid: string; // client-generated, used as idempotency key on sync

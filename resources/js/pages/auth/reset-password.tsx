@@ -40,7 +40,12 @@ export default function ResetPassword({ token, email, passwordRules }: Props) {
                 resetOnSuccess={['password', 'password_confirmation']}
             >
                 {({ processing, errors }) => (
-                    <motion.div className="grid gap-6" variants={container} initial="hidden" animate="visible">
+                    <motion.div
+                        className="grid gap-6"
+                        variants={container}
+                        initial="hidden"
+                        animate="visible"
+                    >
                         <motion.div variants={item} className="grid gap-2">
                             <Label htmlFor="email">Email</Label>
                             <Input

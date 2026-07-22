@@ -25,13 +25,16 @@ function initials(name: string): string {
 }
 
 function RoleBadge({ name }: { name: string }) {
-    const isManagerial = name === 'Manager' || name === 'Owner' || name === 'super_admin';
+    const isManagerial =
+        name === 'Manager' || name === 'Owner' || name === 'super_admin';
 
     return (
         <Badge
             className={cn(
                 'mr-1 border-0 font-normal',
-                isManagerial ? 'bg-[var(--pos-teal)] text-white' : 'bg-[var(--pos-green)]/15 text-[var(--pos-green)]',
+                isManagerial
+                    ? 'bg-[var(--pos-teal)] text-white'
+                    : 'bg-[var(--pos-green)]/15 text-[var(--pos-green)]',
             )}
         >
             {name}
@@ -39,13 +42,19 @@ function RoleBadge({ name }: { name: string }) {
     );
 }
 
-export default function UsersIndex({ users, canAssignManagers }: { users: UserRow[]; canAssignManagers: boolean }) {
+export default function UsersIndex({
+    users,
+    canAssignManagers,
+}: {
+    users: UserRow[];
+    canAssignManagers: boolean;
+}) {
     const [pendingUser, setPendingUser] = useState<UserRow | null>(null);
 
     function confirmToggle() {
         if (!pendingUser) {
-return;
-}
+            return;
+        }
 
         router.patch(`/users/${pendingUser.id}/toggle-active`);
         setPendingUser(null);
@@ -54,20 +63,32 @@ return;
     const isEmpty = users.length === 0;
 
     return (
-        <div style={{ '--pos-teal': '#00a79b', '--pos-green': '#8dc645' } as React.CSSProperties}>
+        <div
+            style={
+                {
+                    '--pos-teal': '#00a79b',
+                    '--pos-green': '#8dc645',
+                } as React.CSSProperties
+            }
+        >
             <Head title="Users" />
 
             <div className="mx-auto max-w-[1600px] space-y-4 p-3 pb-24 sm:p-6 sm:pb-6">
                 <div className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-2">
-                        <h1 className="text-xl font-semibold tracking-tight">Users</h1>
+                        <h1 className="text-xl font-semibold tracking-tight">
+                            Users
+                        </h1>
                         {!isEmpty && (
                             <Badge className="border-0 bg-[var(--pos-green)]/15 font-normal text-[var(--pos-green)]">
                                 {users.length}
                             </Badge>
                         )}
                     </div>
-                    <Button asChild className="hidden gap-1.5 bg-[var(--pos-teal)] text-white hover:bg-[var(--pos-teal)]/90 sm:inline-flex">
+                    <Button
+                        asChild
+                        className="hidden gap-1.5 bg-[var(--pos-teal)] text-white hover:bg-[var(--pos-teal)]/90 sm:inline-flex"
+                    >
                         <Link href="/users/create">
                             <Plus className="size-4" />
                             Add User
@@ -81,9 +102,15 @@ return;
                             <Users className="size-7" />
                         </div>
                         <p className="text-sm font-medium">No users yet</p>
-                        <p className="max-w-xs text-sm text-muted-foreground">Add your first team member to give them access.</p>
+                        <p className="max-w-xs text-sm text-muted-foreground">
+                            Add your first team member to give them access.
+                        </p>
                         {canAssignManagers && (
-                            <Button asChild size="sm" className="mt-2 gap-1.5 bg-[var(--pos-teal)] text-white hover:bg-[var(--pos-teal)]/90">
+                            <Button
+                                asChild
+                                size="sm"
+                                className="mt-2 gap-1.5 bg-[var(--pos-teal)] text-white hover:bg-[var(--pos-teal)]/90"
+                            >
                                 <Link href="/users/create">
                                     <Plus className="size-4" />
                                     Add User
@@ -99,39 +126,66 @@ return;
                             <table className="w-full text-sm">
                                 <thead className="bg-muted/60">
                                     <tr>
-                                        <th className="p-3 text-left font-medium text-muted-foreground">Name</th>
-                                        <th className="p-3 text-left font-medium text-muted-foreground">Email</th>
-                                        <th className="p-3 text-left font-medium text-muted-foreground">Role</th>
-                                        <th className="p-3 text-left font-medium text-muted-foreground">Branch</th>
-                                        <th className="p-3 text-left font-medium text-muted-foreground">Status</th>
-                                        <th className="p-3 text-right font-medium text-muted-foreground">Actions</th>
+                                        <th className="p-3 text-left font-medium text-muted-foreground">
+                                            Name
+                                        </th>
+                                        <th className="p-3 text-left font-medium text-muted-foreground">
+                                            Email
+                                        </th>
+                                        <th className="p-3 text-left font-medium text-muted-foreground">
+                                            Role
+                                        </th>
+                                        <th className="p-3 text-left font-medium text-muted-foreground">
+                                            Branch
+                                        </th>
+                                        <th className="p-3 text-left font-medium text-muted-foreground">
+                                            Status
+                                        </th>
+                                        <th className="p-3 text-right font-medium text-muted-foreground">
+                                            Actions
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {users.map((user) => (
-                                        <tr key={user.id} className="border-t transition-colors hover:bg-muted/30">
+                                        <tr
+                                            key={user.id}
+                                            className="border-t transition-colors hover:bg-muted/30"
+                                        >
                                             <td className="p-3">
                                                 <div className="flex items-center gap-2.5">
                                                     <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[var(--pos-teal)]/10 text-xs font-semibold text-[var(--pos-teal)]">
                                                         {initials(user.name)}
                                                     </div>
-                                                    <span className="font-medium">{user.name}</span>
+                                                    <span className="font-medium">
+                                                        {user.name}
+                                                    </span>
                                                 </div>
                                             </td>
-                                            <td className="p-3 text-muted-foreground">{user.email}</td>
+                                            <td className="p-3 text-muted-foreground">
+                                                {user.email}
+                                            </td>
                                             <td className="p-3">
                                                 {user.roles.map((r) => (
-                                                    <RoleBadge key={r.name} name={r.name} />
+                                                    <RoleBadge
+                                                        key={r.name}
+                                                        name={r.name}
+                                                    />
                                                 ))}
                                             </td>
-                                            <td className="p-3 text-muted-foreground">{user.location?.name ?? '—'}</td>
+                                            <td className="p-3 text-muted-foreground">
+                                                {user.location?.name ?? '—'}
+                                            </td>
                                             <td className="p-3">
                                                 {user.is_active ? (
                                                     <Badge className="border-0 bg-emerald-600/15 font-normal text-emerald-700 dark:text-emerald-400">
                                                         Active
                                                     </Badge>
                                                 ) : (
-                                                    <Badge variant="secondary" className="font-normal">
+                                                    <Badge
+                                                        variant="secondary"
+                                                        className="font-normal"
+                                                    >
                                                         Inactive
                                                     </Badge>
                                                 )}
@@ -140,7 +194,9 @@ return;
                                                 <Button
                                                     variant="outline"
                                                     size="sm"
-                                                    onClick={() => setPendingUser(user)}
+                                                    onClick={() =>
+                                                        setPendingUser(user)
+                                                    }
                                                     className={cn(
                                                         'gap-1.5',
                                                         user.is_active
@@ -169,14 +225,19 @@ return;
 
                         <div className="grid grid-cols-1 gap-2.5 sm:hidden">
                             {users.map((user) => (
-                                <div key={user.id} className="rounded-xl border bg-card p-3 shadow-sm">
+                                <div
+                                    key={user.id}
+                                    className="rounded-xl border bg-card p-3 shadow-sm"
+                                >
                                     <div className="flex items-start justify-between gap-2">
                                         <div className="flex items-start gap-2.5">
                                             <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[var(--pos-teal)]/10 text-xs font-semibold text-[var(--pos-teal)]">
                                                 {initials(user.name)}
                                             </div>
                                             <div>
-                                                <p className="font-medium">{user.name}</p>
+                                                <p className="font-medium">
+                                                    {user.name}
+                                                </p>
                                                 <p className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground">
                                                     <Mail className="size-3 shrink-0" />
                                                     {user.email}
@@ -189,14 +250,20 @@ return;
                                                 )}
                                                 <div className="mt-1.5 flex flex-wrap items-center gap-1">
                                                     {user.roles.map((r) => (
-                                                        <RoleBadge key={r.name} name={r.name} />
+                                                        <RoleBadge
+                                                            key={r.name}
+                                                            name={r.name}
+                                                        />
                                                     ))}
                                                     {user.is_active ? (
                                                         <Badge className="border-0 bg-emerald-600/15 font-normal text-emerald-700 dark:text-emerald-400">
                                                             Active
                                                         </Badge>
                                                     ) : (
-                                                        <Badge variant="secondary" className="font-normal">
+                                                        <Badge
+                                                            variant="secondary"
+                                                            className="font-normal"
+                                                        >
                                                             Inactive
                                                         </Badge>
                                                     )}
@@ -251,13 +318,19 @@ return;
             <ConfirmDialog
                 open={pendingUser !== null}
                 onOpenChange={(open) => !open && setPendingUser(null)}
-                title={pendingUser ? `${pendingUser.is_active ? 'Deactivate' : 'Reactivate'} "${pendingUser.name}"?` : ''}
+                title={
+                    pendingUser
+                        ? `${pendingUser.is_active ? 'Deactivate' : 'Reactivate'} "${pendingUser.name}"?`
+                        : ''
+                }
                 description={
                     pendingUser?.is_active
                         ? "They will be signed out and won't be able to log in until reactivated."
                         : 'They will be able to log in again.'
                 }
-                confirmLabel={pendingUser?.is_active ? 'Deactivate' : 'Reactivate'}
+                confirmLabel={
+                    pendingUser?.is_active ? 'Deactivate' : 'Reactivate'
+                }
                 destructive={pendingUser?.is_active}
                 onConfirm={confirmToggle}
             />

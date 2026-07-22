@@ -46,13 +46,25 @@ export default function CreateStockBatch({
     }
 
     return (
-        <div style={{ '--pos-teal': '#00a79b', '--pos-green': '#8dc645' } as React.CSSProperties}>
+        <div
+            style={
+                {
+                    '--pos-teal': '#00a79b',
+                    '--pos-green': '#8dc645',
+                } as React.CSSProperties
+            }
+        >
             <Head title="Receive Stock" />
 
             <div className="mx-auto max-w-5xl space-y-4 p-3 pb-24 sm:p-6 sm:pb-6">
                 {/* Header */}
                 <div className="flex items-center gap-3">
-                    <Button variant="outline" size="icon" asChild className="size-9 shrink-0">
+                    <Button
+                        variant="outline"
+                        size="icon"
+                        asChild
+                        className="size-9 shrink-0"
+                    >
                         <Link href={stockBatches.index().url}>
                             <ArrowLeft className="size-4" />
                         </Link>
@@ -62,9 +74,13 @@ export default function CreateStockBatch({
                             <div className="flex size-8 items-center justify-center rounded-lg bg-[var(--pos-teal)]/10 text-[var(--pos-teal)]">
                                 <PackagePlus className="size-4" />
                             </div>
-                            <h1 className="text-xl font-semibold tracking-tight">Receive Stock</h1>
+                            <h1 className="text-xl font-semibold tracking-tight">
+                                Receive Stock
+                            </h1>
                         </div>
-                        <p className="mt-0.5 text-sm text-muted-foreground">Log a new stock batch to track it on a FIFO basis.</p>
+                        <p className="mt-0.5 text-sm text-muted-foreground">
+                            Log a new stock batch to track it on a FIFO basis.
+                        </p>
                     </div>
                 </div>
 
@@ -90,10 +106,19 @@ export default function CreateStockBatch({
                                     className="gap-1.5 bg-[var(--pos-teal)] text-white hover:bg-[var(--pos-teal)]/90"
                                 >
                                     <PackagePlus className="size-4" />
-                                    {processing ? 'Receiving…' : 'Receive Stock'}
+                                    {processing
+                                        ? 'Receiving…'
+                                        : 'Receive Stock'}
                                 </Button>
-                                <Button type="button" variant="outline" asChild disabled={processing}>
-                                    <Link href={stockBatches.index().url}>Cancel</Link>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    asChild
+                                    disabled={processing}
+                                >
+                                    <Link href={stockBatches.index().url}>
+                                        Cancel
+                                    </Link>
                                 </Button>
                             </div>
                         </div>
@@ -103,21 +128,42 @@ export default function CreateStockBatch({
                             <div className="rounded-xl border bg-[var(--pos-teal)]/5 p-4">
                                 <div className="flex items-center gap-2 text-[var(--pos-teal)]">
                                     <Info className="size-4 shrink-0" />
-                                    <p className="text-sm font-medium">How FIFO batches work</p>
+                                    <p className="text-sm font-medium">
+                                        How FIFO batches work
+                                    </p>
                                 </div>
                                 <ul className="mt-2 space-y-1.5 text-xs text-muted-foreground">
-                                    <li>• Sales draw from the oldest unexpired batch first.</li>
-                                    <li>• Cost per unit here is used to calculate margins on this batch.</li>
-                                    <li>• Leave expiry blank for non-perishable items.</li>
-                                    <li>• A batch can only be deleted before any stock is sold from it.</li>
-                                    <li>• Uncheck "Paid on Delivery" for a supplier batch to track it as unpaid in Accounts Payable.</li>
+                                    <li>
+                                        • Sales draw from the oldest unexpired
+                                        batch first.
+                                    </li>
+                                    <li>
+                                        • Cost per unit here is used to
+                                        calculate margins on this batch.
+                                    </li>
+                                    <li>
+                                        • Leave expiry blank for non-perishable
+                                        items.
+                                    </li>
+                                    <li>
+                                        • A batch can only be deleted before any
+                                        stock is sold from it.
+                                    </li>
+                                    <li>
+                                        • Uncheck "Paid on Delivery" for a
+                                        supplier batch to track it as unpaid in
+                                        Accounts Payable.
+                                    </li>
                                 </ul>
                             </div>
 
                             {products.length === 0 && (
                                 <div className="flex items-start gap-2 rounded-xl border border-dashed p-4 text-xs text-muted-foreground">
                                     <Boxes className="mt-0.5 size-4 shrink-0" />
-                                    <p>No products found yet. Add a product first so it appears in the list above.</p>
+                                    <p>
+                                        No products found yet. Add a product
+                                        first so it appears in the list above.
+                                    </p>
                                 </div>
                             )}
                         </div>
@@ -133,7 +179,13 @@ export default function CreateStockBatch({
                             <PackagePlus className="size-4" />
                             {processing ? 'Receiving…' : 'Receive Stock'}
                         </Button>
-                        <Button type="button" variant="outline" asChild disabled={processing} className="flex-1">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            asChild
+                            disabled={processing}
+                            className="flex-1"
+                        >
                             <Link href={stockBatches.index().url}>Cancel</Link>
                         </Button>
                     </div>

@@ -2,7 +2,13 @@ import { Head, useForm, Link } from '@inertiajs/react';
 import { ArrowLeft, Building2, MapPin, Pencil, Phone } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import {
+    Card,
+    CardContent,
+    CardHeader,
+    CardTitle,
+    CardDescription,
+} from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -32,10 +38,18 @@ export default function EditLocation({ location }: { location: Location }) {
     }
 
     return (
-        <div className="mx-auto max-w-7xl p-3 pb-28 sm:p-6 lg:pb-6" style={{ '--pos-teal': '#00a79b' } as React.CSSProperties}>
+        <div
+            className="mx-auto max-w-7xl p-3 pb-28 sm:p-6 lg:pb-6"
+            style={{ '--pos-teal': '#00a79b' } as React.CSSProperties}
+        >
             <Head title="Edit Branch" />
 
-            <Button variant="ghost" size="sm" asChild className="mb-3 -ml-2 gap-1.5 text-muted-foreground">
+            <Button
+                variant="ghost"
+                size="sm"
+                asChild
+                className="mb-3 -ml-2 gap-1.5 text-muted-foreground"
+            >
                 <Link href={locations.index().url}>
                     <ArrowLeft className="size-4" />
                     Branches
@@ -45,15 +59,19 @@ export default function EditLocation({ location }: { location: Location }) {
             {/* Two columns on wide screens so the form isn't stranded in a narrow
                 centered card — a live preview + tips fill the extra space. */}
             <div className="lg:grid lg:grid-cols-[1fr_360px] lg:items-start lg:gap-6">
-                <Card className="mx-auto w-full max-w-3xl animate-in fade-in-0 slide-in-from-bottom-2 shadow-sm duration-300 lg:mx-0 lg:max-w-none">
+                <Card className="mx-auto w-full max-w-3xl animate-in shadow-sm duration-300 fade-in-0 slide-in-from-bottom-2 lg:mx-0 lg:max-w-none">
                     <CardHeader className="sm:px-8 sm:pt-8">
                         <div className="flex items-center gap-3">
                             <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-[var(--pos-teal)]/10 text-[var(--pos-teal)] ring-1 ring-[var(--pos-teal)]/15">
                                 <Pencil className="size-5" />
                             </div>
                             <div className="min-w-0">
-                                <CardTitle className="text-lg">Edit Branch</CardTitle>
-                                <CardDescription className="truncate">Editing "{location.name}"</CardDescription>
+                                <CardTitle className="text-lg">
+                                    Edit Branch
+                                </CardTitle>
+                                <CardDescription className="truncate">
+                                    Editing "{location.name}"
+                                </CardDescription>
                             </div>
                         </div>
                     </CardHeader>
@@ -67,12 +85,18 @@ export default function EditLocation({ location }: { location: Location }) {
                                         <Input
                                             id="name"
                                             value={data.name}
-                                            onChange={(e) => setData('name', e.target.value)}
+                                            onChange={(e) =>
+                                                setData('name', e.target.value)
+                                            }
                                             className="pl-9 focus-visible:ring-[var(--pos-teal)]"
                                             autoFocus
                                         />
                                     </div>
-                                    {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name}</p>}
+                                    {errors.name && (
+                                        <p className="mt-1 text-sm text-red-600">
+                                            {errors.name}
+                                        </p>
+                                    )}
                                 </div>
 
                                 <div>
@@ -82,11 +106,17 @@ export default function EditLocation({ location }: { location: Location }) {
                                         <Input
                                             id="phone"
                                             value={data.phone}
-                                            onChange={(e) => setData('phone', e.target.value)}
+                                            onChange={(e) =>
+                                                setData('phone', e.target.value)
+                                            }
                                             className="pl-9 focus-visible:ring-[var(--pos-teal)]"
                                         />
                                     </div>
-                                    {errors.phone && <p className="mt-1 text-sm text-red-600">{errors.phone}</p>}
+                                    {errors.phone && (
+                                        <p className="mt-1 text-sm text-red-600">
+                                            {errors.phone}
+                                        </p>
+                                    )}
                                 </div>
                             </div>
 
@@ -97,12 +127,18 @@ export default function EditLocation({ location }: { location: Location }) {
                                     <Textarea
                                         id="address"
                                         value={data.address}
-                                        onChange={(e) => setData('address', e.target.value)}
+                                        onChange={(e) =>
+                                            setData('address', e.target.value)
+                                        }
                                         className="pl-9 focus-visible:ring-[var(--pos-teal)]"
                                         rows={4}
                                     />
                                 </div>
-                                {errors.address && <p className="mt-1 text-sm text-red-600">{errors.address}</p>}
+                                {errors.address && (
+                                    <p className="mt-1 text-sm text-red-600">
+                                        {errors.address}
+                                    </p>
+                                )}
                             </div>
 
                             <label
@@ -112,12 +148,19 @@ export default function EditLocation({ location }: { location: Location }) {
                                 <Checkbox
                                     id="is_active"
                                     checked={data.is_active}
-                                    onCheckedChange={(checked) => setData('is_active', checked === true)}
+                                    onCheckedChange={(checked) =>
+                                        setData('is_active', checked === true)
+                                    }
                                     className="data-[state=checked]:border-[var(--pos-teal)] data-[state=checked]:bg-[var(--pos-teal)]"
                                 />
                                 <span>
-                                    <span className="block text-sm font-medium">Active</span>
-                                    <span className="block text-xs text-muted-foreground">Inactive branches are hidden from staff selection.</span>
+                                    <span className="block text-sm font-medium">
+                                        Active
+                                    </span>
+                                    <span className="block text-xs text-muted-foreground">
+                                        Inactive branches are hidden from staff
+                                        selection.
+                                    </span>
                                 </span>
                             </label>
 
@@ -132,8 +175,15 @@ export default function EditLocation({ location }: { location: Location }) {
                                 >
                                     {processing ? 'Saving…' : 'Update Branch'}
                                 </Button>
-                                <Button type="button" variant="outline" asChild className="sm:flex-1">
-                                    <Link href={locations.index().url}>Cancel</Link>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    asChild
+                                    className="sm:flex-1"
+                                >
+                                    <Link href={locations.index().url}>
+                                        Cancel
+                                    </Link>
                                 </Button>
                             </div>
                         </form>
@@ -143,7 +193,12 @@ export default function EditLocation({ location }: { location: Location }) {
                 {/* Sidebar — hidden below lg where there isn't room to show it without
                     pushing the form off-balance. */}
                 <div className="mt-4 hidden space-y-4 lg:sticky lg:top-6 lg:mt-0 lg:block">
-                    <PreviewCard name={data.name} address={data.address} phone={data.phone} active={data.is_active} />
+                    <PreviewCard
+                        name={data.name}
+                        address={data.address}
+                        phone={data.phone}
+                        active={data.is_active}
+                    />
                     <TipsCard />
                 </div>
             </div>
@@ -151,11 +206,23 @@ export default function EditLocation({ location }: { location: Location }) {
     );
 }
 
-function PreviewCard({ name, address, phone, active }: { name: string; address: string; phone: string; active: boolean }) {
+function PreviewCard({
+    name,
+    address,
+    phone,
+    active,
+}: {
+    name: string;
+    address: string;
+    phone: string;
+    active: boolean;
+}) {
     return (
         <Card className="shadow-sm">
             <CardHeader className="pb-3">
-                <CardDescription className="text-xs font-medium tracking-wide text-muted-foreground uppercase">Preview</CardDescription>
+                <CardDescription className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+                    Preview
+                </CardDescription>
             </CardHeader>
             <CardContent className="pt-0">
                 <div className="rounded-xl border bg-muted/30 p-3">
@@ -165,11 +232,20 @@ function PreviewCard({ name, address, phone, active }: { name: string; address: 
                                 <Building2 className="size-4" />
                             </div>
                             <div className="min-w-0">
-                                <p className={cn('truncate font-medium', !name && 'text-muted-foreground italic')}>{name || 'Untitled branch'}</p>
+                                <p
+                                    className={cn(
+                                        'truncate font-medium',
+                                        !name && 'text-muted-foreground italic',
+                                    )}
+                                >
+                                    {name || 'Untitled branch'}
+                                </p>
                                 {address && (
                                     <p className="mt-0.5 flex items-start gap-1 text-xs text-muted-foreground">
                                         <MapPin className="mt-0.5 size-3 shrink-0" />
-                                        <span className="line-clamp-2">{address}</span>
+                                        <span className="line-clamp-2">
+                                            {address}
+                                        </span>
                                     </p>
                                 )}
                                 {phone && (
@@ -187,14 +263,27 @@ function PreviewCard({ name, address, phone, active }: { name: string; address: 
                                     ? 'bg-[var(--pos-green)]/15 text-[var(--pos-green)]'
                                     : 'bg-red-100 text-red-700 dark:bg-red-950/50 dark:text-red-400',
                             )}
-                            style={{ '--pos-green': '#8dc645' } as React.CSSProperties}
+                            style={
+                                {
+                                    '--pos-green': '#8dc645',
+                                } as React.CSSProperties
+                            }
                         >
-                            <span className={cn('size-1.5 rounded-full', active ? 'bg-[var(--pos-green)]' : 'bg-red-500')} />
+                            <span
+                                className={cn(
+                                    'size-1.5 rounded-full',
+                                    active
+                                        ? 'bg-[var(--pos-green)]'
+                                        : 'bg-red-500',
+                                )}
+                            />
                             {active ? 'Active' : 'Inactive'}
                         </Badge>
                     </div>
                 </div>
-                <p className="mt-3 text-xs text-muted-foreground">This is how the branch will appear in your branch list.</p>
+                <p className="mt-3 text-xs text-muted-foreground">
+                    This is how the branch will appear in your branch list.
+                </p>
             </CardContent>
         </Card>
     );
@@ -210,7 +299,9 @@ function TipsCard() {
     return (
         <Card className="shadow-sm">
             <CardHeader className="pb-3">
-                <CardDescription className="text-xs font-medium tracking-wide text-muted-foreground uppercase">Tips</CardDescription>
+                <CardDescription className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+                    Tips
+                </CardDescription>
             </CardHeader>
             <CardContent className="pt-0">
                 <ul className="space-y-2.5 text-sm text-muted-foreground">

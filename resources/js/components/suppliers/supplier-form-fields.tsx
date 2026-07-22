@@ -13,7 +13,10 @@ interface SupplierFormData {
 
 interface Props {
     data: SupplierFormData;
-    setData: <K extends keyof SupplierFormData>(key: K, value: SupplierFormData[K]) => void;
+    setData: <K extends keyof SupplierFormData>(
+        key: K,
+        value: SupplierFormData[K],
+    ) => void;
     errors: Partial<Record<keyof SupplierFormData, string>>;
 }
 
@@ -28,7 +31,9 @@ export default function SupplierFormFields({ data, setData, errors }: Props) {
                     onChange={(e) => setData('name', e.target.value)}
                     placeholder="e.g. Golden Harvest Trading"
                 />
-                {errors.name && <p className="text-sm text-red-600 mt-1">{errors.name}</p>}
+                {errors.name && (
+                    <p className="mt-1 text-sm text-red-600">{errors.name}</p>
+                )}
             </div>
 
             <div>
@@ -38,7 +43,11 @@ export default function SupplierFormFields({ data, setData, errors }: Props) {
                     value={data.contact_person}
                     onChange={(e) => setData('contact_person', e.target.value)}
                 />
-                {errors.contact_person && <p className="text-sm text-red-600 mt-1">{errors.contact_person}</p>}
+                {errors.contact_person && (
+                    <p className="mt-1 text-sm text-red-600">
+                        {errors.contact_person}
+                    </p>
+                )}
             </div>
 
             <div className="grid grid-cols-2 gap-4">
@@ -49,7 +58,11 @@ export default function SupplierFormFields({ data, setData, errors }: Props) {
                         value={data.phone}
                         onChange={(e) => setData('phone', e.target.value)}
                     />
-                    {errors.phone && <p className="text-sm text-red-600 mt-1">{errors.phone}</p>}
+                    {errors.phone && (
+                        <p className="mt-1 text-sm text-red-600">
+                            {errors.phone}
+                        </p>
+                    )}
                 </div>
 
                 <div>
@@ -60,7 +73,11 @@ export default function SupplierFormFields({ data, setData, errors }: Props) {
                         value={data.email}
                         onChange={(e) => setData('email', e.target.value)}
                     />
-                    {errors.email && <p className="text-sm text-red-600 mt-1">{errors.email}</p>}
+                    {errors.email && (
+                        <p className="mt-1 text-sm text-red-600">
+                            {errors.email}
+                        </p>
+                    )}
                 </div>
             </div>
 
@@ -71,7 +88,11 @@ export default function SupplierFormFields({ data, setData, errors }: Props) {
                     value={data.address}
                     onChange={(e) => setData('address', e.target.value)}
                 />
-                {errors.address && <p className="text-sm text-red-600 mt-1">{errors.address}</p>}
+                {errors.address && (
+                    <p className="mt-1 text-sm text-red-600">
+                        {errors.address}
+                    </p>
+                )}
             </div>
 
             <div>
@@ -82,7 +103,11 @@ export default function SupplierFormFields({ data, setData, errors }: Props) {
                     onChange={(e) => setData('payment_terms', e.target.value)}
                     placeholder="e.g. COD, Net 15, Net 30"
                 />
-                {errors.payment_terms && <p className="text-sm text-red-600 mt-1">{errors.payment_terms}</p>}
+                {errors.payment_terms && (
+                    <p className="mt-1 text-sm text-red-600">
+                        {errors.payment_terms}
+                    </p>
+                )}
             </div>
         </div>
     );

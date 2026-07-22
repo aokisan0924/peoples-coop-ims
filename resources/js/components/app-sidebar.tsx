@@ -176,7 +176,11 @@ const adminNavItems: NavItem[] = [
     },
 ];
 
-function visibleFor(items: NavItem[], isManager: boolean, isOwner: boolean): NavItem[] {
+function visibleFor(
+    items: NavItem[],
+    isManager: boolean,
+    isOwner: boolean,
+): NavItem[] {
     return items.filter((item) => {
         if (item.hideFromOwner && isOwner) {
             return false;

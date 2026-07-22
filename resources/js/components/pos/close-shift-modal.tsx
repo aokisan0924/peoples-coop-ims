@@ -46,7 +46,9 @@ export default function CloseShiftModal({ shift, onClose, onClosed }: Props) {
     useEffect(() => {
         let cancelled = false;
 
-        fetch(`/shift/${shift.id}/expected-cash`, { headers: { Accept: 'application/json' } })
+        fetch(`/shift/${shift.id}/expected-cash`, {
+            headers: { Accept: 'application/json' },
+        })
             .then((res) => res.json())
             .then((data) => {
                 if (!cancelled) {
@@ -61,8 +63,8 @@ export default function CloseShiftModal({ shift, onClose, onClosed }: Props) {
             })
             .finally(() => {
                 if (!cancelled) {
-setExpectedLoading(false);
-}
+                    setExpectedLoading(false);
+                }
             });
 
         return () => {
@@ -77,12 +79,20 @@ setExpectedLoading(false);
     }
 
     const breakdown = useMemo(
-        () => DENOMINATIONS.map((d) => ({ denomination: d.value, count: countFor(d.value) })),
+        () =>
+            DENOMINATIONS.map((d) => ({
+                denomination: d.value,
+                count: countFor(d.value),
+            })),
         [counts],
     );
 
     const totalCounted = useMemo(
-        () => breakdown.reduce((sum, row) => sum + row.denomination * row.count, 0),
+        () =>
+            breakdown.reduce(
+                (sum, row) => sum + row.denomination * row.count,
+                0,
+            ),
         [breakdown],
     );
 
@@ -90,8 +100,8 @@ setExpectedLoading(false);
 
     const variance = useMemo(() => {
         if (expectedCash === null || !hasAnyCount) {
-return null;
-}
+            return null;
+        }
 
         return Math.round((totalCounted - expectedCash) * 100) / 100;
     }, [expectedCash, totalCounted, hasAnyCount]);
@@ -109,7 +119,10 @@ return null;
                     onClosed();
                 },
                 onError: (errors) => {
-                    setError((Object.values(errors)[0] as string) ?? 'Failed to close shift.');
+                    setError(
+                        (Object.values(errors)[0] as string) ??
+                            'Failed to close shift.',
+                    );
                     setProcessing(false);
                 },
             },
@@ -122,23 +135,31 @@ return null;
                 <div className="border-b p-4 sm:p-6 sm:pb-4">
                     <h2 className="text-lg font-semibold">Close Shift</h2>
                     <p className="mt-1 text-sm text-muted-foreground">
-                        Count each denomination separately — the total is added up for you, so a miscount
-                        shows up in the right row.
+                        Count each denomination separately — the total is added
+                        up for you, so a miscount shows up in the right row.
                     </p>
                 </div>
 
-                <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
+                <form
+                    onSubmit={handleSubmit}
+                    className="flex min-h-0 flex-1 flex-col"
+                >
                     <div className="flex-1 space-y-1 overflow-y-auto p-4 sm:p-6 sm:py-4">
                         {DENOMINATIONS.map((d) => {
                             const count = countFor(d.value);
                             const subtotal = d.value * count;
 
                             return (
-                                <div key={d.value} className="flex items-center gap-3 py-1.5">
+                                <div
+                                    key={d.value}
+                                    className="flex items-center gap-3 py-1.5"
+                                >
                                     <span className="w-16 shrink-0 font-mono text-sm font-medium tabular-nums">
                                         ₱{d.value}
                                     </span>
-                                    <span className="w-8 shrink-0 text-center text-muted-foreground">×</span>
+                                    <span className="w-8 shrink-0 text-center text-muted-foreground">
+                                        ×
+                                    </span>
                                     <input
                                         type="number"
                                         inputMode="numeric"
@@ -146,12 +167,15 @@ return null;
                                         step="1"
                                         value={counts[d.value] ?? ''}
                                         onChange={(e) =>
-                                            setCounts((prev) => ({ ...prev, [d.value]: e.target.value }))
+                                            setCounts((prev) => ({
+                                                ...prev,
+                                                [d.value]: e.target.value,
+                                            }))
                                         }
                                         placeholder="0"
                                         className="w-16 shrink-0 rounded-md border bg-background px-2 py-1.5 text-center text-sm tabular-nums"
                                     />
-                                    <span className="flex-1 text-right font-mono text-sm tabular-nums text-muted-foreground">
+                                    <span className="flex-1 text-right font-mono text-sm text-muted-foreground tabular-nums">
                                         {subtotal > 0 ? peso(subtotal) : '—'}
                                     </span>
                                 </div>
@@ -161,8 +185,12 @@ return null;
 
                     <div className="border-t p-4 sm:p-6 sm:pt-4">
                         <div className="mb-3 flex items-center justify-between rounded-lg bg-muted px-3 py-2.5">
-                            <span className="text-sm font-medium">Total Counted</span>
-                            <span className="font-mono text-xl font-bold tabular-nums">{peso(totalCounted)}</span>
+                            <span className="text-sm font-medium">
+                                Total Counted
+                            </span>
+                            <span className="font-mono text-xl font-bold tabular-nums">
+                                {peso(totalCounted)}
+                            </span>
                         </div>
 
                         {hasAnyCount && (
@@ -170,23 +198,30 @@ return null;
                                 <span className="text-xs text-muted-foreground">
                                     {expectedLoading
                                         ? 'Checking expected cash…'
-                                        : expectedCash !== null && `Expected: ${peso(expectedCash)}`}
+                                        : expectedCash !== null &&
+                                          `Expected: ${peso(expectedCash)}`}
                                 </span>
-                                {variance !== null && (
-                                    variance === 0 ? (
-                                        <Badge className="bg-green-600">Balanced ✓</Badge>
+                                {variance !== null &&
+                                    (variance === 0 ? (
+                                        <Badge className="bg-green-600">
+                                            Balanced ✓
+                                        </Badge>
                                     ) : variance < 0 ? (
-                                        <Badge variant="destructive">Short by {peso(Math.abs(variance))}</Badge>
+                                        <Badge variant="destructive">
+                                            Short by {peso(Math.abs(variance))}
+                                        </Badge>
                                     ) : (
-                                        <Badge className="bg-amber-500">Over by {peso(variance)}</Badge>
-                                    )
-                                )}
+                                        <Badge className="bg-amber-500">
+                                            Over by {peso(variance)}
+                                        </Badge>
+                                    ))}
                             </div>
                         )}
 
                         {cashPaidOut > 0 && (
                             <p className="mb-3 px-1 text-xs text-muted-foreground">
-                                Includes −{peso(cashPaidOut)} paid out in cash for bills/suppliers this shift.
+                                Includes −{peso(cashPaidOut)} paid out in cash
+                                for bills/suppliers this shift.
                             </p>
                         )}
 
@@ -201,7 +236,9 @@ return null;
                             />
                         </div>
 
-                        {error && <p className="mb-3 text-sm text-red-600">{error}</p>}
+                        {error && (
+                            <p className="mb-3 text-sm text-red-600">{error}</p>
+                        )}
 
                         <div className="flex gap-2">
                             <Button
@@ -209,9 +246,15 @@ return null;
                                 disabled={processing || !hasAnyCount}
                                 className={cn('flex-1')}
                             >
-                                {processing ? 'Closing…' : `Close Shift · ${peso(totalCounted)}`}
+                                {processing
+                                    ? 'Closing…'
+                                    : `Close Shift · ${peso(totalCounted)}`}
                             </Button>
-                            <Button type="button" variant="outline" onClick={onClose}>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={onClose}
+                            >
                                 Cancel
                             </Button>
                         </div>

@@ -8,18 +8,23 @@ interface Props {
     buttonLabel?: string;
 }
 
-export default function CameraBarcodeScanner({ onScan, buttonLabel = 'Scan with Camera' }: Props) {
+export default function CameraBarcodeScanner({
+    onScan,
+    buttonLabel = 'Scan with Camera',
+}: Props) {
     const [isOpen, setIsOpen] = useState(false);
     const [error, setError] = useState('');
     const scannerRef = useRef<Html5Qrcode | null>(null);
     const startPromiseRef = useRef<Promise<unknown> | null>(null);
     const stoppedRef = useRef(true);
-    const containerId = useRef(`scanner-${Math.random().toString(36).slice(2)}`);
+    const containerId = useRef(
+        `scanner-${Math.random().toString(36).slice(2)}`,
+    );
 
     async function safeStop(scanner: Html5Qrcode) {
         if (stoppedRef.current) {
-return;
-}
+            return;
+        }
 
         stoppedRef.current = true; // set first — if stop() throws, we still don't want to retry it
 
@@ -32,10 +37,12 @@ return;
 
     useEffect(() => {
         if (!isOpen) {
-return;
-}
+            return;
+        }
 
-        const scanner = new Html5Qrcode(containerId.current, { verbose: false });
+        const scanner = new Html5Qrcode(containerId.current, {
+            verbose: false,
+        });
         scannerRef.current = scanner;
         stoppedRef.current = false;
 
@@ -49,11 +56,13 @@ return;
                 },
                 () => {
                     // fires continuously while no barcode is found in frame — ignore, not a real error
-                }
+                },
             )
             .catch(() => {
                 stoppedRef.current = true; // start() failed — nothing to stop
-                setError('Could not access camera. Check permissions and try again.');
+                setError(
+                    'Could not access camera. Check permissions and try again.',
+                );
             });
 
         startPromiseRef.current = startPromise;
@@ -84,29 +93,44 @@ return;
 
     return (
         <>
-            <Button type="button" variant="outline" size="sm" onClick={() => setIsOpen(true)}>
+            <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setIsOpen(true)}
+            >
                 <Camera className="size-4" />
                 {buttonLabel}
             </Button>
 
             {isOpen && (
-                <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-                    <div className="bg-background rounded-lg p-4 w-full max-w-sm">
-                        <div className="flex items-center justify-between mb-3">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+                    <div className="w-full max-w-sm rounded-lg bg-background p-4">
+                        <div className="mb-3 flex items-center justify-between">
                             <h2 className="font-medium">Scan Barcode</h2>
-                            <Button variant="ghost" size="sm" onClick={handleClose}>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={handleClose}
+                            >
                                 <X className="size-4" />
                             </Button>
                         </div>
 
                         {error ? (
-                            <p className="text-sm text-red-600 py-8 text-center">{error}</p>
+                            <p className="py-8 text-center text-sm text-red-600">
+                                {error}
+                            </p>
                         ) : (
-                            <div id={containerId.current} className="w-full rounded-lg overflow-hidden" />
+                            <div
+                                id={containerId.current}
+                                className="w-full overflow-hidden rounded-lg"
+                            />
                         )}
 
-                        <p className="text-xs text-muted-foreground mt-3 text-center">
-                            Point your camera at a barcode. It will scan automatically.
+                        <p className="mt-3 text-center text-xs text-muted-foreground">
+                            Point your camera at a barcode. It will scan
+                            automatically.
                         </p>
                     </div>
                 </div>

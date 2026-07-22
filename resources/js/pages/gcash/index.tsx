@@ -1,6 +1,14 @@
 import { Head, router } from '@inertiajs/react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowDownCircle, ArrowUpCircle, Receipt, Receipt as ExpenseIcon, Settings2, Wallet, X } from 'lucide-react';
+import {
+    ArrowDownCircle,
+    ArrowUpCircle,
+    Receipt,
+    Receipt as ExpenseIcon,
+    Settings2,
+    Wallet,
+    X,
+} from 'lucide-react';
 import { useEffect, useState } from 'react';
 import FloatAdjustmentForm from '@/components/gcash/float-adjustment-form';
 import GcashTransactionForm from '@/components/gcash/gcash-transaction-form';
@@ -40,14 +48,27 @@ function peso(n: number | string): string {
 }
 
 function timeOnly(iso: string): string {
-    return new Date(iso).toLocaleTimeString('en-PH', { hour: 'numeric', minute: '2-digit' });
+    return new Date(iso).toLocaleTimeString('en-PH', {
+        hour: 'numeric',
+        minute: '2-digit',
+    });
 }
 
 const TYPE_META = {
-    cash_in: { label: 'Cash-In', badgeClass: 'border-0 bg-[var(--pos-teal)] text-white' },
-    cash_out: { label: 'Cash-Out', badgeClass: 'border-[var(--pos-teal)]/40 text-[var(--pos-teal)]' },
+    cash_in: {
+        label: 'Cash-In',
+        badgeClass: 'border-0 bg-[var(--pos-teal)] text-white',
+    },
+    cash_out: {
+        label: 'Cash-Out',
+        badgeClass: 'border-[var(--pos-teal)]/40 text-[var(--pos-teal)]',
+    },
     float_adjustment: { label: 'Adjustment', badgeClass: '' },
-    expense_payment: { label: 'Expense Payment', badgeClass: 'border-0 bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-400' },
+    expense_payment: {
+        label: 'Expense Payment',
+        badgeClass:
+            'border-0 bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-400',
+    },
 } as const;
 
 /** customer_name is always null for expense payments — show the expense
@@ -60,25 +81,33 @@ function secondaryLabel(tx: Transaction): string {
     return tx.customer_name ?? '—';
 }
 
-export default function GcashIndex({ floatBalance, todayStats, recentTransactions }: Props) {
+export default function GcashIndex({
+    floatBalance,
+    todayStats,
+    recentTransactions,
+}: Props) {
     const { isManager } = useAuth();
     const { shift, refetch: refetchShift } = useCurrentShift();
-    const [modal, setModal] = useState<'cash_in' | 'cash_out' | 'adjust' | null>(null);
+    const [modal, setModal] = useState<
+        'cash_in' | 'cash_out' | 'adjust' | null
+    >(null);
 
     function closeModal() {
         setModal(null);
-        router.reload({ only: ['floatBalance', 'todayStats', 'recentTransactions'] });
+        router.reload({
+            only: ['floatBalance', 'todayStats', 'recentTransactions'],
+        });
     }
 
     useEffect(() => {
         if (!modal) {
-return;
-}
+            return;
+        }
 
         function onKeyDown(e: KeyboardEvent) {
             if (e.key === 'Escape') {
-setModal(null);
-}
+                setModal(null);
+            }
         }
         window.addEventListener('keydown', onKeyDown);
 
@@ -86,12 +115,21 @@ setModal(null);
     }, [modal]);
 
     return (
-        <div style={{ '--pos-teal': '#00a79b', '--pos-green': '#8dc645' } as React.CSSProperties}>
+        <div
+            style={
+                {
+                    '--pos-teal': '#00a79b',
+                    '--pos-green': '#8dc645',
+                } as React.CSSProperties
+            }
+        >
             <Head title="GCash Monitor" />
 
             <div className="mx-auto max-w-[1600px] space-y-5 p-3 sm:space-y-6 sm:p-6">
                 <div className="flex items-center justify-between gap-3">
-                    <h1 className="text-xl font-semibold tracking-tight">GCash Monitor</h1>
+                    <h1 className="text-xl font-semibold tracking-tight">
+                        GCash Monitor
+                    </h1>
                     {isManager && (
                         <Button
                             variant="outline"
@@ -100,7 +138,9 @@ setModal(null);
                             className="gap-1.5 hover:border-[var(--pos-teal)] hover:text-[var(--pos-teal)]"
                         >
                             <Settings2 className="size-4" />
-                            <span className="hidden sm:inline">Reconcile Float</span>
+                            <span className="hidden sm:inline">
+                                Reconcile Float
+                            </span>
                             <span className="sm:hidden">Reconcile</span>
                         </Button>
                     )}
@@ -113,8 +153,12 @@ setModal(null);
                         <div className="mb-2 flex size-11 items-center justify-center rounded-full bg-[var(--pos-teal)]/15 text-[var(--pos-teal)]">
                             <Wallet className="size-5" />
                         </div>
-                        <p className="text-sm text-muted-foreground">Current GCash Float</p>
-                        <p className="mt-1 font-mono text-4xl font-bold tabular-nums sm:text-5xl">{peso(floatBalance)}</p>
+                        <p className="text-sm text-muted-foreground">
+                            Current GCash Float
+                        </p>
+                        <p className="mt-1 font-mono text-4xl font-bold tabular-nums sm:text-5xl">
+                            {peso(floatBalance)}
+                        </p>
                     </div>
 
                     <div className="grid grid-cols-2 gap-3 sm:gap-4">
@@ -140,25 +184,43 @@ setModal(null);
 
                 {/* Today's summary */}
                 <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4">
-                    <StatCard label="Cash-In Today" value={peso(todayStats.total_cash_in)} />
-                    <StatCard label="Cash-Out Today" value={peso(todayStats.total_cash_out)} />
-                    <StatCard label="Fees Earned" value={peso(todayStats.total_fees)} accent="green" />
-                    <StatCard label="Transactions" value={String(todayStats.transaction_count)} />
+                    <StatCard
+                        label="Cash-In Today"
+                        value={peso(todayStats.total_cash_in)}
+                    />
+                    <StatCard
+                        label="Cash-Out Today"
+                        value={peso(todayStats.total_cash_out)}
+                    />
+                    <StatCard
+                        label="Fees Earned"
+                        value={peso(todayStats.total_fees)}
+                        accent="green"
+                    />
+                    <StatCard
+                        label="Transactions"
+                        value={String(todayStats.transaction_count)}
+                    />
                 </div>
 
                 {/* Transaction history — table on larger screens, stacked cards on mobile
                     where a 7-column table would force horizontal scrolling. */}
                 <div>
-                    <h2 className="mb-2 text-sm font-medium text-muted-foreground">Recent Transactions</h2>
+                    <h2 className="mb-2 text-sm font-medium text-muted-foreground">
+                        Recent Transactions
+                    </h2>
 
                     {recentTransactions.length === 0 ? (
                         <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed py-14 text-center">
                             <div className="flex size-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
                                 <Receipt className="size-5" />
                             </div>
-                            <p className="text-sm font-medium">No GCash transactions yet</p>
+                            <p className="text-sm font-medium">
+                                No GCash transactions yet
+                            </p>
                             <p className="max-w-xs text-sm text-muted-foreground">
-                                Cash-in and cash-out activity will show up here as it happens.
+                                Cash-in and cash-out activity will show up here
+                                as it happens.
                             </p>
                         </div>
                     ) : (
@@ -167,37 +229,89 @@ setModal(null);
                                 <table className="w-full text-sm">
                                     <thead className="bg-muted/60">
                                         <tr>
-                                            <th className="p-3 text-left font-medium text-muted-foreground">Time</th>
-                                            <th className="p-3 text-left font-medium text-muted-foreground">Type</th>
-                                            <th className="p-3 text-left font-medium text-muted-foreground">Customer / Notes</th>
-                                            <th className="p-3 text-left font-medium text-muted-foreground">Amount</th>
-                                            <th className="p-3 text-left font-medium text-muted-foreground">Fee</th>
-                                            <th className="p-3 text-left font-medium text-muted-foreground">Float After</th>
-                                            <th className="p-3 text-left font-medium text-muted-foreground">Cashier</th>
+                                            <th className="p-3 text-left font-medium text-muted-foreground">
+                                                Time
+                                            </th>
+                                            <th className="p-3 text-left font-medium text-muted-foreground">
+                                                Type
+                                            </th>
+                                            <th className="p-3 text-left font-medium text-muted-foreground">
+                                                Customer / Notes
+                                            </th>
+                                            <th className="p-3 text-left font-medium text-muted-foreground">
+                                                Amount
+                                            </th>
+                                            <th className="p-3 text-left font-medium text-muted-foreground">
+                                                Fee
+                                            </th>
+                                            <th className="p-3 text-left font-medium text-muted-foreground">
+                                                Float After
+                                            </th>
+                                            <th className="p-3 text-left font-medium text-muted-foreground">
+                                                Cashier
+                                            </th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {recentTransactions.map((tx) => (
-                                            <tr key={tx.id} className="border-t transition-colors hover:bg-muted/30">
-                                                <td className="p-3 text-xs text-muted-foreground">{new Date(tx.created_at).toLocaleString()}</td>
+                                            <tr
+                                                key={tx.id}
+                                                className="border-t transition-colors hover:bg-muted/30"
+                                            >
+                                                <td className="p-3 text-xs text-muted-foreground">
+                                                    {new Date(
+                                                        tx.created_at,
+                                                    ).toLocaleString()}
+                                                </td>
                                                 <td className="p-3">
                                                     <Badge
-                                                        className={cn('font-normal', TYPE_META[tx.type].badgeClass)}
-                                                        variant={tx.type === 'float_adjustment' ? 'secondary' : tx.type === 'cash_out' ? 'outline' : undefined}
+                                                        className={cn(
+                                                            'font-normal',
+                                                            TYPE_META[tx.type]
+                                                                .badgeClass,
+                                                        )}
+                                                        variant={
+                                                            tx.type ===
+                                                            'float_adjustment'
+                                                                ? 'secondary'
+                                                                : tx.type ===
+                                                                    'cash_out'
+                                                                  ? 'outline'
+                                                                  : undefined
+                                                        }
                                                     >
-                                                        {tx.type === 'expense_payment' && <ExpenseIcon className="mr-1 size-3" />}
-                                                        {TYPE_META[tx.type].label}
+                                                        {tx.type ===
+                                                            'expense_payment' && (
+                                                            <ExpenseIcon className="mr-1 size-3" />
+                                                        )}
+                                                        {
+                                                            TYPE_META[tx.type]
+                                                                .label
+                                                        }
                                                     </Badge>
                                                 </td>
-                                                <td className="p-3 max-w-[240px] truncate" title={secondaryLabel(tx)}>
+                                                <td
+                                                    className="max-w-[240px] truncate p-3"
+                                                    title={secondaryLabel(tx)}
+                                                >
                                                     {secondaryLabel(tx)}
                                                 </td>
-                                                <td className="p-3 font-mono tabular-nums">{peso(tx.amount)}</td>
-                                                <td className="p-3 font-mono tabular-nums text-[var(--pos-green)]">
-                                                    {parseFloat(tx.fee) > 0 ? peso(tx.fee) : '—'}
+                                                <td className="p-3 font-mono tabular-nums">
+                                                    {peso(tx.amount)}
                                                 </td>
-                                                <td className="p-3 font-mono tabular-nums">{peso(tx.float_balance_after)}</td>
-                                                <td className="p-3">{tx.cashier.name}</td>
+                                                <td className="p-3 font-mono text-[var(--pos-green)] tabular-nums">
+                                                    {parseFloat(tx.fee) > 0
+                                                        ? peso(tx.fee)
+                                                        : '—'}
+                                                </td>
+                                                <td className="p-3 font-mono tabular-nums">
+                                                    {peso(
+                                                        tx.float_balance_after,
+                                                    )}
+                                                </td>
+                                                <td className="p-3">
+                                                    {tx.cashier.name}
+                                                </td>
                                             </tr>
                                         ))}
                                     </tbody>
@@ -206,27 +320,56 @@ setModal(null);
 
                             <div className="space-y-2 sm:hidden">
                                 {recentTransactions.map((tx) => (
-                                    <div key={tx.id} className="rounded-xl border bg-card p-3 shadow-sm">
+                                    <div
+                                        key={tx.id}
+                                        className="rounded-xl border bg-card p-3 shadow-sm"
+                                    >
                                         <div className="flex items-start justify-between gap-2">
                                             <div className="min-w-0">
                                                 <Badge
-                                                    className={cn('font-normal', TYPE_META[tx.type].badgeClass)}
-                                                    variant={tx.type === 'float_adjustment' ? 'secondary' : tx.type === 'cash_out' ? 'outline' : undefined}
+                                                    className={cn(
+                                                        'font-normal',
+                                                        TYPE_META[tx.type]
+                                                            .badgeClass,
+                                                    )}
+                                                    variant={
+                                                        tx.type ===
+                                                        'float_adjustment'
+                                                            ? 'secondary'
+                                                            : tx.type ===
+                                                                'cash_out'
+                                                              ? 'outline'
+                                                              : undefined
+                                                    }
                                                 >
-                                                    {tx.type === 'expense_payment' && <ExpenseIcon className="mr-1 size-3" />}
+                                                    {tx.type ===
+                                                        'expense_payment' && (
+                                                        <ExpenseIcon className="mr-1 size-3" />
+                                                    )}
                                                     {TYPE_META[tx.type].label}
                                                 </Badge>
-                                                <p className="mt-1 truncate text-sm font-medium">{secondaryLabel(tx)}</p>
+                                                <p className="mt-1 truncate text-sm font-medium">
+                                                    {secondaryLabel(tx)}
+                                                </p>
                                             </div>
                                             <div className="shrink-0 text-right">
-                                                <p className="font-mono text-sm font-semibold tabular-nums">{peso(tx.amount)}</p>
-                                                <p className="text-xs text-muted-foreground">{timeOnly(tx.created_at)}</p>
+                                                <p className="font-mono text-sm font-semibold tabular-nums">
+                                                    {peso(tx.amount)}
+                                                </p>
+                                                <p className="text-xs text-muted-foreground">
+                                                    {timeOnly(tx.created_at)}
+                                                </p>
                                             </div>
                                         </div>
                                         <div className="mt-2 flex items-center justify-between border-t pt-2 text-xs text-muted-foreground">
                                             <span>{tx.cashier.name}</span>
                                             <span>
-                                                Float after <span className="font-mono tabular-nums text-foreground">{peso(tx.float_balance_after)}</span>
+                                                Float after{' '}
+                                                <span className="font-mono text-foreground tabular-nums">
+                                                    {peso(
+                                                        tx.float_balance_after,
+                                                    )}
+                                                </span>
                                             </span>
                                         </div>
                                     </div>
@@ -239,7 +382,9 @@ setModal(null);
 
             {/* Modals */}
             <AnimatePresence>
-                {(modal === 'cash_in' || modal === 'cash_out' || modal === 'adjust') && (
+                {(modal === 'cash_in' ||
+                    modal === 'cash_out' ||
+                    modal === 'adjust') && (
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
@@ -258,11 +403,20 @@ setModal(null);
                         >
                             <div className="mb-4 flex items-center justify-between">
                                 <h2 className="font-medium">
-                                    {modal === 'cash_in' && !shift && 'Shift Required'}
-                                    {modal === 'cash_in' && shift && 'New Cash-In'}
-                                    {modal === 'cash_out' && !shift && 'Shift Required'}
-                                    {modal === 'cash_out' && shift && 'New Cash-Out'}
-                                    {modal === 'adjust' && 'Reconcile GCash Float'}
+                                    {modal === 'cash_in' &&
+                                        !shift &&
+                                        'Shift Required'}
+                                    {modal === 'cash_in' &&
+                                        shift &&
+                                        'New Cash-In'}
+                                    {modal === 'cash_out' &&
+                                        !shift &&
+                                        'Shift Required'}
+                                    {modal === 'cash_out' &&
+                                        shift &&
+                                        'New Cash-Out'}
+                                    {modal === 'adjust' &&
+                                        'Reconcile GCash Float'}
                                 </h2>
                                 <button
                                     type="button"
@@ -274,16 +428,31 @@ setModal(null);
                                 </button>
                             </div>
 
-                            {(modal === 'cash_in' || modal === 'cash_out') && !shift && (
-                                <OpenShiftGate onOpened={refetchShift} />
+                            {(modal === 'cash_in' || modal === 'cash_out') &&
+                                !shift && (
+                                    <OpenShiftGate onOpened={refetchShift} />
+                                )}
+                            {(modal === 'cash_in' || modal === 'cash_out') &&
+                                shift && (
+                                    <GcashTransactionForm
+                                        type={modal}
+                                        onSuccess={closeModal}
+                                    />
+                                )}
+                            {modal === 'adjust' && (
+                                <FloatAdjustmentForm
+                                    currentBalance={floatBalance}
+                                    onSuccess={closeModal}
+                                />
                             )}
-                            {(modal === 'cash_in' || modal === 'cash_out') && shift && (
-                                <GcashTransactionForm type={modal} onSuccess={closeModal} />
-                            )}
-                            {modal === 'adjust' && <FloatAdjustmentForm currentBalance={floatBalance} onSuccess={closeModal} />}
 
-                            {!(modal === 'cash_in' || modal === 'cash_out') || shift ? (
-                                <Button variant="outline" className="mt-2 w-full" onClick={() => setModal(null)}>
+                            {!(modal === 'cash_in' || modal === 'cash_out') ||
+                            shift ? (
+                                <Button
+                                    variant="outline"
+                                    className="mt-2 w-full"
+                                    onClick={() => setModal(null)}
+                                >
                                     Cancel
                                 </Button>
                             ) : null}
@@ -295,7 +464,15 @@ setModal(null);
     );
 }
 
-function StatCard({ label, value, accent }: { label: string; value: string; accent?: 'green' }) {
+function StatCard({
+    label,
+    value,
+    accent,
+}: {
+    label: string;
+    value: string;
+    accent?: 'green';
+}) {
     return (
         <div className="rounded-xl border bg-card p-4 shadow-sm">
             <p className="text-xs text-muted-foreground">{label}</p>

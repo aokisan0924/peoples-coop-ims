@@ -139,7 +139,11 @@ export default function Register({ passwordRules }: Props) {
                             transition={{ duration: 0.4, delay: 0.35 }}
                         >
                             Already have an account?{' '}
-                            <TextLink href={login()} className="text-[#00a79b] decoration-[#00a79b]/40" tabIndex={6}>
+                            <TextLink
+                                href={login()}
+                                className="text-[#00a79b] decoration-[#00a79b]/40"
+                                tabIndex={6}
+                            >
                                 Log in
                             </TextLink>
                         </motion.div>
