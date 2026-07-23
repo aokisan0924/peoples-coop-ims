@@ -1,0 +1,31 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Method App\\Http\\Controllers\\DashboardController\:\:bestSellers\(\) should return Illuminate\\Support\\Collection\<int, object\{name\: string, units_sold\: float\|int, revenue\: float\|int\}\> but returns Illuminate\\Support\\Collection\<int, stdClass\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Http/Controllers/DashboardController.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\DashboardController\:\:expiringSoon\(\) should return Illuminate\\Support\\Collection\<int, array\{id\: int, product_name\: string, remaining_qty\: int, expiry_date\: string, days_left\: int\}\> but returns Illuminate\\Support\\Collection\<int, array\{id\: int, product_name\: string, remaining_qty\: int\<0, max\>, expiry_date\: string, days_left\: float\}\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Http/Controllers/DashboardController.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\DashboardController\:\:lowStockProducts\(\) should return Illuminate\\Support\\Collection\<int, array\{id\: int, name\: string, total_stock\: int, low_stock_threshold\: int, location_name\: string\|null\}\> but returns Illuminate\\Support\\Collection\<int, array\{id\: int, name\: string, total_stock\: int, low_stock_threshold\: int\<0, max\>, location_name\: null\}\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Http/Controllers/DashboardController.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\DashboardController\:\:payablesSummary\(\) should return array\{total_unpaid\: float, unpaid_count\: int, overdue_count\: int, upcoming\: Illuminate\\Support\\Collection\<int, array\{id\: int, supplier_name\: string, amount\: float, due_date\: string\|null, is_overdue\: bool\}\>\} but returns array\{total_unpaid\: float, unpaid_count\: int, overdue_count\: int\<0, max\>, upcoming\: Illuminate\\Support\\Collection\<int, array\{id\: int, supplier_name\: string, amount\: float, due_date\: string\|null, is_overdue\: bool\}\>\}\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Http/Controllers/DashboardController.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\DashboardController\:\:trend\(\) should return Illuminate\\Support\\Collection\<int, array\{date\: string, total\: float\}\> but returns Illuminate\\Support\\Collection\<int, array\{date\: string, total\: float\|int\}\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Http/Controllers/DashboardController.php

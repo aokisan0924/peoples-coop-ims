@@ -20,7 +20,7 @@ class LocationScopingTest extends TestCase
         $branchB = Location::factory()->create();
 
         $cashierAtA = User::factory()->cashier()->create(['location_id' => $branchA->id]);
-        $this->openShiftFor($cashierAtA); // ← add this line
+        $this->openShiftFor($cashierAtA);
         $product = Product::factory()->create();
 
         // Stock only exists at Branch B — Branch A has none
@@ -112,6 +112,10 @@ class LocationScopingTest extends TestCase
         // Give Branch A some float to work with
         GcashFloat::create(['location_id' => $branchA->id, 'balance' => 1000]);
         GcashFloat::create(['location_id' => $branchB->id, 'balance' => 500]);
+
+        // GCash transactions require an open shift (so the cash movement always
+        // lands inside some shift's reconciliation window)
+        $this->openShiftFor($cashierA);
 
         // Cash-out at Branch A should only affect Branch A's float
         $this->actingAs($cashierA)->post('/gcash', [
