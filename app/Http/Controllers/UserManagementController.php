@@ -60,6 +60,7 @@ class UserManagementController extends Controller
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
             'email_verified_at' => now(),
+            'is_active' => true,
             // Manager can only ever create Cashiers at their own branch —
             // ignore any role/location values a Manager might try to submit
             'location_id' => $isOwner ? $validated['location_id'] : $user->location_id,
