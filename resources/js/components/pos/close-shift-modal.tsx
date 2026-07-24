@@ -1,5 +1,5 @@
 import { router } from '@inertiajs/react';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -72,11 +72,14 @@ export default function CloseShiftModal({ shift, onClose, onClosed }: Props) {
         };
     }, [shift.id]);
 
-    function countFor(value: number): number {
-        const n = parseInt(counts[value] ?? '', 10);
+    const countFor = useCallback(
+        (value: number): number => {
+            const n = parseInt(counts[value] ?? '', 10);
 
-        return Number.isFinite(n) && n > 0 ? n : 0;
-    }
+            return Number.isFinite(n) && n > 0 ? n : 0;
+        },
+        [counts],
+    );
 
     const breakdown = useMemo(
         () =>
@@ -84,7 +87,7 @@ export default function CloseShiftModal({ shift, onClose, onClosed }: Props) {
                 denomination: d.value,
                 count: countFor(d.value),
             })),
-        [counts],
+        [countFor],
     );
 
     const totalCounted = useMemo(

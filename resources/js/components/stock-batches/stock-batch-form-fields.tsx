@@ -60,20 +60,35 @@ export default function StockBatchFormFields({
     const [looking, setLooking] = useState(false);
     const barcodeRef = useRef<HTMLInputElement>(null);
 
+    // Read via ref rather than as a reactive dependency below — this effect
+    // should only re-run when product_id changes, not whenever the products
+    // array reference changes (e.g. an unrelated parent re-render).
+    const productsRef = useRef(products);
+    useEffect(() => {
+        productsRef.current = products;
+    }, [products]);
+
     useEffect(() => {
         barcodeRef.current?.focus();
     }, []);
 
-    // Pre-fill selected product's last known cost as a starting point
+    // Pre-fill selected product's last known cost as a starting point.
+    // Deliberately scoped to product_id only — including data.cost_price would
+    // re-run this effect every time it changes, including when the user clears
+    // the field to type their own value, immediately overwriting their edit
+    // with the product's default cost.
     useEffect(() => {
         if (data.product_id) {
-            const product = products.find((p) => p.id === data.product_id);
+            const product = productsRef.current.find(
+                (p) => p.id === data.product_id,
+            );
 
             if (product && !data.cost_price) {
                 setData('cost_price', product.cost_price);
             }
         }
-    }, [data.product_id]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [data.product_id, setData]);
 
     const locationOptions = useMemo(
         () =>
