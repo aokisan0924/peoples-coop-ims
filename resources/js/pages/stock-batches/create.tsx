@@ -1,5 +1,6 @@
 import { Head, useForm, Link } from '@inertiajs/react';
 import { ArrowLeft, Boxes, Info, PackagePlus } from 'lucide-react';
+import { useEffect } from 'react';
 import StockBatchFormFields from '@/components/stock-batches/stock-batch-form-fields';
 import { Button } from '@/components/ui/button';
 import stockBatches from '@/routes/stock-batches';
@@ -44,6 +45,19 @@ export default function CreateStockBatch({
         e.preventDefault();
         post(stockBatches.store().url);
     }
+
+    // Lets "Stock by Branch" deep-link here with the product already picked,
+    // e.g. tapping "Receive" on a row that's running low — one less step.
+    useEffect(() => {
+        const preselect = new URLSearchParams(window.location.search).get('product_id');
+        if (!preselect) return;
+
+        const id = Number(preselect);
+        if (products.some((p) => p.id === id)) {
+            setData('product_id', id);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     return (
         <div
