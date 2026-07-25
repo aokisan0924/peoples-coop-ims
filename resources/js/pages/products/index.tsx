@@ -1,4 +1,4 @@
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import {
     AlertTriangle,
     Barcode,
@@ -7,7 +7,6 @@ import {
     Printer,
     Search,
     Tag,
-    Trash2,
     X,
     XCircle,
 } from 'lucide-react';
@@ -27,14 +26,6 @@ export default function ProductsIndex({
 }) {
     const [query, setQuery] = useState('');
     const [category, setCategory] = useState('all');
-
-    function handleDelete(product: Product) {
-        if (
-            confirm(`Remove product "${product.name}"? This cannot be undone.`)
-        ) {
-            router.delete(products.destroy(product.id).url);
-        }
-    }
 
     const isEmpty = productList.length === 0;
 
@@ -313,19 +304,6 @@ export default function ProductsIndex({
                                                             <Printer className="size-3.5" />
                                                         </a>
                                                     </Button>
-                                                    <Button
-                                                        variant="outline"
-                                                        size="icon"
-                                                        onClick={() =>
-                                                            handleDelete(
-                                                                product,
-                                                            )
-                                                        }
-                                                        className="size-8 text-red-600 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-950/40"
-                                                        title="Delete"
-                                                    >
-                                                        <Trash2 className="size-3.5" />
-                                                    </Button>
                                                 </div>
                                             </td>
                                         </tr>
@@ -391,7 +369,7 @@ export default function ProductsIndex({
                                         )}
                                     </div>
 
-                                    <div className="mt-3 grid grid-cols-2 gap-1.5 border-t pt-2.5">
+                                    <div className="mt-3 grid grid-cols-3 gap-1.5 border-t pt-2.5">
                                         <Button
                                             variant="outline"
                                             size="sm"
@@ -407,17 +385,6 @@ export default function ProductsIndex({
                                                 <Pencil className="size-3.5" />
                                                 Edit
                                             </Link>
-                                        </Button>
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={() =>
-                                                handleDelete(product)
-                                            }
-                                            className="gap-1.5 text-red-600 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-950/40"
-                                        >
-                                            <Trash2 className="size-3.5" />
-                                            Delete
                                         </Button>
                                         <Button
                                             variant="outline"

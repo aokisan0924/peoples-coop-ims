@@ -1,5 +1,12 @@
 import { Head, Link } from '@inertiajs/react';
-import { AlertTriangle, ArrowDownNarrowWide, Boxes, PackageX, PackagePlus, Search } from 'lucide-react';
+import {
+    AlertTriangle,
+    ArrowDownNarrowWide,
+    Boxes,
+    PackageX,
+    PackagePlus,
+    Search,
+} from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
@@ -27,19 +34,33 @@ interface Props {
 }
 
 function cellTone(qty: number, threshold: number): string {
-    if (qty <= 0) return 'bg-red-50 text-red-700 font-semibold dark:bg-red-950/30 dark:text-red-400';
-    if (qty <= threshold) return 'bg-amber-50 text-amber-700 font-medium dark:bg-amber-950/30 dark:text-amber-400';
+    if (qty <= 0) {
+        return 'bg-red-50 text-red-700 font-semibold dark:bg-red-950/30 dark:text-red-400';
+    }
+
+    if (qty <= threshold) {
+        return 'bg-amber-50 text-amber-700 font-medium dark:bg-amber-950/30 dark:text-amber-400';
+    }
+
     return 'text-foreground';
 }
 
 function badgeTone(qty: number, threshold: number): string {
-    if (qty <= 0) return 'border-0 bg-red-100 text-red-700 dark:bg-red-950/50 dark:text-red-400';
-    if (qty <= threshold) return 'border-0 bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:text-amber-400';
+    if (qty <= 0) {
+        return 'border-0 bg-red-100 text-red-700 dark:bg-red-950/50 dark:text-red-400';
+    }
+
+    if (qty <= threshold) {
+        return 'border-0 bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:text-amber-400';
+    }
+
     return 'border-0 bg-muted text-muted-foreground';
 }
 
 function isLowAnywhere(p: ProductRow, locations: Location[]): boolean {
-    return locations.some((loc) => (p.stock_by_location[loc.id] ?? 0) <= p.low_stock_threshold);
+    return locations.some(
+        (loc) => (p.stock_by_location[loc.id] ?? 0) <= p.low_stock_threshold,
+    );
 }
 
 function isOutAnywhere(p: ProductRow, locations: Location[]): boolean {
@@ -47,7 +68,9 @@ function isOutAnywhere(p: ProductRow, locations: Location[]): boolean {
 }
 
 function worstStock(p: ProductRow, locations: Location[]): number {
-    return Math.min(...locations.map((loc) => p.stock_by_location[loc.id] ?? 0));
+    return Math.min(
+        ...locations.map((loc) => p.stock_by_location[loc.id] ?? 0),
+    );
 }
 
 export default function StockByBranch({ locations, products }: Props) {
@@ -55,28 +78,53 @@ export default function StockByBranch({ locations, products }: Props) {
     const [lowOnly, setLowOnly] = useState(false);
     const [sortCriticalFirst, setSortCriticalFirst] = useState(false);
 
-    const lowCount = useMemo(() => products.filter((p) => isLowAnywhere(p, locations)).length, [products, locations]);
-    const outCount = useMemo(() => products.filter((p) => isOutAnywhere(p, locations)).length, [products, locations]);
+    const lowCount = useMemo(
+        () => products.filter((p) => isLowAnywhere(p, locations)).length,
+        [products, locations],
+    );
+    const outCount = useMemo(
+        () => products.filter((p) => isOutAnywhere(p, locations)).length,
+        [products, locations],
+    );
 
     const filtered = useMemo(() => {
         const q = query.trim().toLowerCase();
 
         const rows = products.filter((p) => {
-            const matchesQuery = !q || p.name.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q);
-            if (!matchesQuery) return false;
-            if (!lowOnly) return true;
+            const matchesQuery =
+                !q ||
+                p.name.toLowerCase().includes(q) ||
+                p.sku.toLowerCase().includes(q);
+
+            if (!matchesQuery) {
+                return false;
+            }
+
+            if (!lowOnly) {
+                return true;
+            }
+
             return isLowAnywhere(p, locations);
         });
 
         if (sortCriticalFirst) {
-            return [...rows].sort((a, b) => worstStock(a, locations) - worstStock(b, locations));
+            return [...rows].sort(
+                (a, b) => worstStock(a, locations) - worstStock(b, locations),
+            );
         }
 
         return rows;
     }, [products, query, lowOnly, locations, sortCriticalFirst]);
 
     return (
-        <div style={{ '--pos-teal': '#00a79b', '--pos-green': '#8dc645' } as React.CSSProperties}>
+        <div
+            style={
+                {
+                    '--pos-teal': '#00a79b',
+                    '--pos-green': '#8dc645',
+                } as React.CSSProperties
+            }
+        >
             <Head title="Stock by Branch" />
 
             <div className="mx-auto max-w-[1600px] space-y-5 p-3 pb-6 sm:p-6">
@@ -88,10 +136,14 @@ export default function StockByBranch({ locations, products }: Props) {
                             Stock by Branch
                         </h1>
                         <p className="mt-0.5 text-sm text-muted-foreground">
-                            Current stock per product, side by side across every branch.
+                            Current stock per product, side by side across every
+                            branch.
                         </p>
                     </div>
-                    <Link href="/stock-batches" className="text-sm font-medium text-[var(--pos-teal)] hover:underline">
+                    <Link
+                        href="/stock-batches"
+                        className="text-sm font-medium text-[var(--pos-teal)] hover:underline"
+                    >
                         &larr; Back to Stock Batches
                     </Link>
                 </div>
@@ -114,7 +166,12 @@ export default function StockByBranch({ locations, products }: Props) {
                         active={lowOnly}
                         onClick={() => setLowOnly((v) => !v)}
                     />
-                    <BranchStatCard icon={PackageX} label="Out Somewhere" value={outCount} accent="red" />
+                    <BranchStatCard
+                        icon={PackageX}
+                        label="Out Somewhere"
+                        value={outCount}
+                        accent="red"
+                    />
                 </div>
 
                 {/* Search + sort */}
@@ -145,7 +202,8 @@ export default function StockByBranch({ locations, products }: Props) {
                         </button>
                     </div>
                     <p className="text-xs text-muted-foreground">
-                        {filtered.length} product{filtered.length !== 1 ? 's' : ''}
+                        {filtered.length} product
+                        {filtered.length !== 1 ? 's' : ''}
                         {lowOnly || query ? ` of ${products.length}` : ''}
                     </p>
                 </div>
@@ -157,7 +215,10 @@ export default function StockByBranch({ locations, products }: Props) {
                         </div>
                         <p className="text-sm font-medium">No products match</p>
                         <p className="text-sm text-muted-foreground">
-                            {lowOnly ? 'Try turning off "Low Somewhere," or adjust' : 'Adjust'} your search.
+                            {lowOnly
+                                ? 'Try turning off "Low Somewhere," or adjust'
+                                : 'Adjust'}{' '}
+                            your search.
                         </p>
                     </div>
                 ) : (
@@ -170,15 +231,24 @@ export default function StockByBranch({ locations, products }: Props) {
                             <table className="w-full text-sm">
                                 <thead className="bg-muted/50 text-xs text-muted-foreground uppercase">
                                     <tr>
-                                        <th className="sticky left-0 bg-muted/50 px-4 py-2.5 text-left font-medium">Product</th>
+                                        <th className="sticky left-0 bg-muted/50 px-4 py-2.5 text-left font-medium">
+                                            Product
+                                        </th>
                                         {locations.map((loc) => (
-                                            <th key={loc.id} className="px-4 py-2.5 text-right font-medium whitespace-nowrap">
+                                            <th
+                                                key={loc.id}
+                                                className="px-4 py-2.5 text-right font-medium whitespace-nowrap"
+                                            >
                                                 {loc.name}
                                             </th>
                                         ))}
-                                        <th className="bg-muted/70 px-4 py-2.5 text-right font-medium whitespace-nowrap">Total</th>
+                                        <th className="bg-muted/70 px-4 py-2.5 text-right font-medium whitespace-nowrap">
+                                            Total
+                                        </th>
                                         <th className="px-4 py-2.5 text-right font-medium whitespace-nowrap">
-                                            <span className="sr-only">Actions</span>
+                                            <span className="sr-only">
+                                                Actions
+                                            </span>
                                         </th>
                                     </tr>
                                 </thead>
@@ -192,25 +262,45 @@ export default function StockByBranch({ locations, products }: Props) {
                                                 key={p.id}
                                                 className={cn(
                                                     'group border-l-2 hover:bg-muted/30',
-                                                    out ? 'border-l-red-400' : low ? 'border-l-amber-400' : 'border-l-transparent',
+                                                    out
+                                                        ? 'border-l-red-400'
+                                                        : low
+                                                          ? 'border-l-amber-400'
+                                                          : 'border-l-transparent',
                                                 )}
                                             >
                                                 <td className="sticky left-0 bg-background px-4 py-2.5 group-hover:bg-muted/30">
-                                                    <p className="font-medium">{p.name}</p>
-                                                    <p className="text-xs text-muted-foreground">{p.sku}</p>
+                                                    <p className="font-medium">
+                                                        {p.name}
+                                                    </p>
+                                                    <p className="text-xs text-muted-foreground">
+                                                        {p.sku}
+                                                    </p>
                                                 </td>
                                                 {locations.map((loc) => {
-                                                    const qty = p.stock_by_location[loc.id] ?? 0;
+                                                    const qty =
+                                                        p.stock_by_location[
+                                                            loc.id
+                                                        ] ?? 0;
+
                                                     return (
                                                         <td
                                                             key={loc.id}
-                                                            className={cn('px-4 py-2.5 text-right tabular-nums', cellTone(qty, p.low_stock_threshold))}
+                                                            className={cn(
+                                                                'px-4 py-2.5 text-right tabular-nums',
+                                                                cellTone(
+                                                                    qty,
+                                                                    p.low_stock_threshold,
+                                                                ),
+                                                            )}
                                                         >
                                                             {qty}
                                                         </td>
                                                     );
                                                 })}
-                                                <td className="bg-muted/20 px-4 py-2.5 text-right font-semibold tabular-nums">{p.total_stock}</td>
+                                                <td className="bg-muted/20 px-4 py-2.5 text-right font-semibold tabular-nums">
+                                                    {p.total_stock}
+                                                </td>
                                                 <td className="px-3 py-2.5 text-right">
                                                     <Button
                                                         variant="outline"
@@ -219,7 +309,9 @@ export default function StockByBranch({ locations, products }: Props) {
                                                         className="size-8 opacity-0 transition-opacity group-hover:opacity-100 hover:border-[var(--pos-teal)] hover:text-[var(--pos-teal)]"
                                                         title={`Receive stock for ${p.name}`}
                                                     >
-                                                        <Link href={`/stock-batches/create?product_id=${p.id}`}>
+                                                        <Link
+                                                            href={`/stock-batches/create?product_id=${p.id}`}
+                                                        >
                                                             <PackagePlus className="size-3.5" />
                                                         </Link>
                                                     </Button>
@@ -244,27 +336,56 @@ export default function StockByBranch({ locations, products }: Props) {
                                     <div
                                         key={p.id}
                                         className={cn(
-                                            'rounded-xl border-l-2 border bg-card p-3 shadow-sm',
-                                            out ? 'border-l-red-400' : low ? 'border-l-amber-400' : 'border-l-transparent',
+                                            'rounded-xl border border-l-2 bg-card p-3 shadow-sm',
+                                            out
+                                                ? 'border-l-red-400'
+                                                : low
+                                                  ? 'border-l-amber-400'
+                                                  : 'border-l-transparent',
                                         )}
                                     >
                                         <div className="flex items-start justify-between gap-2">
                                             <div className="min-w-0">
-                                                <p className="truncate font-medium">{p.name}</p>
-                                                <p className="text-xs text-muted-foreground">{p.sku}</p>
+                                                <p className="truncate font-medium">
+                                                    {p.name}
+                                                </p>
+                                                <p className="text-xs text-muted-foreground">
+                                                    {p.sku}
+                                                </p>
                                             </div>
                                             <div className="shrink-0 text-right">
-                                                <p className="text-xs text-muted-foreground">Total</p>
-                                                <p className="font-mono text-sm font-semibold tabular-nums">{p.total_stock}</p>
+                                                <p className="text-xs text-muted-foreground">
+                                                    Total
+                                                </p>
+                                                <p className="font-mono text-sm font-semibold tabular-nums">
+                                                    {p.total_stock}
+                                                </p>
                                             </div>
                                         </div>
                                         <div className="mt-2.5 flex flex-wrap gap-1.5 border-t pt-2.5">
                                             {locations.map((loc) => {
-                                                const qty = p.stock_by_location[loc.id] ?? 0;
+                                                const qty =
+                                                    p.stock_by_location[
+                                                        loc.id
+                                                    ] ?? 0;
+
                                                 return (
-                                                    <Badge key={loc.id} className={cn('gap-1 font-normal', badgeTone(qty, p.low_stock_threshold))}>
-                                                        <span className="text-muted-foreground">{loc.name}</span>
-                                                        <span className="font-mono tabular-nums">{qty}</span>
+                                                    <Badge
+                                                        key={loc.id}
+                                                        className={cn(
+                                                            'gap-1 font-normal',
+                                                            badgeTone(
+                                                                qty,
+                                                                p.low_stock_threshold,
+                                                            ),
+                                                        )}
+                                                    >
+                                                        <span className="text-muted-foreground">
+                                                            {loc.name}
+                                                        </span>
+                                                        <span className="font-mono tabular-nums">
+                                                            {qty}
+                                                        </span>
                                                     </Badge>
                                                 );
                                             })}
@@ -276,7 +397,9 @@ export default function StockByBranch({ locations, products }: Props) {
                                                 asChild
                                                 className="w-full gap-1.5 hover:border-[var(--pos-teal)] hover:text-[var(--pos-teal)]"
                                             >
-                                                <Link href={`/stock-batches/create?product_id=${p.id}`}>
+                                                <Link
+                                                    href={`/stock-batches/create?product_id=${p.id}`}
+                                                >
                                                     <PackagePlus className="size-3.5" />
                                                     Receive Stock
                                                 </Link>
@@ -291,13 +414,16 @@ export default function StockByBranch({ locations, products }: Props) {
 
                 <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
                     <span className="flex items-center gap-1.5">
-                        <span className="inline-block size-2.5 rounded-full bg-red-200 dark:bg-red-900" /> Out of stock
+                        <span className="inline-block size-2.5 rounded-full bg-red-200 dark:bg-red-900" />{' '}
+                        Out of stock
                     </span>
                     <span className="flex items-center gap-1.5">
-                        <span className="inline-block size-2.5 rounded-full bg-amber-200 dark:bg-amber-900" /> At or below threshold
+                        <span className="inline-block size-2.5 rounded-full bg-amber-200 dark:bg-amber-900" />{' '}
+                        At or below threshold
                     </span>
                     <span className="flex items-center gap-1.5">
-                        <span className="inline-block size-2.5 rounded-full bg-muted-foreground/20" /> Healthy stock
+                        <span className="inline-block size-2.5 rounded-full bg-muted-foreground/20" />{' '}
+                        Healthy stock
                     </span>
                 </div>
             </div>
@@ -334,16 +460,25 @@ function BranchStatCard({
             aria-pressed={active}
             className={cn(
                 'flex items-center gap-2.5 rounded-xl border bg-card p-3 text-left transition-all',
-                onClick && 'cursor-pointer hover:border-[var(--pos-teal)]/50 hover:shadow-sm',
-                active && 'border-[var(--pos-teal)] ring-1 ring-[var(--pos-teal)]',
+                onClick &&
+                    'cursor-pointer hover:border-[var(--pos-teal)]/50 hover:shadow-sm',
+                active &&
+                    'border-[var(--pos-teal)] ring-1 ring-[var(--pos-teal)]',
             )}
         >
-            <div className={cn('flex size-9 shrink-0 items-center justify-center rounded-lg', styles)}>
+            <div
+                className={cn(
+                    'flex size-9 shrink-0 items-center justify-center rounded-lg',
+                    styles,
+                )}
+            >
                 <Icon className="size-4" />
             </div>
             <div className="min-w-0">
                 <p className="text-lg leading-none font-semibold">{value}</p>
-                <p className="mt-1 truncate text-xs text-muted-foreground">{label}</p>
+                <p className="mt-1 truncate text-xs text-muted-foreground">
+                    {label}
+                </p>
             </div>
         </button>
     );
