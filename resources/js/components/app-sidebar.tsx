@@ -1,4 +1,4 @@
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import {
     ArrowLeftRight,
     Boxes,
@@ -30,6 +30,7 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
     SidebarSeparator,
+    useSidebar,
 } from '@/components/ui/sidebar';
 import { useAuth } from '@/hooks/use-auth';
 import { dashboard } from '@/routes';
@@ -207,6 +208,9 @@ export function AppSidebar() {
     const inventoryItems = visibleFor(inventoryNavItems, isManager, isOwner);
     const adminItems = visibleFor(adminNavItems, isManager, isOwner);
 
+    const { appVersion } = usePage<{ appVersion: string }>().props;
+    const { state } = useSidebar();
+
     return (
         <Sidebar collapsible="icon" variant="inset">
             <SidebarHeader>
@@ -231,6 +235,14 @@ export function AppSidebar() {
             </SidebarContent>
             <SidebarFooter>
                 <NavUser />
+                <SidebarFooter>
+                    <NavUser />
+                    {state !== 'collapsed' && (
+                        <p className="px-2 pb-1 text-center text-[10px] text-muted-foreground">
+                            v{appVersion}
+                        </p>
+                    )}
+                </SidebarFooter>
             </SidebarFooter>
         </Sidebar>
     );
