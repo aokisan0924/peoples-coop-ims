@@ -236,7 +236,6 @@ export function AppSidebar() {
             <SidebarFooter>
                 <NavUser />
                 <SidebarFooter>
-                    <NavUser />
                     {state !== 'collapsed' && (
                         <p className="px-2 pb-1 text-center text-[10px] text-muted-foreground">
                             v{appVersion}
