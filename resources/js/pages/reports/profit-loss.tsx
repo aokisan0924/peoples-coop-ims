@@ -21,6 +21,8 @@ interface Summary {
     revenue: number;
     cogs: number;
     gross_profit: number;
+    salaries: number;
+    other_expenses: number;
     expenses: number;
     net_profit: number;
     gross_margin_pct: number;
@@ -196,29 +198,11 @@ export default function ProfitLoss({
                     <table className="w-full text-sm">
                         <tbody>
                             <Row label="Revenue" value={summary.revenue} />
-                            <Row
-                                label="Cost of Goods Sold (COGS)"
-                                value={-summary.cogs}
-                                isDeduction
-                            />
-                            <Row
-                                label="Gross Profit"
-                                value={summary.gross_profit}
-                                isBold
-                                subtitle={`${summary.gross_margin_pct}% margin`}
-                            />
-                            <Row
-                                label="Expenses"
-                                value={-summary.expenses}
-                                isDeduction
-                            />
-                            <Row
-                                label="Net Profit"
-                                value={summary.net_profit}
-                                isBold
-                                isFinal
-                                subtitle={`${summary.net_margin_pct}% margin`}
-                            />
+                            <Row label="Cost of Goods Sold (COGS)" value={-summary.cogs} isDeduction />
+                            <Row label="Gross Profit" value={summary.gross_profit} isBold subtitle={`${summary.gross_margin_pct}% margin`} />
+                            <Row label="Salaries & Wages" value={-summary.salaries} isDeduction />
+                            <Row label="Other Operating Expenses" value={-summary.other_expenses} isDeduction />
+                            <Row label="Net Profit" value={summary.net_profit} isBold isFinal subtitle={`${summary.net_margin_pct}% margin`} />
                         </tbody>
                     </table>
                 </div>
