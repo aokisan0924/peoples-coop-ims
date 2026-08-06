@@ -1,6 +1,3 @@
-/// <reference types="react" />
-/** @jsx React.createElement */
-/** @jsxFrag React.Fragment */
 import * as React from 'react';
 import { Head, router } from '@inertiajs/react';
 import {
