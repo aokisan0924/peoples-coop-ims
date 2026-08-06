@@ -14,9 +14,10 @@ class Product extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name', 'sku', 'barcode', 'category_id',
+        'name', 'sku', 'barcode', 'pack_barcode', 'category_id',
         'base_unit_id', 'pack_unit_id', 'pack_conversion_factor',
         'cost_price', 'markup_percentage',
+        'member_piece_price_override', 'member_pack_price_override',
         'low_stock_threshold', 'is_active',
     ];
 
@@ -25,6 +26,8 @@ class Product extends Model
         return [
             'cost_price' => 'decimal:2',
             'markup_percentage' => 'decimal:2',
+            'member_piece_price_override' => 'decimal:2',
+            'member_pack_price_override' => 'decimal:2',
             'is_active' => 'boolean',
         ];
     }
@@ -104,18 +107,31 @@ class Product extends Model
 
     public function getMemberPiecePriceAttribute(): float
     {
+        if ($this->member_piece_price_override !== null) {
+            return (float) $this->member_piece_price_override;
+        }
+
         return $this->calculatePrice((float) $this->cost_price, isMember: true);
     }
 
+    // Non-member price is never set independently — it's always the member
+    // price plus VAT, whether that member price came from the markup formula
+    // or from a manual override above.
     public function getNonMemberPiecePriceAttribute(): float
     {
-        return $this->calculatePrice((float) $this->cost_price, isMember: false);
+        $vatRate = config('pricing.vat_rate');
+
+        return round($this->member_piece_price * (1 + $vatRate / 100), 2);
     }
 
     public function getMemberPackPriceAttribute(): ?float
     {
         if (! $this->pack_conversion_factor) {
             return null;
+        }
+
+        if ($this->member_pack_price_override !== null) {
+            return (float) $this->member_pack_price_override;
         }
 
         $packCost = (float) $this->cost_price * $this->pack_conversion_factor;
@@ -129,8 +145,8 @@ class Product extends Model
             return null;
         }
 
-        $packCost = (float) $this->cost_price * $this->pack_conversion_factor;
+        $vatRate = config('pricing.vat_rate');
 
-        return $this->calculatePrice($packCost, isMember: false);
+        return round($this->member_pack_price * (1 + $vatRate / 100), 2);
     }
 }

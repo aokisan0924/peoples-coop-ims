@@ -29,12 +29,15 @@ export default function CreateProduct({
     const { data, setData, post, processing, errors } = useForm({
         name: '',
         barcode: '',
+        pack_barcode: '',
         category_id: null as number | null,
         base_unit_id: null as number | null,
         pack_unit_id: null as number | null,
         pack_conversion_factor: null as number | null,
         cost_price: '',
         markup_percentage: '18',
+        member_piece_price_override: '',
+        member_pack_price_override: '',
         low_stock_threshold: 10,
         is_active: true,
     });

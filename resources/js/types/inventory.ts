@@ -29,6 +29,7 @@ export interface Product {
     name: string;
     sku: string;
     barcode: string | null;
+    pack_barcode: string | null;
     category_id: number;
     category?: Category;
     base_unit_id: number;
@@ -38,6 +39,8 @@ export interface Product {
     pack_conversion_factor: number | null;
     cost_price: string; // Laravel decimal casts serialize as string in JSON
     markup_percentage: string;
+    member_piece_price_override: string | null;
+    member_pack_price_override: string | null;
     low_stock_threshold: number;
     is_active: boolean;
     total_stock?: number;

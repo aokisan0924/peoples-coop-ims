@@ -9,6 +9,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -53,13 +54,24 @@ class ProductController extends Controller
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'barcode' => ['nullable', 'string', 'max:255', 'unique:products,barcode'],
+            'barcode' => [
+                'nullable', 'string', 'max:255',
+                'unique:products,barcode',
+                'different:pack_barcode',
+            ],
+            'pack_barcode' => [
+                'nullable', 'string', 'max:255',
+                'unique:products,pack_barcode',
+                Rule::unique('products', 'barcode'), // a pack barcode can't collide with any product's piece barcode either
+            ],
             'category_id' => ['required', 'exists:categories,id'],
             'base_unit_id' => ['required', 'exists:units,id'],
             'pack_unit_id' => ['nullable', 'exists:units,id'],
             'pack_conversion_factor' => ['nullable', 'integer', 'min:2'],
             'cost_price' => ['required', 'numeric', 'min:0'],
             'markup_percentage' => ['required', 'numeric', 'min:0'],
+            'member_piece_price_override' => ['nullable', 'numeric', 'min:0'],
+            'member_pack_price_override' => ['nullable', 'numeric', 'min:0'],
             'low_stock_threshold' => ['required', 'integer', 'min:0'],
         ]);
 
@@ -104,13 +116,24 @@ class ProductController extends Controller
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'barcode' => ['nullable', 'string', 'max:255', 'unique:products,barcode,'.$product->id],
+            'barcode' => [
+                'nullable', 'string', 'max:255',
+                Rule::unique('products', 'barcode')->ignore($product->id),
+                'different:pack_barcode',
+            ],
+            'pack_barcode' => [
+                'nullable', 'string', 'max:255',
+                Rule::unique('products', 'pack_barcode')->ignore($product->id),
+                Rule::unique('products', 'barcode'),
+            ],
             'category_id' => ['required', 'exists:categories,id'],
             'base_unit_id' => ['required', 'exists:units,id'],
             'pack_unit_id' => ['nullable', 'exists:units,id'],
             'pack_conversion_factor' => ['nullable', 'integer', 'min:2'],
             'cost_price' => ['required', 'numeric', 'min:0'],
             'markup_percentage' => ['required', 'numeric', 'min:0'],
+            'member_piece_price_override' => ['nullable', 'numeric', 'min:0'],
+            'member_pack_price_override' => ['nullable', 'numeric', 'min:0'],
             'low_stock_threshold' => ['required', 'integer', 'min:0'],
             'is_active' => ['boolean'],
         ]);
@@ -174,6 +197,7 @@ class ProductController extends Controller
             ->where(function ($q) use ($query) {
                 $q->where('name', 'like', "%{$query}%")
                     ->orWhere('barcode', 'like', "%{$query}%")
+                    ->orWhere('pack_barcode', 'like', "%{$query}%")
                     ->orWhere('sku', 'like', "%{$query}%");
             })
             ->with(['category', 'baseUnit'])
@@ -185,6 +209,7 @@ class ProductController extends Controller
                 'name' => $product->name,
                 'sku' => $product->sku,
                 'barcode' => $product->barcode,
+                'pack_barcode' => $product->pack_barcode,
                 'category' => $product->category?->name,
                 'total_stock' => $product->total_stock ?? 0,
                 'member_piece_price' => $product->member_piece_price,
@@ -218,6 +243,7 @@ class ProductController extends Controller
                 'name' => $product->name,
                 'sku' => $product->sku,
                 'barcode' => $product->barcode,
+                'pack_barcode' => $product->pack_barcode,
                 'category' => $product->category?->name,
                 'total_stock' => $product->total_stock,
                 'member_piece_price' => $product->member_piece_price,

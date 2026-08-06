@@ -32,12 +32,15 @@ export default function EditProduct({
     const { data, setData, put, processing, errors } = useForm({
         name: product.name,
         barcode: product.barcode ?? '',
+        pack_barcode: product.pack_barcode ?? '',
         category_id: product.category_id,
         base_unit_id: product.base_unit_id,
         pack_unit_id: product.pack_unit_id,
         pack_conversion_factor: product.pack_conversion_factor,
         cost_price: product.cost_price,
         markup_percentage: product.markup_percentage,
+        member_piece_price_override: product.member_piece_price_override ?? '',
+        member_pack_price_override: product.member_pack_price_override ?? '',
         low_stock_threshold: product.low_stock_threshold,
         is_active: product.is_active,
     });
