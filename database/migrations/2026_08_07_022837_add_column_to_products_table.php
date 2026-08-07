@@ -22,9 +22,7 @@ return new class extends Migration
             // When an override is set, it wins over the formula; leave blank to keep
             // using the automatic markup calculation as before.
             $table->decimal('member_piece_price_override', 10, 2)->nullable()->after('markup_percentage');
-            $table->decimal('non_member_piece_price_override', 10, 2)->nullable()->after('member_piece_price_override');
-            $table->decimal('member_pack_price_override', 10, 2)->nullable()->after('non_member_piece_price_override');
-            $table->decimal('non_member_pack_price_override', 10, 2)->nullable()->after('member_pack_price_override');
+            $table->decimal('member_pack_price_override', 10, 2)->nullable()->after('member_piece_price_override');
         });
     }
 
@@ -37,9 +35,7 @@ return new class extends Migration
             $table->dropColumn([
                 'pack_barcode',
                 'member_piece_price_override',
-                'non_member_piece_price_override',
                 'member_pack_price_override',
-                'non_member_pack_price_override',
             ]);
         });
     }
