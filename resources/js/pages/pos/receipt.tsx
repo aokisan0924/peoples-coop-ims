@@ -176,8 +176,8 @@ export default function Receipt({ sale }: { sale: Sale }) {
                                 ₱
                                 {sale.payment_method === 'cash'
                                     ? parseFloat(
-                                        sale.amount_tendered ?? '0',
-                                    ).toFixed(2)
+                                          sale.amount_tendered ?? '0',
+                                      ).toFixed(2)
                                     : parseFloat(sale.total).toFixed(2)}
                             </span>
                         </div>
