@@ -42,16 +42,37 @@ export default function Receipt({ sale }: { sale: Sale }) {
 
             {/* 57mm-wide thermal paper, auto height (continuous roll) — the
                 "40mm" in "57x40mm" paper specs refers to the roll's diameter,
-                not a fixed page height, so we never cap height here. */}
+                not a fixed page height, so we never cap height here.
+
+                This page renders inside the app's persistent sidebar layout
+                (see Receipt.layout below), so scoping print:hidden only on
+                elements inside THIS component isn't enough — the sidebar,
+                header, and breadcrumbs from that wrapping layout would still
+                print. Hiding everything on the page by default and explicitly
+                un-hiding only .print-receipt-only is what actually guarantees
+                nothing else leaks into the printout, regardless of what
+                layout ends up wrapping this page in the future. */}
             <style>{`
+                @media print {
+                    body * {
+                        visibility: hidden;
+                    }
+                    .print-receipt-only,
+                    .print-receipt-only * {
+                        visibility: visible;
+                    }
+                    .print-receipt-only {
+                        position: absolute;
+                        left: 0;
+                        top: 0;
+                        width: 57mm;
+                        margin: 0;
+                        padding: 2mm;
+                    }
+                }
                 @page {
                     size: 57mm auto;
                     margin: 0;
-                }
-                @media print {
-                    html, body {
-                        width: 57mm;
-                    }
                 }
             `}</style>
 
@@ -155,8 +176,8 @@ export default function Receipt({ sale }: { sale: Sale }) {
                                 ₱
                                 {sale.payment_method === 'cash'
                                     ? parseFloat(
-                                          sale.amount_tendered ?? '0',
-                                      ).toFixed(2)
+                                        sale.amount_tendered ?? '0',
+                                    ).toFixed(2)
                                     : parseFloat(sale.total).toFixed(2)}
                             </span>
                         </div>
