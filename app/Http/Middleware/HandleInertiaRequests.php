@@ -2,7 +2,9 @@
 
 namespace App\Http\Middleware;
 
+use Closure;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
@@ -15,6 +17,26 @@ class HandleInertiaRequests extends Middleware
      * @var string
      */
     protected $rootView = 'app';
+
+    /**
+     * Every Inertia response — the initial HTML page load and every
+     * subsequent XHR/JSON partial visit alike — carries the current user's
+     * session-scoped data (auth info, role, whatever page props are shared).
+     * None of it may ever be cached by the browser, an intermediate proxy,
+     * or the app's own service worker; otherwise a stale response can get
+     * replayed later — including onto a different tab or, worse, a
+     * different person on a shared device — showing raw JSON or another
+     * user's data instead of the real page.
+     */
+    public function handle(Request $request, Closure $next): Response
+    {
+        $response = parent::handle($request, $next);
+
+        $response->headers->set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0, private');
+        $response->headers->set('Pragma', 'no-cache');
+
+        return $response;
+    }
 
     /**
      * Determines the current asset version.
