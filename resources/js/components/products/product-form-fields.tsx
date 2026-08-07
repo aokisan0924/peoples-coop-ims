@@ -56,7 +56,9 @@ export default function ProductFormFields({
     const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
     const [categorySearch, setCategorySearch] = useState('');
     const [showPriceOverrides, setShowPriceOverrides] = useState(
-        Boolean(data.member_piece_price_override || data.member_pack_price_override),
+        Boolean(
+            data.member_piece_price_override || data.member_pack_price_override,
+        ),
     );
 
     useEffect(() => {
@@ -95,11 +97,15 @@ export default function ProductFormFields({
         const markup = parseFloat(data.markup_percentage) || 0;
         const vatRate = 12; // matches config('pricing.vat_rate') default; server is source of truth
 
-        const memberPieceOverride = parseFloat(data.member_piece_price_override);
+        const memberPieceOverride = parseFloat(
+            data.member_piece_price_override,
+        );
         const memberPackOverride = parseFloat(data.member_pack_price_override);
 
         const memberPieceFormula = cost * (1 + markup / 100);
-        const memberPiece = Number.isFinite(memberPieceOverride) ? memberPieceOverride : memberPieceFormula;
+        const memberPiece = Number.isFinite(memberPieceOverride)
+            ? memberPieceOverride
+            : memberPieceFormula;
         const nonMemberPiece = memberPiece * (1 + vatRate / 100);
 
         let memberPack: number | null = null;
@@ -108,7 +114,9 @@ export default function ProductFormFields({
         if (data.pack_conversion_factor && data.pack_conversion_factor >= 2) {
             const packCost = cost * data.pack_conversion_factor;
             const memberPackFormula = packCost * (1 + markup / 100);
-            memberPack = Number.isFinite(memberPackOverride) ? memberPackOverride : memberPackFormula;
+            memberPack = Number.isFinite(memberPackOverride)
+                ? memberPackOverride
+                : memberPackFormula;
             nonMemberPack = memberPack * (1 + vatRate / 100);
         }
 
@@ -116,7 +124,8 @@ export default function ProductFormFields({
             memberPiece: memberPiece.toFixed(2),
             nonMemberPiece: nonMemberPiece.toFixed(2),
             memberPack: memberPack !== null ? memberPack.toFixed(2) : null,
-            nonMemberPack: nonMemberPack !== null ? nonMemberPack.toFixed(2) : null,
+            nonMemberPack:
+                nonMemberPack !== null ? nonMemberPack.toFixed(2) : null,
             memberPieceIsOverridden: Number.isFinite(memberPieceOverride),
             memberPackIsOverridden: Number.isFinite(memberPackOverride),
         };
@@ -286,13 +295,17 @@ export default function ProductFormFields({
                         <Input
                             id="pack_barcode"
                             value={data.pack_barcode}
-                            onChange={(e) => setData('pack_barcode', e.target.value)}
+                            onChange={(e) =>
+                                setData('pack_barcode', e.target.value)
+                            }
                             placeholder="Scan the barcode printed on the box/pack, if different"
                             autoComplete="off"
                         />
                         <div className="mt-2">
                             <CameraBarcodeScanner
-                                onScan={(barcode) => setData('pack_barcode', barcode)}
+                                onScan={(barcode) =>
+                                    setData('pack_barcode', barcode)
+                                }
                                 buttonLabel="Scan Pack Barcode"
                             />
                         </div>
@@ -302,10 +315,10 @@ export default function ProductFormFields({
                             </p>
                         )}
                         <p className="mt-1 text-xs text-muted-foreground">
-                            Many products print a different barcode on the box than on
-                            the individual piece (e.g. Jack &lsquo;n Jill Presto). Leave
-                            blank if this product&rsquo;s pack uses the same barcode, or has
-                            none.
+                            Many products print a different barcode on the box
+                            than on the individual piece (e.g. Jack &lsquo;n
+                            Jill Presto). Leave blank if this product&rsquo;s
+                            pack uses the same barcode, or has none.
                         </p>
                     </div>
                 )}
@@ -428,13 +441,21 @@ export default function ProductFormFields({
                 {showPriceOverrides && (
                     <div className="mt-3 space-y-3">
                         <p className="text-xs text-muted-foreground">
-                            Leave blank to keep using the automatic markup calculation
-                            above. Fill in a price to charge that exact amount instead —
-                            the non-member price is still always calculated automatically
-                            as this price + 12% VAT, it&rsquo;s never set separately.
+                            Leave blank to keep using the automatic markup
+                            calculation above. Fill in a price to charge that
+                            exact amount instead — the non-member price is still
+                            always calculated automatically as this price + 12%
+                            VAT, it&rsquo;s never set separately.
                         </p>
 
-                        <div className={data.pack_conversion_factor && data.pack_conversion_factor >= 2 ? 'grid grid-cols-2 gap-4' : ''}>
+                        <div
+                            className={
+                                data.pack_conversion_factor &&
+                                data.pack_conversion_factor >= 2
+                                    ? 'grid grid-cols-2 gap-4'
+                                    : ''
+                            }
+                        >
                             <div>
                                 <Label htmlFor="member_piece_price_override">
                                     Piece Price (₱)
@@ -446,11 +467,18 @@ export default function ProductFormFields({
                                     min={0}
                                     value={data.member_piece_price_override}
                                     onChange={(e) =>
-                                        setData('member_piece_price_override', e.target.value)
+                                        setData(
+                                            'member_piece_price_override',
+                                            e.target.value,
+                                        )
                                     }
                                     placeholder={`Auto: ₱${(
                                         (parseFloat(data.cost_price) || 0) *
-                                        (1 + (parseFloat(data.markup_percentage) || 0) / 100)
+                                        (1 +
+                                            (parseFloat(
+                                                data.markup_percentage,
+                                            ) || 0) /
+                                                100)
                                     ).toFixed(2)}`}
                                 />
                                 {errors.member_piece_price_override && (
@@ -463,36 +491,46 @@ export default function ProductFormFields({
                                 </p>
                             </div>
 
-                            {data.pack_conversion_factor && data.pack_conversion_factor >= 2 && (
-                                <div>
-                                    <Label htmlFor="member_pack_price_override">
-                                        Pack Price (₱)
-                                    </Label>
-                                    <Input
-                                        id="member_pack_price_override"
-                                        type="number"
-                                        step="0.01"
-                                        min={0}
-                                        value={data.member_pack_price_override}
-                                        onChange={(e) =>
-                                            setData('member_pack_price_override', e.target.value)
-                                        }
-                                        placeholder={
-                                            preview.memberPack
-                                                ? `Auto: ₱${preview.memberPack}`
-                                                : undefined
-                                        }
-                                    />
-                                    {errors.member_pack_price_override && (
-                                        <p className="mt-1 text-sm text-red-600">
-                                            {errors.member_pack_price_override}
+                            {data.pack_conversion_factor &&
+                                data.pack_conversion_factor >= 2 && (
+                                    <div>
+                                        <Label htmlFor="member_pack_price_override">
+                                            Pack Price (₱)
+                                        </Label>
+                                        <Input
+                                            id="member_pack_price_override"
+                                            type="number"
+                                            step="0.01"
+                                            min={0}
+                                            value={
+                                                data.member_pack_price_override
+                                            }
+                                            onChange={(e) =>
+                                                setData(
+                                                    'member_pack_price_override',
+                                                    e.target.value,
+                                                )
+                                            }
+                                            placeholder={
+                                                preview.memberPack
+                                                    ? `Auto: ₱${preview.memberPack}`
+                                                    : undefined
+                                            }
+                                        />
+                                        {errors.member_pack_price_override && (
+                                            <p className="mt-1 text-sm text-red-600">
+                                                {
+                                                    errors.member_pack_price_override
+                                                }
+                                            </p>
+                                        )}
+                                        <p className="mt-1 text-xs text-muted-foreground">
+                                            Non-member: ₱
+                                            {preview.nonMemberPack ?? '—'}{' '}
+                                            (auto)
                                         </p>
-                                    )}
-                                    <p className="mt-1 text-xs text-muted-foreground">
-                                        Non-member: ₱{preview.nonMemberPack ?? '—'} (auto)
-                                    </p>
-                                </div>
-                            )}
+                                    </div>
+                                )}
                         </div>
                     </div>
                 )}
