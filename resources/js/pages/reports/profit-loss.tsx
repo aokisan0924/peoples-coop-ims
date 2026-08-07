@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { Head, router } from '@inertiajs/react';
 import {
     Banknote,
@@ -7,6 +6,7 @@ import {
     TrendingDown,
     TrendingUp,
 } from 'lucide-react';
+import * as React from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
