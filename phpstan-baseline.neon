@@ -13,7 +13,7 @@ parameters:
 			path: app/Http/Controllers/DashboardController.php
 
 		-
-			message: '#^Method App\\Http\\Controllers\\DashboardController\:\:lowStockProducts\(\) should return Illuminate\\Support\\Collection\<int, array\{id\: int, name\: string, total_stock\: int, low_stock_threshold\: int, location_name\: string\|null\}\> but returns Illuminate\\Support\\Collection\<int, array\{id\: int, name\: string, total_stock\: int, low_stock_threshold\: int\<0, max\>, location_name\: null\}\>\.$#'
+			message: '#^Method App\\Http\\Controllers\\DashboardController\:\:lowStockProducts\(\) should return Illuminate\\Support\\Collection\<int, array\{id\: int, name\: string, total_stock\: int, low_stock_threshold\: int, restock_suggestion\: int, location_name\: string\|null\}\> but returns Illuminate\\Support\\Collection\<int, array\{id\: int, name\: string, total_stock\: int, low_stock_threshold\: int\<0, max\>, restock_suggestion\: int, location_name\: null\}\>\.$#'
 			identifier: return.type
 			count: 1
 			path: app/Http/Controllers/DashboardController.php
@@ -29,3 +29,99 @@ parameters:
 			identifier: return.type
 			count: 1
 			path: app/Http/Controllers/DashboardController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Product\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\Product\>\:\:\$cost_price\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/InventoryCountController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Product\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\Product\>\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/InventoryCountController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$product\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/InventoryCountController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$product_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/InventoryCountController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$unit_cost_at_count\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/InventoryCountController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$variance\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/InventoryCountController.php
+
+		-
+			message: '#^Call to an undefined method App\\Models\\Product\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\Product\>\:\:totalStockAt\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Http/Controllers/InventoryCountController.php
+
+		-
+			message: '#^Parameter \#2 \$baseUnitQuantity of method App\\Services\\StockDeductionService\:\:deduct\(\) expects int, float\|int\<0, max\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/InventoryCountController.php
+
+		-
+			message: '#^Class App\\Models\\InventoryCount uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/InventoryCount.php
+
+		-
+			message: '#^Method App\\Models\\InventoryCount\:\:countedBy\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/InventoryCount.php
+
+		-
+			message: '#^Method App\\Models\\InventoryCount\:\:items\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/InventoryCount.php
+
+		-
+			message: '#^Method App\\Models\\InventoryCount\:\:location\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/InventoryCount.php
+
+		-
+			message: '#^Method App\\Models\\InventoryCountItem\:\:inventoryCount\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/InventoryCountItem.php
+
+		-
+			message: '#^Method App\\Models\\InventoryCountItem\:\:product\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/InventoryCountItem.php
+
+		-
+			message: '#^Method App\\Services\\ProfitLossService\:\:branchBreakdown\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/ProfitLossService.php
+
+		-
+			message: '#^Method App\\Services\\ProfitLossService\:\:branchBreakdown\(\) should return Illuminate\\Support\\Collection\<int, array\> but returns Illuminate\\Support\\Collection\<int, array\{id\: int, name\: string, revenue\: float, cogs\: float, gross_profit\: float, salaries\: float, other_expenses\: float, expenses\: float, \.\.\.\}\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Services/ProfitLossService.php
