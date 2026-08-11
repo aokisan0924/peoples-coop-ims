@@ -446,7 +446,9 @@ export default function StockByBranch({ locations, products }: Props) {
                         Healthy stock
                     </span>
                     <span className="flex items-center gap-1.5">
-                        <span className="font-mono text-[var(--pos-teal,#00a79b)]">(+N)</span>
+                        <span className="font-mono text-[var(--pos-teal,#00a79b)]">
+                            (+N)
+                        </span>
                         How many more to buy for that branch
                     </span>
                 </div>

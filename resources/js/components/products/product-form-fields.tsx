@@ -548,7 +548,10 @@ export default function ProductFormFields({
                         min={0}
                         value={data.low_stock_threshold}
                         onChange={(e) =>
-                            setData('low_stock_threshold', Number(e.target.value))
+                            setData(
+                                'low_stock_threshold',
+                                Number(e.target.value),
+                            )
                         }
                     />
                     {errors.low_stock_threshold && (
@@ -557,7 +560,8 @@ export default function ProductFormFields({
                         </p>
                     )}
                     <p className="mt-1 text-xs text-muted-foreground">
-                        Flags this product as low once stock drops to this level.
+                        Flags this product as low once stock drops to this
+                        level.
                     </p>
                 </div>
                 <div>
@@ -572,7 +576,9 @@ export default function ProductFormFields({
                         onChange={(e) =>
                             setData(
                                 'reorder_target_qty',
-                                e.target.value === '' ? null : Number(e.target.value),
+                                e.target.value === ''
+                                    ? null
+                                    : Number(e.target.value),
                             )
                         }
                         placeholder={`Auto: ${data.low_stock_threshold * 3}`}
