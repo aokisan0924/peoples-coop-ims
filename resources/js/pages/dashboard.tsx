@@ -41,6 +41,7 @@ interface LowStockProduct {
     name: string;
     total_stock: number;
     low_stock_threshold: number;
+    restock_suggestion: number;
     location_name: string | null;
 }
 interface ExpiringBatch {
@@ -413,6 +414,11 @@ export default function Dashboard({
                                         <Badge variant="destructive">
                                             {p.total_stock} left
                                         </Badge>
+                                        {p.restock_suggestion > 0 && (
+                                            <Badge className="bg-[var(--pos-teal)] text-white">
+                                                Restock {p.restock_suggestion}
+                                            </Badge>
+                                        )}
                                         {canManage && (
                                             <Button
                                                 variant="outline"

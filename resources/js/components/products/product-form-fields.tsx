@@ -19,6 +19,7 @@ interface ProductFormData {
     member_piece_price_override: string;
     member_pack_price_override: string;
     low_stock_threshold: number;
+    reorder_target_qty: number | null;
     is_active: boolean;
 }
 
@@ -536,24 +537,56 @@ export default function ProductFormFields({
                 )}
             </div>
 
-            <div>
-                <Label htmlFor="low_stock_threshold">
-                    Low Stock Alert Threshold (base units) *
-                </Label>
-                <Input
-                    id="low_stock_threshold"
-                    type="number"
-                    min={0}
-                    value={data.low_stock_threshold}
-                    onChange={(e) =>
-                        setData('low_stock_threshold', Number(e.target.value))
-                    }
-                />
-                {errors.low_stock_threshold && (
-                    <p className="mt-1 text-sm text-red-600">
-                        {errors.low_stock_threshold}
+            <div className="grid grid-cols-2 gap-4">
+                <div>
+                    <Label htmlFor="low_stock_threshold">
+                        Low Stock Alert Threshold (base units) *
+                    </Label>
+                    <Input
+                        id="low_stock_threshold"
+                        type="number"
+                        min={0}
+                        value={data.low_stock_threshold}
+                        onChange={(e) =>
+                            setData('low_stock_threshold', Number(e.target.value))
+                        }
+                    />
+                    {errors.low_stock_threshold && (
+                        <p className="mt-1 text-sm text-red-600">
+                            {errors.low_stock_threshold}
+                        </p>
+                    )}
+                    <p className="mt-1 text-xs text-muted-foreground">
+                        Flags this product as low once stock drops to this level.
                     </p>
-                )}
+                </div>
+                <div>
+                    <Label htmlFor="reorder_target_qty">
+                        Restock Up To (base units)
+                    </Label>
+                    <Input
+                        id="reorder_target_qty"
+                        type="number"
+                        min={data.low_stock_threshold}
+                        value={data.reorder_target_qty ?? ''}
+                        onChange={(e) =>
+                            setData(
+                                'reorder_target_qty',
+                                e.target.value === '' ? null : Number(e.target.value),
+                            )
+                        }
+                        placeholder={`Auto: ${data.low_stock_threshold * 3}`}
+                    />
+                    {errors.reorder_target_qty && (
+                        <p className="mt-1 text-sm text-red-600">
+                            {errors.reorder_target_qty}
+                        </p>
+                    )}
+                    <p className="mt-1 text-xs text-muted-foreground">
+                        When low, this is the level to restock back up to. Leave
+                        blank to default to 3&times; the threshold above.
+                    </p>
+                </div>
             </div>
 
             {isEdit && (

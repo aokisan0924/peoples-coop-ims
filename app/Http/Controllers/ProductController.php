@@ -28,6 +28,7 @@ class ProductController extends Controller
                 ->map(fn (Product $product) => [
                     ...$product->toArray(),
                     'is_low_stock' => ($product->total_stock ?? 0) <= $product->low_stock_threshold,
+                    'restock_suggestion' => $product->restockSuggestion($product->total_stock ?? 0),
                     'member_piece_price' => $product->member_piece_price,
                     'non_member_piece_price' => $product->non_member_piece_price,
                     'member_pack_price' => $product->member_pack_price,
@@ -73,6 +74,7 @@ class ProductController extends Controller
             'member_piece_price_override' => ['nullable', 'numeric', 'min:0'],
             'member_pack_price_override' => ['nullable', 'numeric', 'min:0'],
             'low_stock_threshold' => ['required', 'integer', 'min:0'],
+            'reorder_target_qty' => ['nullable', 'integer', 'gte:low_stock_threshold'],
         ]);
 
         // Auto-generate SKU: PRD-{timestamp}-{random} — simple, unique, human-scannable enough
@@ -135,6 +137,7 @@ class ProductController extends Controller
             'member_piece_price_override' => ['nullable', 'numeric', 'min:0'],
             'member_pack_price_override' => ['nullable', 'numeric', 'min:0'],
             'low_stock_threshold' => ['required', 'integer', 'min:0'],
+            'reorder_target_qty' => ['nullable', 'integer', 'gte:low_stock_threshold'],
             'is_active' => ['boolean'],
         ]);
 

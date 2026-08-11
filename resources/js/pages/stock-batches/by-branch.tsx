@@ -24,7 +24,9 @@ interface ProductRow {
     name: string;
     sku: string;
     low_stock_threshold: number;
+    reorder_target_qty: number;
     stock_by_location: Record<number, number>;
+    restock_by_location: Record<number, number>;
     total_stock: number;
 }
 
@@ -282,6 +284,10 @@ export default function StockByBranch({ locations, products }: Props) {
                                                         p.stock_by_location[
                                                             loc.id
                                                         ] ?? 0;
+                                                    const restock =
+                                                        p.restock_by_location[
+                                                            loc.id
+                                                        ] ?? 0;
 
                                                     return (
                                                         <td
@@ -295,6 +301,11 @@ export default function StockByBranch({ locations, products }: Props) {
                                                             )}
                                                         >
                                                             {qty}
+                                                            {restock > 0 && (
+                                                                <span className="ml-1 text-xs font-normal text-[var(--pos-teal,#00a79b)]">
+                                                                    (+{restock})
+                                                                </span>
+                                                            )}
                                                         </td>
                                                     );
                                                 })}
@@ -368,6 +379,10 @@ export default function StockByBranch({ locations, products }: Props) {
                                                     p.stock_by_location[
                                                         loc.id
                                                     ] ?? 0;
+                                                const restock =
+                                                    p.restock_by_location[
+                                                        loc.id
+                                                    ] ?? 0;
 
                                                 return (
                                                     <Badge
@@ -386,6 +401,11 @@ export default function StockByBranch({ locations, products }: Props) {
                                                         <span className="font-mono tabular-nums">
                                                             {qty}
                                                         </span>
+                                                        {restock > 0 && (
+                                                            <span className="font-mono text-[10px] tabular-nums opacity-75">
+                                                                (+{restock})
+                                                            </span>
+                                                        )}
                                                     </Badge>
                                                 );
                                             })}
@@ -424,6 +444,10 @@ export default function StockByBranch({ locations, products }: Props) {
                     <span className="flex items-center gap-1.5">
                         <span className="inline-block size-2.5 rounded-full bg-muted-foreground/20" />{' '}
                         Healthy stock
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                        <span className="font-mono text-[var(--pos-teal,#00a79b)]">(+N)</span>
+                        How many more to buy for that branch
                     </span>
                 </div>
             </div>

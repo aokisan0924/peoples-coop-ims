@@ -39,6 +39,7 @@ export default function CreateProduct({
         member_piece_price_override: '',
         member_pack_price_override: '',
         low_stock_threshold: 10,
+        reorder_target_qty: null as number | null,
         is_active: true,
     });
 

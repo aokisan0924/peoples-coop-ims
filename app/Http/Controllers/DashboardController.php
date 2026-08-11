@@ -92,7 +92,7 @@ class DashboardController extends Controller
     }
 
     /**
-     * @return Collection<int, array{id: int, name: string, total_stock: int, low_stock_threshold: int, location_name: string|null}>
+     * @return Collection<int, array{id: int, name: string, total_stock: int, low_stock_threshold: int, restock_suggestion: int, location_name: string|null}>
      */
     private function lowStockProducts(?int $locationId): Collection
     {
@@ -106,6 +106,7 @@ class DashboardController extends Controller
                     'name' => $p->name,
                     'total_stock' => (int) ($p->branch_stock ?? 0),
                     'low_stock_threshold' => $p->low_stock_threshold,
+                    'restock_suggestion' => $p->restockSuggestion((int) ($p->branch_stock ?? 0)),
                     'location_name' => null,
                 ])
                 ->filter(fn ($p) => $p['total_stock'] <= $p['low_stock_threshold'])
@@ -119,7 +120,7 @@ class DashboardController extends Controller
         // comparing to the threshold was masking exactly that. Flag shortages
         // per branch instead, same as what a Manager at that branch would see.
         $locations = Location::where('is_active', true)->get(['id', 'name']);
-        $products = Product::where('is_active', true)->get(['id', 'name', 'low_stock_threshold']);
+        $products = Product::where('is_active', true)->get(['id', 'name', 'low_stock_threshold', 'reorder_target_qty']);
 
         $rows = collect();
 
@@ -138,6 +139,7 @@ class DashboardController extends Controller
                         'name' => $product->name,
                         'total_stock' => $stock,
                         'low_stock_threshold' => $product->low_stock_threshold,
+                        'restock_suggestion' => $product->restockSuggestion($stock),
                         'location_name' => $location->name,
                     ]);
                 }

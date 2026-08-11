@@ -18,7 +18,7 @@ class Product extends Model
         'base_unit_id', 'pack_unit_id', 'pack_conversion_factor',
         'cost_price', 'markup_percentage',
         'member_piece_price_override', 'member_pack_price_override',
-        'low_stock_threshold', 'is_active',
+        'low_stock_threshold', 'reorder_target_qty', 'is_active',
     ];
 
     protected function casts(): array
@@ -28,6 +28,7 @@ class Product extends Model
             'markup_percentage' => 'decimal:2',
             'member_piece_price_override' => 'decimal:2',
             'member_pack_price_override' => 'decimal:2',
+            'reorder_target_qty' => 'integer',
             'is_active' => 'boolean',
         ];
     }
@@ -86,6 +87,29 @@ class Product extends Model
     public function getIsLowStockAttribute(): bool
     {
         return $this->total_stock <= $this->low_stock_threshold;
+    }
+
+    /**
+     * The stock level to restock up to. Falls back to 3x the low-stock
+     * threshold for products created before this field existed, or for
+     * anyone who hasn't bothered to set an explicit target — a threshold
+     * alone only says "this is low," not "buy this many."
+     */
+    public function getEffectiveReorderTargetAttribute(): int
+    {
+        return $this->reorder_target_qty ?? ($this->low_stock_threshold * 3);
+    }
+
+    /**
+     * How many units to buy, given a specific current stock count, to reach
+     * the reorder target. Takes $currentStock as a parameter rather than
+     * always using $this->total_stock, since callers computing this per
+     * branch need the suggestion for that branch's own stock, not the
+     * product's stock summed across every branch.
+     */
+    public function restockSuggestion(int $currentStock): int
+    {
+        return max(0, $this->effective_reorder_target - $currentStock);
     }
 
     /**

@@ -42,9 +42,11 @@ export interface Product {
     member_piece_price_override: string | null;
     member_pack_price_override: string | null;
     low_stock_threshold: number;
+    reorder_target_qty: number | null;
     is_active: boolean;
     total_stock?: number;
     is_low_stock?: boolean;
+    restock_suggestion?: number;
     member_piece_price?: number;
     non_member_piece_price?: number;
     member_pack_price?: number | null;

@@ -42,6 +42,7 @@ export default function EditProduct({
         member_piece_price_override: product.member_piece_price_override ?? '',
         member_pack_price_override: product.member_pack_price_override ?? '',
         low_stock_threshold: product.low_stock_threshold,
+        reorder_target_qty: product.reorder_target_qty,
         is_active: product.is_active,
     });
 

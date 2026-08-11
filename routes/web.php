@@ -5,6 +5,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\GcashController;
+use App\Http\Controllers\InventoryCountController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\PosController;
 use App\Http\Controllers\ProductController;
@@ -147,6 +148,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('accounts-payable/{payable}/mark-paid', [AccountsPayableController::class, 'markPaid'])->name('accounts-payable.mark-paid');
 
         Route::get('reports/profit-loss', [ProfitLossController::class, 'index'])->name('reports.profit-loss');
+
+        Route::get('inventory-counts', [InventoryCountController::class, 'index'])->name('inventory-counts.index');
+        Route::get('inventory-counts/create', [InventoryCountController::class, 'create'])->name('inventory-counts.create');
+        Route::post('inventory-counts', [InventoryCountController::class, 'store'])->name('inventory-counts.store');
+        Route::get('inventory-counts/{inventoryCount}', [InventoryCountController::class, 'show'])->name('inventory-counts.show');
+        Route::post('inventory-counts/{inventoryCount}/items', [InventoryCountController::class, 'addItem'])->name('inventory-counts.add-item');
+        Route::delete('inventory-counts/{inventoryCount}/items/{item}', [InventoryCountController::class, 'removeItem'])->name('inventory-counts.remove-item');
+        Route::post('inventory-counts/{inventoryCount}/finalize', [InventoryCountController::class, 'finalize'])->name('inventory-counts.finalize');
+        Route::delete('inventory-counts/{inventoryCount}', [InventoryCountController::class, 'destroy'])->name('inventory-counts.destroy');
     });
 
     // =========================================================================

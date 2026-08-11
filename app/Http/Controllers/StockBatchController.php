@@ -74,7 +74,7 @@ class StockBatchController extends Controller
 
         $products = Product::where('is_active', true)
             ->orderBy('name')
-            ->get(['id', 'name', 'sku', 'low_stock_threshold'])
+            ->get(['id', 'name', 'sku', 'low_stock_threshold', 'reorder_target_qty'])
             ->map(function (Product $product) use ($stockTotals, $locations) {
                 $byLocation = $stockTotals->get($product->id, collect())->keyBy('location_id');
 
@@ -82,12 +82,21 @@ class StockBatchController extends Controller
                     fn (Location $location) => [$location->id => (int) ($byLocation->get($location->id)->qty ?? 0)]
                 );
 
+                // Per-branch, not global — a branch sitting at 12 out of a
+                // threshold of 15 needs restocking up to the target for THAT
+                // branch specifically, not based on stock summed elsewhere.
+                $restockByLocation = $stockByLocation->map(
+                    fn (int $qty) => $product->restockSuggestion($qty)
+                );
+
                 return [
                     'id' => $product->id,
                     'name' => $product->name,
                     'sku' => $product->sku,
                     'low_stock_threshold' => $product->low_stock_threshold,
+                    'reorder_target_qty' => $product->effective_reorder_target,
                     'stock_by_location' => $stockByLocation,
+                    'restock_by_location' => $restockByLocation,
                     'total_stock' => $stockByLocation->sum(),
                 ];
             });
