@@ -1,6 +1,6 @@
 {
     "name": "peoples-coop-ims",
-    "version": "0.6.4",
+    "version": "0.6.5",
     "$schema": "https://www.schemastore.org/package.json",
     "private": true,
     "type": "module",
