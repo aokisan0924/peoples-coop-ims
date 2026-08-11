@@ -125,3 +125,9 @@ parameters:
 			identifier: return.type
 			count: 1
 			path: app/Services/ProfitLossService.php
+
+		-
+			message: '#^Parameter \#1 \$json of function json_decode expects string, string\|false given\.$#'
+			identifier: argument.type
+			count: 1
+			path: config/app.php
