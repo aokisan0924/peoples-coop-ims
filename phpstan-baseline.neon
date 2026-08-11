@@ -31,6 +31,12 @@ parameters:
 			path: app/Http/Controllers/DashboardController.php
 
 		-
+			message: '#^Access to an undefined property App\\Models\\GcashTransaction\:\:\$total_capital_deposits\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/GcashController.php
+
+		-
 			message: '#^Access to an undefined property App\\Models\\Product\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\Product\>\:\:\$cost_price\.$#'
 			identifier: property.notFound
 			count: 1
