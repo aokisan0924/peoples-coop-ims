@@ -38,7 +38,17 @@ return [
     | services the application utilizes. Set this in your ".env" file.
     |
     */
-    'version' => env('APP_VERSION', '0.1.0'),
+    'version' => (function (): string {
+        $path = base_path('package.json');
+
+        if (! is_readable($path)) {
+            return 'dev';
+        }
+
+        $decoded = json_decode(file_get_contents($path), true);
+
+        return $decoded['version'] ?? 'dev';
+    })(),
 
     /*
     |--------------------------------------------------------------------------
