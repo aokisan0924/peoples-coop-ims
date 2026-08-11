@@ -6,11 +6,19 @@ import { Textarea } from '@/components/ui/textarea';
 import gcash from '@/routes/gcash';
 
 interface Props {
-    type: 'cash_in' | 'cash_out';
+    type: 'cash_in' | 'cash_out' | 'capital_deposit';
     onSuccess: () => void;
 }
 
+const TYPE_LABELS: Record<Props['type'], string> = {
+    cash_in: 'Cash-In',
+    cash_out: 'Cash-Out',
+    capital_deposit: 'Capital Deposit',
+};
+
 export default function GcashTransactionForm({ type, onSuccess }: Props) {
+    const isDeposit = type === 'capital_deposit';
+
     const { data, setData, post, processing, errors, reset } = useForm({
         type,
         amount: '',
@@ -41,10 +49,9 @@ export default function GcashTransactionForm({ type, onSuccess }: Props) {
             <div>
                 <Label htmlFor="amount">
                     Amount (₱) —{' '}
-                    {type === 'cash_in'
-                        ? 'GCash sent to customer'
-                        : 'GCash received from customer'}{' '}
-                    *
+                    {type === 'cash_in' && 'GCash sent to customer'}
+                    {type === 'cash_out' && 'GCash received from customer'}
+                    {isDeposit && 'Capital deposited into the float'} *
                 </Label>
                 <Input
                     id="amount"
@@ -60,41 +67,56 @@ export default function GcashTransactionForm({ type, onSuccess }: Props) {
                 )}
             </div>
 
-            <div>
-                <Label htmlFor="fee">Service Fee Collected (₱)</Label>
-                <Input
-                    id="fee"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    value={data.fee}
-                    onChange={(e) => setData('fee', e.target.value)}
-                    placeholder="0.00"
-                />
-                {errors.fee && (
-                    <p className="mt-1 text-sm text-red-600">{errors.fee}</p>
-                )}
-            </div>
+            {/* A capital deposit isn't a customer transaction — no service fee applies. */}
+            {!isDeposit && (
+                <div>
+                    <Label htmlFor="fee">Service Fee Collected (₱)</Label>
+                    <Input
+                        id="fee"
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        value={data.fee}
+                        onChange={(e) => setData('fee', e.target.value)}
+                        placeholder="0.00"
+                    />
+                    {errors.fee && (
+                        <p className="mt-1 text-sm text-red-600">{errors.fee}</p>
+                    )}
+                </div>
+            )}
 
             <div>
-                <Label htmlFor="customer_name">Customer Name</Label>
+                <Label htmlFor="customer_name">
+                    {isDeposit ? 'Source of Funds' : 'Customer Name'}
+                </Label>
                 <Input
                     id="customer_name"
                     value={data.customer_name}
                     onChange={(e) => setData('customer_name', e.target.value)}
-                    placeholder="Optional"
+                    placeholder={
+                        isDeposit
+                            ? 'e.g. Owner deposit, Bank transfer — BDO'
+                            : 'Optional'
+                    }
                 />
             </div>
 
             <div>
-                <Label htmlFor="reference_number">GCash Reference Number</Label>
+                <Label htmlFor="reference_number">
+                    {isDeposit
+                        ? 'Bank / Transfer Reference Number'
+                        : 'GCash Reference Number'}
+                </Label>
                 <Input
                     id="reference_number"
                     value={data.reference_number}
                     onChange={(e) =>
                         setData('reference_number', e.target.value)
                     }
-                    placeholder="From the GCash app"
+                    placeholder={
+                        isDeposit ? 'Optional' : 'From the GCash app'
+                    }
                 />
             </div>
 
@@ -115,9 +137,7 @@ export default function GcashTransactionForm({ type, onSuccess }: Props) {
             )}
 
             <Button type="submit" disabled={processing} className="w-full">
-                {processing
-                    ? 'Recording...'
-                    : `Record ${type === 'cash_in' ? 'Cash-In' : 'Cash-Out'}`}
+                {processing ? 'Recording...' : `Record ${TYPE_LABELS[type]}`}
             </Button>
         </form>
     );

@@ -6,14 +6,17 @@ import { Textarea } from '@/components/ui/textarea';
 
 interface Props {
     currentBalance: number;
+    locationId: number;
     onSuccess: () => void;
 }
 
 export default function FloatAdjustmentForm({
     currentBalance,
+    locationId,
     onSuccess,
 }: Props) {
     const { data, setData, post, processing, errors, reset } = useForm({
+        location_id: locationId,
         new_balance: String(currentBalance),
         notes: '',
     });

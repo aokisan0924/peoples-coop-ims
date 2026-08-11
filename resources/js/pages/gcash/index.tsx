@@ -3,9 +3,11 @@ import { AnimatePresence, motion } from 'framer-motion';
 import {
     ArrowDownCircle,
     ArrowUpCircle,
+    PiggyBank,
     Receipt,
     Receipt as ExpenseIcon,
     Settings2,
+    ShieldCheck,
     Wallet,
     X,
 } from 'lucide-react';
@@ -21,7 +23,12 @@ import { cn } from '@/lib/utils';
 
 interface Transaction {
     id: number;
-    type: 'cash_in' | 'cash_out' | 'float_adjustment' | 'expense_payment';
+    type:
+        | 'cash_in'
+        | 'cash_out'
+        | 'capital_deposit'
+        | 'float_adjustment'
+        | 'expense_payment';
     amount: string;
     fee: string;
     customer_name: string | null;
@@ -34,9 +41,11 @@ interface Transaction {
 
 interface Props {
     floatBalance: number;
+    locationId: number;
     todayStats: {
         total_cash_in: number;
         total_cash_out: number;
+        total_capital_deposits: number;
         total_fees: number;
         transaction_count: number;
     };
@@ -63,6 +72,10 @@ const TYPE_META = {
         label: 'Cash-Out',
         badgeClass: 'border-[var(--pos-teal)]/40 text-[var(--pos-teal)]',
     },
+    capital_deposit: {
+        label: 'Capital Deposit',
+        badgeClass: 'border-0 bg-[var(--pos-green)]/15 text-[var(--pos-green)]',
+    },
     float_adjustment: { label: 'Adjustment', badgeClass: '' },
     expense_payment: {
         label: 'Expense Payment',
@@ -83,13 +96,15 @@ function secondaryLabel(tx: Transaction): string {
 
 export default function GcashIndex({
     floatBalance,
+    locationId,
     todayStats,
     recentTransactions,
 }: Props) {
-    const { isManager } = useAuth();
+    const { isManager, isOwner } = useAuth();
+    const canReconcile = isManager || isOwner;
     const { shift, refetch: refetchShift } = useCurrentShift();
     const [modal, setModal] = useState<
-        'cash_in' | 'cash_out' | 'adjust' | null
+        'cash_in' | 'cash_out' | 'capital_deposit' | 'adjust' | null
     >(null);
 
     function closeModal() {
@@ -130,7 +145,7 @@ export default function GcashIndex({
                     <h1 className="text-xl font-semibold tracking-tight">
                         GCash Monitor
                     </h1>
-                    {isManager && (
+                    {canReconcile && (
                         <Button
                             variant="outline"
                             size="sm"
@@ -161,29 +176,62 @@ export default function GcashIndex({
                         </p>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-3 sm:gap-4">
-                        <Button
-                            size="lg"
-                            onClick={() => setModal('cash_in')}
-                            className="h-full min-h-20 flex-col gap-1.5 bg-[var(--pos-teal)] text-white hover:bg-[var(--pos-teal)]/90 sm:min-h-24"
-                        >
-                            <ArrowUpCircle className="size-6" />
-                            Cash-In
-                        </Button>
-                        <Button
-                            size="lg"
-                            variant="outline"
-                            onClick={() => setModal('cash_out')}
-                            className="h-full min-h-20 flex-col gap-1.5 hover:border-[var(--pos-teal)] hover:text-[var(--pos-teal)] sm:min-h-24"
-                        >
-                            <ArrowDownCircle className="size-6" />
-                            Cash-Out
-                        </Button>
-                    </div>
+                    {/* Cash-In / Cash-Out are recorded by branch staff during an open
+                        shift. Owners monitor and reconcile across branches, but don't
+                        record individual transactions — those need to be tied to a
+                        cashier's shift for cash-drawer reconciliation to make sense. */}
+                    {isOwner ? (
+                        <div className="flex flex-col items-center justify-center gap-2 rounded-2xl border border-dashed p-6 text-center">
+                            <div className="flex size-9 items-center justify-center rounded-full bg-muted text-muted-foreground">
+                                <ShieldCheck className="size-4" />
+                            </div>
+                            <p className="text-sm font-medium">
+                                View &amp; Reconcile Only
+                            </p>
+                            <p className="max-w-xs text-xs text-muted-foreground">
+                                Cash-In and Cash-Out are recorded by branch
+                                staff during their shift. Use{' '}
+                                <span className="font-medium text-foreground">
+                                    Reconcile Float
+                                </span>{' '}
+                                above to correct this branch's balance.
+                            </p>
+                        </div>
+                    ) : (
+                        <div className="flex flex-col gap-3 sm:gap-4">
+                            <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                                <Button
+                                    size="lg"
+                                    onClick={() => setModal('cash_in')}
+                                    className="h-full min-h-20 flex-col gap-1.5 bg-[var(--pos-teal)] text-white hover:bg-[var(--pos-teal)]/90 sm:min-h-24"
+                                >
+                                    <ArrowUpCircle className="size-6" />
+                                    Cash-In
+                                </Button>
+                                <Button
+                                    size="lg"
+                                    variant="outline"
+                                    onClick={() => setModal('cash_out')}
+                                    className="h-full min-h-20 flex-col gap-1.5 hover:border-[var(--pos-teal)] hover:text-[var(--pos-teal)] sm:min-h-24"
+                                >
+                                    <ArrowDownCircle className="size-6" />
+                                    Cash-Out
+                                </Button>
+                            </div>
+                            <Button
+                                variant="outline"
+                                onClick={() => setModal('capital_deposit')}
+                                className="w-full gap-1.5 hover:border-[var(--pos-green)] hover:text-[var(--pos-green)]"
+                            >
+                                <PiggyBank className="size-4" />
+                                Fund Float (Capital Deposit)
+                            </Button>
+                        </div>
+                    )}
                 </div>
 
                 {/* Today's summary */}
-                <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4">
+                <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-5">
                     <StatCard
                         label="Cash-In Today"
                         value={peso(todayStats.total_cash_in)}
@@ -191,6 +239,11 @@ export default function GcashIndex({
                     <StatCard
                         label="Cash-Out Today"
                         value={peso(todayStats.total_cash_out)}
+                    />
+                    <StatCard
+                        label="Capital Deposits"
+                        value={peso(todayStats.total_capital_deposits)}
+                        accent="green"
                     />
                     <StatCard
                         label="Fees Earned"
@@ -276,8 +329,8 @@ export default function GcashIndex({
                                                                 ? 'secondary'
                                                                 : tx.type ===
                                                                     'cash_out'
-                                                                  ? 'outline'
-                                                                  : undefined
+                                                                ? 'outline'
+                                                                : undefined
                                                         }
                                                     >
                                                         {tx.type ===
@@ -338,8 +391,8 @@ export default function GcashIndex({
                                                             ? 'secondary'
                                                             : tx.type ===
                                                                 'cash_out'
-                                                              ? 'outline'
-                                                              : undefined
+                                                            ? 'outline'
+                                                            : undefined
                                                     }
                                                 >
                                                     {tx.type ===
@@ -384,6 +437,7 @@ export default function GcashIndex({
             <AnimatePresence>
                 {(modal === 'cash_in' ||
                     modal === 'cash_out' ||
+                    modal === 'capital_deposit' ||
                     modal === 'adjust') && (
                     <motion.div
                         initial={{ opacity: 0 }}
@@ -415,6 +469,12 @@ export default function GcashIndex({
                                     {modal === 'cash_out' &&
                                         shift &&
                                         'New Cash-Out'}
+                                    {modal === 'capital_deposit' &&
+                                        !shift &&
+                                        'Shift Required'}
+                                    {modal === 'capital_deposit' &&
+                                        shift &&
+                                        'New Capital Deposit'}
                                     {modal === 'adjust' &&
                                         'Reconcile GCash Float'}
                                 </h2>
@@ -428,11 +488,15 @@ export default function GcashIndex({
                                 </button>
                             </div>
 
-                            {(modal === 'cash_in' || modal === 'cash_out') &&
+                            {(modal === 'cash_in' ||
+                                modal === 'cash_out' ||
+                                modal === 'capital_deposit') &&
                                 !shift && (
                                     <OpenShiftGate onOpened={refetchShift} />
                                 )}
-                            {(modal === 'cash_in' || modal === 'cash_out') &&
+                            {(modal === 'cash_in' ||
+                                modal === 'cash_out' ||
+                                modal === 'capital_deposit') &&
                                 shift && (
                                     <GcashTransactionForm
                                         type={modal}
@@ -442,12 +506,16 @@ export default function GcashIndex({
                             {modal === 'adjust' && (
                                 <FloatAdjustmentForm
                                     currentBalance={floatBalance}
+                                    locationId={locationId}
                                     onSuccess={closeModal}
                                 />
                             )}
 
-                            {!(modal === 'cash_in' || modal === 'cash_out') ||
-                            shift ? (
+                            {!(
+                                modal === 'cash_in' ||
+                                modal === 'cash_out' ||
+                                modal === 'capital_deposit'
+                            ) || shift ? (
                                 <Button
                                     variant="outline"
                                     className="mt-2 w-full"

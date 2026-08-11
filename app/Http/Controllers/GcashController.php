@@ -36,6 +36,7 @@ class GcashController extends Controller
             ->selectRaw("
                 COALESCE(SUM(CASE WHEN type = 'cash_in' THEN amount ELSE 0 END), 0) as total_cash_in,
                 COALESCE(SUM(CASE WHEN type = 'cash_out' THEN amount ELSE 0 END), 0) as total_cash_out,
+                COALESCE(SUM(CASE WHEN type = 'capital_deposit' THEN amount ELSE 0 END), 0) as total_capital_deposits,
                 COALESCE(SUM(fee), 0) as total_fees,
                 COUNT(*) as transaction_count
             ")
@@ -43,9 +44,13 @@ class GcashController extends Controller
 
         return Inertia::render('gcash/index', [
             'floatBalance' => (float) $float->balance,
+            // Needed so the Reconcile Float form knows which branch it's acting
+            // on — required for Owners, who have no location_id of their own.
+            'locationId' => (int) $locationId,
             'todayStats' => [
                 'total_cash_in' => (float) $todayStats->total_cash_in,
                 'total_cash_out' => (float) $todayStats->total_cash_out,
+                'total_capital_deposits' => (float) $todayStats->total_capital_deposits,
                 'total_fees' => (float) $todayStats->total_fees,
                 'transaction_count' => (int) $todayStats->transaction_count,
             ],
@@ -68,6 +73,9 @@ class GcashController extends Controller
         // A GCash transaction outside a shift's opened_at/closed_at window is
         // invisible to that shift's cash reconciliation — the physical cash it
         // moves would never be counted as expected in any shift's close-out.
+        // Capital deposits go through this same gate: funding the float is
+        // still a physical cash event that has to land inside a shift for
+        // cash-drawer reconciliation to add up correctly.
         $hasOpenShift = ShiftSession::where('cashier_id', $request->user()->id)
             ->where('status', 'open')
             ->exists();
@@ -77,7 +85,7 @@ class GcashController extends Controller
         }
 
         $validated = $request->validate([
-            'type' => ['required', 'in:cash_in,cash_out'],
+            'type' => ['required', 'in:cash_in,cash_out,capital_deposit'],
             'amount' => ['required', 'numeric', 'min:1'],
             'fee' => ['nullable', 'numeric', 'min:0'],
             'customer_name' => ['nullable', 'string', 'max:255'],
@@ -94,7 +102,11 @@ class GcashController extends Controller
             }
 
             $amount = $validated['amount'];
-            $fee = $validated['fee'] ?? 0;
+            // Capital deposits aren't a customer transaction, so a service fee
+            // doesn't apply — ignore anything submitted regardless of what the
+            // frontend sends, rather than trusting the client to omit it.
+            $fee = $validated['type'] === 'capital_deposit' ? 0 : ($validated['fee'] ?? 0);
+            // cash_out and capital_deposit both add to the float; only cash_in draws it down.
             $delta = $validated['type'] === 'cash_in' ? -$amount : $amount;
             $newBalance = (float) $float->balance + $delta;
 
@@ -121,24 +133,47 @@ class GcashController extends Controller
     }
 
     /**
-     * Manager-only: reconcile the system's tracked float against the actual
+     * Manager|Owner: reconcile the system's tracked float against the actual
      * GCash app balance (e.g. after loading more funds, or correcting drift).
+     *
+     * A Manager can only ever touch their own branch's float — location_id
+     * is taken from their account and any value submitted in the request is
+     * ignored. An Owner has no home branch, so they must supply which branch
+     * they're reconciling (the frontend sends the locationId the "gcash/index"
+     * page was rendered for); that value is validated against real locations.
      */
     public function adjustFloat(Request $request): RedirectResponse
     {
-        $locationId = $request->user()->location_id;
+        $user = $request->user();
 
-        if (! $locationId) {
-            return back()->withErrors(['location' => 'Your account has no assigned branch.']);
+        if ($user->seesAllLocations()) {
+            $validated = $request->validate([
+                'location_id' => ['required', 'integer', 'exists:locations,id'],
+                'new_balance' => ['required', 'numeric', 'min:0'],
+                'notes' => ['required', 'string', 'max:500'],
+            ]);
+
+            $locationId = (int) $validated['location_id'];
+        } else {
+            $locationId = $user->location_id;
+
+            if (! $locationId) {
+                return back()->withErrors(['location' => 'Your account has no assigned branch.']);
+            }
+
+            $validated = $request->validate([
+                'new_balance' => ['required', 'numeric', 'min:0'],
+                'notes' => ['required', 'string', 'max:500'],
+            ]);
         }
-
-        $validated = $request->validate([
-            'new_balance' => ['required', 'numeric', 'min:0'],
-            'notes' => ['required', 'string', 'max:500'],
-        ]);
 
         DB::transaction(function () use ($validated, $request, $locationId) {
             $float = GcashFloat::where('location_id', $locationId)->lockForUpdate()->first();
+
+            if (! $float) {
+                $float = GcashFloat::create(['location_id' => $locationId, 'balance' => 0]);
+            }
+
             $oldBalance = (float) $float->balance;
             $adjustment = $validated['new_balance'] - $oldBalance;
 
