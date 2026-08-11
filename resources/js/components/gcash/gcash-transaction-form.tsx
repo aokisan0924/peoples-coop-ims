@@ -81,7 +81,9 @@ export default function GcashTransactionForm({ type, onSuccess }: Props) {
                         placeholder="0.00"
                     />
                     {errors.fee && (
-                        <p className="mt-1 text-sm text-red-600">{errors.fee}</p>
+                        <p className="mt-1 text-sm text-red-600">
+                            {errors.fee}
+                        </p>
                     )}
                 </div>
             )}
@@ -114,9 +116,7 @@ export default function GcashTransactionForm({ type, onSuccess }: Props) {
                     onChange={(e) =>
                         setData('reference_number', e.target.value)
                     }
-                    placeholder={
-                        isDeposit ? 'Optional' : 'From the GCash app'
-                    }
+                    placeholder={isDeposit ? 'Optional' : 'From the GCash app'}
                 />
             </div>
 

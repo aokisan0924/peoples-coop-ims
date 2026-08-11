@@ -329,8 +329,8 @@ export default function GcashIndex({
                                                                 ? 'secondary'
                                                                 : tx.type ===
                                                                     'cash_out'
-                                                                ? 'outline'
-                                                                : undefined
+                                                                  ? 'outline'
+                                                                  : undefined
                                                         }
                                                     >
                                                         {tx.type ===
@@ -391,8 +391,8 @@ export default function GcashIndex({
                                                             ? 'secondary'
                                                             : tx.type ===
                                                                 'cash_out'
-                                                            ? 'outline'
-                                                            : undefined
+                                                              ? 'outline'
+                                                              : undefined
                                                     }
                                                 >
                                                     {tx.type ===
