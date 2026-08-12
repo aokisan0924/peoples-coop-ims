@@ -3,7 +3,6 @@ import {
     ArrowLeftRight,
     Boxes,
     Building2,
-    ClipboardCheck,
     Clock,
     History,
     LayoutGrid,
@@ -12,7 +11,6 @@ import {
     Receipt as ReceiptExpense,
     Repeat,
     Ruler,
-    Scale,
     ShoppingCart,
     Tags,
     TrendingUp,
@@ -99,7 +97,6 @@ const inventoryNavItems: NavItem[] = [
         title: 'Products',
         href: products.index(),
         icon: Package,
-        managerOnly: true,
     },
     {
         title: 'Categories',
@@ -123,7 +120,6 @@ const inventoryNavItems: NavItem[] = [
         title: 'Stock Batch',
         href: stockBatches.index(),
         icon: Boxes,
-        managerOnly: true,
     },
     {
         title: 'Stock by Branch',
@@ -135,12 +131,6 @@ const inventoryNavItems: NavItem[] = [
         title: 'Stock Transfers',
         href: '/stock-transfers',
         icon: ArrowLeftRight,
-        managerOnly: true,
-    },
-    {
-        title: 'Inventory Counts',
-        href: '/inventory-counts',
-        icon: ClipboardCheck,
         managerOnly: true,
     },
 ];
@@ -175,12 +165,6 @@ const adminNavItems: NavItem[] = [
         title: 'Profit & Loss',
         href: '/reports/profit-loss',
         icon: TrendingUp,
-        managerOnly: true,
-    },
-    {
-        title: 'Inventory Reconciliation',
-        href: '/reports/reconciliation',
-        icon: Scale,
         managerOnly: true,
     },
     {

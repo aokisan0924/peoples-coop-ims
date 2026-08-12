@@ -64,6 +64,15 @@ class GcashController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        // Owners monitor and reconcile across branches; they don't record
+        // individual Cash-In/Cash-Out/Capital-Deposit transactions, which need
+        // to be tied to a specific cashier's shift for cash-drawer reconciliation
+        // to make sense. Explicit here rather than relying on the incidental
+        // fact that Owner accounts typically have no location_id/open shift.
+        if ($request->user()->seesAllLocations()) {
+            return back()->withErrors(['role' => 'Owners view and reconcile the float, not record individual transactions.']);
+        }
+
         $locationId = $request->user()->location_id;
 
         if (! $locationId) {

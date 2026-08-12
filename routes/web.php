@@ -42,20 +42,28 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('pos.sync-review');
 
     // =========================================================================
-    // Products — lookup only. Full CRUD lives in the Manager|Owner group below.
+    // Products — full access for everyone (Cashier included). Pricing/stock
+    // control isn't gated here; Manager|Owner-only areas are catalog *setup*
+    // (categories, units, suppliers) below, not products themselves.
     // =========================================================================
-    // Product lookup — cashiers need this to ring up sales.
-    Route::get('products/search', [ProductController::class, 'search'])->name('products.search');
     // Offline product cache snapshot — pulled periodically by the sync engine on
     // every authenticated device (cashier tills included) so offline search works.
     Route::get('products/offline-snapshot', [ProductController::class, 'offlineSnapshot'])->name('products.offline-snapshot');
+    Route::get('products/search', [ProductController::class, 'search'])->name('products.search');
+    Route::get('products/labels/print', [ProductController::class, 'labelsBatch'])->name('products.labels.batch');
+    Route::get('products/{product}/label', [ProductController::class, 'label'])->name('products.label');
+    Route::get('products/{product}/barcode', [ProductController::class, 'showBarcode'])->name('products.barcode');
+    Route::resource('products', ProductController::class)->except(['search']);
 
     // =========================================================================
-    // Stock Receiving — barcode lookup at the receiving counter. Everyone can
-    // help receive stock; full stock-batch management is manager-only, below.
+    // Stock Batch — full access for everyone (Cashier included). Barcode
+    // lookup at receiving was already open to everyone; the rest of batch
+    // management (log a delivery, view by-branch, delete) now is too.
     // =========================================================================
     Route::post('stock-batches/lookup-barcode', [StockBatchController::class, 'lookupByBarcode'])
         ->name('stock-batches.lookup-barcode');
+    Route::get('stock-batches/by-branch', [StockBatchController::class, 'byBranch'])->name('stock-batches.by-branch');
+    Route::resource('stock-batches', StockBatchController::class)->except(['show', 'edit', 'update']);
 
     // =========================================================================
     // Sales — everyone rings up; history/void is manager-only, below.
@@ -98,16 +106,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('categories/quick-create', [CategoryController::class, 'quickStore'])->name('categories.quick-store');
         Route::resource('categories', CategoryController::class);
 
-        Route::get('products/labels/print', [ProductController::class, 'labelsBatch'])->name('products.labels.batch');
-        Route::get('products/{product}/label', [ProductController::class, 'label'])->name('products.label');
-        Route::get('products/{product}/barcode', [ProductController::class, 'showBarcode'])->name('products.barcode');
-        Route::resource('products', ProductController::class)->except(['search']);
-
         // ---- Inventory operations --------------------------------------------
-        // (What's physically happening to stock — batches in, transfers between
-        // branches. Same static-before-resource ordering note applies below.)
-        Route::get('stock-batches/by-branch', [StockBatchController::class, 'byBranch'])->name('stock-batches.by-branch');
-        Route::resource('stock-batches', StockBatchController::class)->except(['show', 'edit', 'update']);
+        // (Products and Stock Batch moved to the everyone-accessible section
+        // above; Stock Transfers between branches stays Manager|Owner-only.)
 
         Route::get('stock-transfers', [StockTransferController::class, 'index'])->name('stock-transfers.index');
         Route::get('stock-transfers/create', [StockTransferController::class, 'create'])->name('stock-transfers.create');
@@ -148,7 +149,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('accounts-payable/{payable}/mark-paid', [AccountsPayableController::class, 'markPaid'])->name('accounts-payable.mark-paid');
 
         Route::get('reports/profit-loss', [ProfitLossController::class, 'index'])->name('reports.profit-loss');
-        Route::get('reports/reconciliation', [ProfitLossController::class, 'reconciliation'])->name('reports.reconciliation');
 
         Route::get('inventory-counts', [InventoryCountController::class, 'index'])->name('inventory-counts.index');
         Route::get('inventory-counts/create', [InventoryCountController::class, 'create'])->name('inventory-counts.create');
