@@ -60,7 +60,9 @@ function peso(n: string | number): string {
 
 export default function ShowInventoryCount({ count, products }: Props) {
     const [search, setSearch] = useState('');
-    const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+    const [selectedProduct, setSelectedProduct] = useState<Product | null>(
+        null,
+    );
     const [countedQty, setCountedQty] = useState('');
     const [submitting, setSubmitting] = useState(false);
 
@@ -125,7 +127,9 @@ export default function ShowInventoryCount({ count, products }: Props) {
     }
 
     function handleRemoveItem(item: CountItem) {
-        router.delete(`/inventory-counts/${count.id}/items/${item.id}`, { preserveScroll: true });
+        router.delete(`/inventory-counts/${count.id}/items/${item.id}`, {
+            preserveScroll: true,
+        });
     }
 
     function handleFinalize() {
@@ -139,18 +143,32 @@ export default function ShowInventoryCount({ count, products }: Props) {
     }
 
     function handleDeleteDraft() {
-        if (confirm('Delete this draft count? All counted items will be lost.')) {
+        if (
+            confirm('Delete this draft count? All counted items will be lost.')
+        ) {
             router.delete(`/inventory-counts/${count.id}`);
         }
     }
 
     return (
-        <div style={{ '--pos-teal': '#00a79b', '--pos-green': '#8dc645' } as React.CSSProperties}>
+        <div
+            style={
+                {
+                    '--pos-teal': '#00a79b',
+                    '--pos-green': '#8dc645',
+                } as React.CSSProperties
+            }
+        >
             <Head title={`Inventory Count — ${count.location.name}`} />
 
             <div className="mx-auto max-w-5xl space-y-4 p-3 pb-24 sm:p-6 sm:pb-6">
                 <div className="flex items-center gap-3">
-                    <Button variant="outline" size="icon" asChild className="size-9 shrink-0">
+                    <Button
+                        variant="outline"
+                        size="icon"
+                        asChild
+                        className="size-9 shrink-0"
+                    >
                         <Link href="/inventory-counts">
                             <ArrowLeft className="size-4" />
                         </Link>
@@ -161,10 +179,13 @@ export default function ShowInventoryCount({ count, products }: Props) {
                                 <div className="flex size-8 items-center justify-center rounded-lg bg-[var(--pos-teal)]/10 text-[var(--pos-teal)]">
                                     <ClipboardCheck className="size-4" />
                                 </div>
-                                <h1 className="text-xl font-semibold tracking-tight">{count.location.name}</h1>
+                                <h1 className="text-xl font-semibold tracking-tight">
+                                    {count.location.name}
+                                </h1>
                             </div>
                             <p className="mt-0.5 text-sm text-muted-foreground">
-                                {count.count_date} · Counted by {count.counted_by.name}
+                                {count.count_date} · Counted by{' '}
+                                {count.counted_by.name}
                             </p>
                         </div>
                         {count.status === 'finalized' ? (
@@ -178,12 +199,21 @@ export default function ShowInventoryCount({ count, products }: Props) {
                     </div>
                 </div>
 
-                {count.notes && <div className="rounded-xl border bg-muted/30 p-4 text-sm">{count.notes}</div>}
+                {count.notes && (
+                    <div className="rounded-xl border bg-muted/30 p-4 text-sm">
+                        {count.notes}
+                    </div>
+                )}
 
                 {/* Summary at a glance */}
                 {count.items.length > 0 && (
                     <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4 sm:gap-3">
-                        <StatCard icon={Hash} label="Items Counted" value={String(count.items.length)} accent="teal" />
+                        <StatCard
+                            icon={Hash}
+                            label="Items Counted"
+                            value={String(count.items.length)}
+                            accent="teal"
+                        />
                         <StatCard
                             icon={TrendingUp}
                             label="Over"
@@ -200,7 +230,13 @@ export default function ShowInventoryCount({ count, products }: Props) {
                             icon={Scale}
                             label="Net Value Impact"
                             value={`${summary.totalVarianceValue < 0 ? '-' : summary.totalVarianceValue > 0 ? '+' : ''}${peso(Math.abs(summary.totalVarianceValue))}`}
-                            accent={summary.totalVarianceValue < 0 ? 'red' : summary.totalVarianceValue > 0 ? 'green' : 'gray'}
+                            accent={
+                                summary.totalVarianceValue < 0
+                                    ? 'red'
+                                    : summary.totalVarianceValue > 0
+                                      ? 'green'
+                                      : 'gray'
+                            }
                         />
                     </div>
                 )}
@@ -210,11 +246,15 @@ export default function ShowInventoryCount({ count, products }: Props) {
                         <form onSubmit={handleAddItem} className="space-y-3">
                             <div className="flex items-center gap-2 text-[var(--pos-teal)]">
                                 <Search className="size-4 shrink-0" />
-                                <p className="text-sm font-medium">Add a Counted Product</p>
+                                <p className="text-sm font-medium">
+                                    Add a Counted Product
+                                </p>
                             </div>
 
                             <div className="relative">
-                                <Label htmlFor="product_search">Product (name, SKU, or barcode)</Label>
+                                <Label htmlFor="product_search">
+                                    Product (name, SKU, or barcode)
+                                </Label>
                                 <Input
                                     id="product_search"
                                     value={search}
@@ -226,51 +266,75 @@ export default function ShowInventoryCount({ count, products }: Props) {
                                     autoComplete="off"
                                     className="focus-visible:ring-[var(--pos-teal)]"
                                 />
-                                {search && !selectedProduct && filteredProducts.length > 0 && (
-                                    <div className="absolute z-10 mt-1 max-h-64 w-full overflow-y-auto rounded-xl border bg-background shadow-md">
-                                        {filteredProducts.map((p) => (
-                                            <button
-                                                type="button"
-                                                key={p.id}
-                                                onClick={() => selectProduct(p)}
-                                                className="flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-muted"
-                                            >
-                                                <span>
-                                                    {p.name}
-                                                    {p.sku && <span className="text-muted-foreground"> · {p.sku}</span>}
-                                                </span>
-                                                {countedProductIds.has(p.id) && (
-                                                    <Badge variant="secondary" className="ml-2">
-                                                        Already counted
-                                                    </Badge>
-                                                )}
-                                            </button>
-                                        ))}
-                                    </div>
-                                )}
+                                {search &&
+                                    !selectedProduct &&
+                                    filteredProducts.length > 0 && (
+                                        <div className="absolute z-10 mt-1 max-h-64 w-full overflow-y-auto rounded-xl border bg-background shadow-md">
+                                            {filteredProducts.map((p) => (
+                                                <button
+                                                    type="button"
+                                                    key={p.id}
+                                                    onClick={() =>
+                                                        selectProduct(p)
+                                                    }
+                                                    className="flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-muted"
+                                                >
+                                                    <span>
+                                                        {p.name}
+                                                        {p.sku && (
+                                                            <span className="text-muted-foreground">
+                                                                {' '}
+                                                                · {p.sku}
+                                                            </span>
+                                                        )}
+                                                    </span>
+                                                    {countedProductIds.has(
+                                                        p.id,
+                                                    ) && (
+                                                        <Badge
+                                                            variant="secondary"
+                                                            className="ml-2"
+                                                        >
+                                                            Already counted
+                                                        </Badge>
+                                                    )}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    )}
                             </div>
 
                             {selectedProduct && (
                                 <div className="flex items-end gap-3">
                                     <div className="flex-1">
-                                        <Label htmlFor="counted_qty">Physically Counted Quantity *</Label>
+                                        <Label htmlFor="counted_qty">
+                                            Physically Counted Quantity *
+                                        </Label>
                                         <Input
                                             id="counted_qty"
                                             type="number"
                                             min="0"
                                             step="1"
                                             value={countedQty}
-                                            onChange={(e) => setCountedQty(e.target.value)}
+                                            onChange={(e) =>
+                                                setCountedQty(e.target.value)
+                                            }
                                             autoFocus
                                             className="focus-visible:ring-[var(--pos-teal)]"
                                         />
                                     </div>
                                     <Button
                                         type="submit"
-                                        disabled={submitting || countedQty === ''}
+                                        disabled={
+                                            submitting || countedQty === ''
+                                        }
                                         className="gap-1.5 bg-[var(--pos-teal)] text-white hover:bg-[var(--pos-teal)]/90"
                                     >
-                                        {countedProductIds.has(selectedProduct.id) ? 'Update Count' : 'Add to Count'}
+                                        {countedProductIds.has(
+                                            selectedProduct.id,
+                                        )
+                                            ? 'Update Count'
+                                            : 'Add to Count'}
                                     </Button>
                                 </div>
                             )}
@@ -283,9 +347,13 @@ export default function ShowInventoryCount({ count, products }: Props) {
                         <div className="flex size-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
                             <Package className="size-5" />
                         </div>
-                        <p className="text-sm font-medium">No products counted yet</p>
+                        <p className="text-sm font-medium">
+                            No products counted yet
+                        </p>
                         <p className="max-w-xs text-sm text-muted-foreground">
-                            {isDraft ? 'Search for a product above to start counting.' : 'This count has no items.'}
+                            {isDraft
+                                ? 'Search for a product above to start counting.'
+                                : 'This count has no items.'}
                         </p>
                     </div>
                 ) : (
@@ -295,33 +363,63 @@ export default function ShowInventoryCount({ count, products }: Props) {
                             <table className="w-full text-sm">
                                 <thead className="bg-muted/50">
                                     <tr>
-                                        <th className="p-3 text-left font-medium">Product</th>
-                                        <th className="p-3 text-right font-medium">Expected</th>
-                                        <th className="p-3 text-right font-medium">Counted</th>
-                                        <th className="p-3 text-right font-medium">Variance</th>
-                                        <th className="p-3 text-right font-medium">Value Impact</th>
-                                        {isDraft && <th className="p-3 text-right font-medium">Actions</th>}
+                                        <th className="p-3 text-left font-medium">
+                                            Product
+                                        </th>
+                                        <th className="p-3 text-right font-medium">
+                                            Expected
+                                        </th>
+                                        <th className="p-3 text-right font-medium">
+                                            Counted
+                                        </th>
+                                        <th className="p-3 text-right font-medium">
+                                            Variance
+                                        </th>
+                                        <th className="p-3 text-right font-medium">
+                                            Value Impact
+                                        </th>
+                                        {isDraft && (
+                                            <th className="p-3 text-right font-medium">
+                                                Actions
+                                            </th>
+                                        )}
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {count.items.map((item) => {
-                                        const valueImpact = item.variance * parseFloat(item.unit_cost_at_count);
+                                        const valueImpact =
+                                            item.variance *
+                                            parseFloat(item.unit_cost_at_count);
 
                                         return (
-                                            <tr key={item.id} className="border-t">
+                                            <tr
+                                                key={item.id}
+                                                className="border-t"
+                                            >
                                                 <td className="p-3 font-medium">
                                                     {item.product.name}
                                                     {item.product.sku && (
-                                                        <span className="text-muted-foreground"> · {item.product.sku}</span>
+                                                        <span className="text-muted-foreground">
+                                                            {' '}
+                                                            · {item.product.sku}
+                                                        </span>
                                                     )}
                                                 </td>
-                                                <td className="p-3 text-right tabular-nums">{item.expected_qty}</td>
-                                                <td className="p-3 text-right tabular-nums">{item.counted_qty}</td>
                                                 <td className="p-3 text-right tabular-nums">
-                                                    <VarianceValue variance={item.variance} />
+                                                    {item.expected_qty}
                                                 </td>
                                                 <td className="p-3 text-right tabular-nums">
-                                                    <ValueImpact value={valueImpact} />
+                                                    {item.counted_qty}
+                                                </td>
+                                                <td className="p-3 text-right tabular-nums">
+                                                    <VarianceValue
+                                                        variance={item.variance}
+                                                    />
+                                                </td>
+                                                <td className="p-3 text-right tabular-nums">
+                                                    <ValueImpact
+                                                        value={valueImpact}
+                                                    />
                                                 </td>
                                                 {isDraft && (
                                                     <td className="p-3 text-right">
@@ -329,7 +427,11 @@ export default function ShowInventoryCount({ count, products }: Props) {
                                                             size="sm"
                                                             variant="ghost"
                                                             className="gap-1.5 text-red-600 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-950/30"
-                                                            onClick={() => handleRemoveItem(item)}
+                                                            onClick={() =>
+                                                                handleRemoveItem(
+                                                                    item,
+                                                                )
+                                                            }
                                                         >
                                                             <Trash2 className="size-3.5" />
                                                             Remove
@@ -345,8 +447,16 @@ export default function ShowInventoryCount({ count, products }: Props) {
                                         <td className="p-3" colSpan={4}>
                                             Net variance value
                                         </td>
-                                        <td className="p-3 text-right" colSpan={isDraft ? 2 : 1}>
-                                            <ValueImpact value={summary.totalVarianceValue} bold />
+                                        <td
+                                            className="p-3 text-right"
+                                            colSpan={isDraft ? 2 : 1}
+                                        >
+                                            <ValueImpact
+                                                value={
+                                                    summary.totalVarianceValue
+                                                }
+                                                bold
+                                            />
                                         </td>
                                     </tr>
                                 </tfoot>
@@ -356,15 +466,24 @@ export default function ShowInventoryCount({ count, products }: Props) {
                         {/* Cards on mobile */}
                         <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:hidden">
                             {count.items.map((item) => {
-                                const valueImpact = item.variance * parseFloat(item.unit_cost_at_count);
+                                const valueImpact =
+                                    item.variance *
+                                    parseFloat(item.unit_cost_at_count);
 
                                 return (
-                                    <div key={item.id} className="rounded-xl border bg-card p-3 shadow-sm">
+                                    <div
+                                        key={item.id}
+                                        className="rounded-xl border bg-card p-3 shadow-sm"
+                                    >
                                         <div className="flex items-start justify-between gap-2">
                                             <div className="min-w-0">
-                                                <p className="truncate font-medium">{item.product.name}</p>
+                                                <p className="truncate font-medium">
+                                                    {item.product.name}
+                                                </p>
                                                 {item.product.sku && (
-                                                    <p className="text-xs text-muted-foreground">{item.product.sku}</p>
+                                                    <p className="text-xs text-muted-foreground">
+                                                        {item.product.sku}
+                                                    </p>
                                                 )}
                                             </div>
                                             {isDraft && (
@@ -372,7 +491,9 @@ export default function ShowInventoryCount({ count, products }: Props) {
                                                     size="sm"
                                                     variant="ghost"
                                                     className="shrink-0 gap-1 text-red-600 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-950/30"
-                                                    onClick={() => handleRemoveItem(item)}
+                                                    onClick={() =>
+                                                        handleRemoveItem(item)
+                                                    }
                                                 >
                                                     <Trash2 className="size-3.5" />
                                                 </Button>
@@ -381,24 +502,40 @@ export default function ShowInventoryCount({ count, products }: Props) {
 
                                         <div className="mt-2.5 grid grid-cols-3 gap-2 border-t pt-2.5 text-xs">
                                             <div>
-                                                <p className="text-muted-foreground">Expected</p>
-                                                <p className="mt-0.5 font-medium tabular-nums">{item.expected_qty}</p>
+                                                <p className="text-muted-foreground">
+                                                    Expected
+                                                </p>
+                                                <p className="mt-0.5 font-medium tabular-nums">
+                                                    {item.expected_qty}
+                                                </p>
                                             </div>
                                             <div>
-                                                <p className="text-muted-foreground">Counted</p>
-                                                <p className="mt-0.5 font-medium tabular-nums">{item.counted_qty}</p>
+                                                <p className="text-muted-foreground">
+                                                    Counted
+                                                </p>
+                                                <p className="mt-0.5 font-medium tabular-nums">
+                                                    {item.counted_qty}
+                                                </p>
                                             </div>
                                             <div>
-                                                <p className="text-muted-foreground">Variance</p>
+                                                <p className="text-muted-foreground">
+                                                    Variance
+                                                </p>
                                                 <p className="mt-0.5 tabular-nums">
-                                                    <VarianceValue variance={item.variance} />
+                                                    <VarianceValue
+                                                        variance={item.variance}
+                                                    />
                                                 </p>
                                             </div>
                                         </div>
                                         {valueImpact !== 0 && (
                                             <div className="mt-2 flex items-center justify-between border-t pt-2 text-xs">
-                                                <span className="text-muted-foreground">Value impact</span>
-                                                <ValueImpact value={valueImpact} />
+                                                <span className="text-muted-foreground">
+                                                    Value impact
+                                                </span>
+                                                <ValueImpact
+                                                    value={valueImpact}
+                                                />
                                             </div>
                                         )}
                                     </div>
@@ -413,12 +550,16 @@ export default function ShowInventoryCount({ count, products }: Props) {
                         <div className="rounded-xl border bg-[var(--pos-teal)]/5 p-4">
                             <div className="flex items-center gap-2 text-[var(--pos-teal)]">
                                 <Info className="size-4 shrink-0" />
-                                <p className="text-sm font-medium">Before you finalize</p>
+                                <p className="text-sm font-medium">
+                                    Before you finalize
+                                </p>
                             </div>
                             <p className="mt-1.5 text-xs text-muted-foreground">
-                                Finalizing adjusts stock batches to match what was physically counted — shrinkage
-                                is FIFO-deducted, found stock becomes a new batch. This cannot be undone, so make
-                                sure every counted product above looks right first.
+                                Finalizing adjusts stock batches to match what
+                                was physically counted — shrinkage is
+                                FIFO-deducted, found stock becomes a new batch.
+                                This cannot be undone, so make sure every
+                                counted product above looks right first.
                             </p>
                         </div>
 
@@ -432,7 +573,11 @@ export default function ShowInventoryCount({ count, products }: Props) {
                                 <CheckCircle2 className="size-4" />
                                 Finalize Count
                             </Button>
-                            <Button variant="destructive" onClick={handleDeleteDraft} className="gap-1.5">
+                            <Button
+                                variant="destructive"
+                                onClick={handleDeleteDraft}
+                                className="gap-1.5"
+                            >
                                 <Trash2 className="size-4" />
                                 Delete Draft
                             </Button>
@@ -448,7 +593,11 @@ export default function ShowInventoryCount({ count, products }: Props) {
                                 <CheckCircle2 className="size-4" />
                                 Finalize
                             </Button>
-                            <Button variant="destructive" onClick={handleDeleteDraft} className="flex-1 gap-1.5">
+                            <Button
+                                variant="destructive"
+                                onClick={handleDeleteDraft}
+                                className="flex-1 gap-1.5"
+                            >
                                 <Trash2 className="size-4" />
                                 Delete
                             </Button>
@@ -457,7 +606,8 @@ export default function ShowInventoryCount({ count, products }: Props) {
                 ) : (
                     <div className="flex items-center gap-3">
                         <p className="text-sm text-muted-foreground">
-                            Finalized {count.finalized_at} — stock has been adjusted to match this count.
+                            Finalized {count.finalized_at} — stock has been
+                            adjusted to match this count.
                         </p>
                         <Button variant="outline" asChild>
                             <Link href="/inventory-counts">Back to Counts</Link>
@@ -475,7 +625,11 @@ function VarianceValue({ variance }: { variance: number }) {
     }
 
     return (
-        <span className={variance < 0 ? 'text-red-600' : 'text-[var(--pos-green)]'}>
+        <span
+            className={
+                variance < 0 ? 'text-red-600' : 'text-[var(--pos-green)]'
+            }
+        >
             {variance > 0 ? '+' : ''}
             {variance}
         </span>
@@ -488,7 +642,12 @@ function ValueImpact({ value, bold }: { value: number; bold?: boolean }) {
     }
 
     return (
-        <span className={cn(value < 0 ? 'text-red-600' : 'text-[var(--pos-green)]', bold && 'font-semibold')}>
+        <span
+            className={cn(
+                value < 0 ? 'text-red-600' : 'text-[var(--pos-green)]',
+                bold && 'font-semibold',
+            )}
+        >
             {value < 0 ? '-' : '+'}
             {peso(Math.abs(value))}
         </span>
@@ -516,12 +675,21 @@ function StatCard({
 
     return (
         <div className="flex items-center gap-2.5 rounded-xl border bg-card p-3">
-            <div className={cn('flex size-9 shrink-0 items-center justify-center rounded-lg', styles)}>
+            <div
+                className={cn(
+                    'flex size-9 shrink-0 items-center justify-center rounded-lg',
+                    styles,
+                )}
+            >
                 <Icon className="size-4" />
             </div>
             <div className="min-w-0">
-                <p className="truncate text-lg leading-none font-semibold">{value}</p>
-                <p className="mt-1 truncate text-xs text-muted-foreground">{label}</p>
+                <p className="truncate text-lg leading-none font-semibold">
+                    {value}
+                </p>
+                <p className="mt-1 truncate text-xs text-muted-foreground">
+                    {label}
+                </p>
             </div>
         </div>
     );

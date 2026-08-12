@@ -14,7 +14,7 @@ class ProfitLossService
     public function summary(string $startDate, string $endDate, ?int $locationId): array
     {
         $salesQuery = Sale::whereNull('voided_at')
-            ->whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59']);
+            ->whereBetween('created_at', [$startDate.' 00:00:00', $endDate.' 23:59:59']);
 
         if ($locationId) {
             $salesQuery->where('location_id', $locationId);
@@ -25,7 +25,7 @@ class ProfitLossService
         $cogs = (float) DB::table('sale_items')
             ->join('sales', 'sales.id', '=', 'sale_items.sale_id')
             ->whereNull('sales.voided_at')
-            ->whereBetween('sales.created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
+            ->whereBetween('sales.created_at', [$startDate.' 00:00:00', $endDate.' 23:59:59'])
             ->when($locationId, fn ($q) => $q->where('sales.location_id', $locationId))
             ->sum('sale_items.cost_at_sale');
 
@@ -118,10 +118,10 @@ class ProfitLossService
     }
 
     /**
-     * @param bool $strict If true, only counts strictly BEFORE $date qualify (used
-     *                     for "beginning" — a count taken ON the period's first day
-     *                     represents that day's starting position). If false, a
-     *                     count ON $date also qualifies (used for "ending").
+     * @param  bool  $strict  If true, only counts strictly BEFORE $date qualify (used
+     *                        for "beginning" — a count taken ON the period's first day
+     *                        represents that day's starting position). If false, a
+     *                        count ON $date also qualifies (used for "ending").
      */
     private function latestFinalizedCountOnOrBefore(string $date, ?int $locationId, bool $strict): ?InventoryCount
     {
@@ -145,7 +145,7 @@ class ProfitLossService
      */
     private function purchasesDuring(string $startDate, string $endDate, ?int $locationId): ?float
     {
-        if (!Schema::hasTable('stock_batches')) {
+        if (! Schema::hasTable('stock_batches')) {
             return null;
         }
 

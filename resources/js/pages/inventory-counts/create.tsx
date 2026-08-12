@@ -50,12 +50,24 @@ export default function CreateInventoryCount({ locations, isOwner }: Props) {
     }
 
     return (
-        <div style={{ '--pos-teal': '#00a79b', '--pos-green': '#8dc645' } as React.CSSProperties}>
+        <div
+            style={
+                {
+                    '--pos-teal': '#00a79b',
+                    '--pos-green': '#8dc645',
+                } as React.CSSProperties
+            }
+        >
             <Head title="Start Inventory Count" />
 
             <div className="mx-auto max-w-5xl space-y-4 p-3 pb-24 sm:p-6 sm:pb-6">
                 <div className="flex items-center gap-3">
-                    <Button variant="outline" size="icon" asChild className="size-9 shrink-0">
+                    <Button
+                        variant="outline"
+                        size="icon"
+                        asChild
+                        className="size-9 shrink-0"
+                    >
                         <Link href="/inventory-counts">
                             <ArrowLeft className="size-4" />
                         </Link>
@@ -65,10 +77,13 @@ export default function CreateInventoryCount({ locations, isOwner }: Props) {
                             <div className="flex size-8 items-center justify-center rounded-lg bg-[var(--pos-teal)]/10 text-[var(--pos-teal)]">
                                 <ClipboardCheck className="size-4" />
                             </div>
-                            <h1 className="text-xl font-semibold tracking-tight">Start Inventory Count</h1>
+                            <h1 className="text-xl font-semibold tracking-tight">
+                                Start Inventory Count
+                            </h1>
                         </div>
                         <p className="mt-0.5 text-sm text-muted-foreground">
-                            Physically count what's on the shelf and compare it against system stock.
+                            Physically count what's on the shelf and compare it
+                            against system stock.
                         </p>
                     </div>
                 </div>
@@ -79,42 +94,67 @@ export default function CreateInventoryCount({ locations, isOwner }: Props) {
                             <div className="space-y-4">
                                 {isOwner && (
                                     <div>
-                                        <Label htmlFor="location_id">Branch *</Label>
+                                        <Label htmlFor="location_id">
+                                            Branch *
+                                        </Label>
                                         <Select
-                                            value={data.location_id ? String(data.location_id) : ''}
-                                            onValueChange={(v) => setData('location_id', Number(v))}
+                                            value={
+                                                data.location_id
+                                                    ? String(data.location_id)
+                                                    : ''
+                                            }
+                                            onValueChange={(v) =>
+                                                setData(
+                                                    'location_id',
+                                                    Number(v),
+                                                )
+                                            }
                                         >
                                             <SelectTrigger id="location_id">
                                                 <SelectValue placeholder="Select branch" />
                                             </SelectTrigger>
                                             <SelectContent>
                                                 {locations.map((loc) => (
-                                                    <SelectItem key={loc.id} value={String(loc.id)}>
+                                                    <SelectItem
+                                                        key={loc.id}
+                                                        value={String(loc.id)}
+                                                    >
                                                         {loc.name}
                                                     </SelectItem>
                                                 ))}
                                             </SelectContent>
                                         </Select>
                                         {errors.location_id && (
-                                            <p className="mt-1 text-sm text-red-600">{errors.location_id}</p>
+                                            <p className="mt-1 text-sm text-red-600">
+                                                {errors.location_id}
+                                            </p>
                                         )}
                                     </div>
                                 )}
 
                                 <div>
-                                    <Label htmlFor="count_date">Count Date *</Label>
+                                    <Label htmlFor="count_date">
+                                        Count Date *
+                                    </Label>
                                     <div className="flex items-center gap-2">
                                         <Input
                                             id="count_date"
                                             type="date"
                                             value={data.count_date}
-                                            onChange={(e) => setData('count_date', e.target.value)}
+                                            onChange={(e) =>
+                                                setData(
+                                                    'count_date',
+                                                    e.target.value,
+                                                )
+                                            }
                                             className="max-w-[180px] focus-visible:ring-[var(--pos-teal)]"
                                         />
                                         <div className="flex gap-1.5">
                                             <button
                                                 type="button"
-                                                onClick={() => setData('count_date', today)}
+                                                onClick={() =>
+                                                    setData('count_date', today)
+                                                }
                                                 className={cn(
                                                     'rounded-full border px-2.5 py-1 text-xs font-medium transition-colors',
                                                     data.count_date === today
@@ -126,10 +166,16 @@ export default function CreateInventoryCount({ locations, isOwner }: Props) {
                                             </button>
                                             <button
                                                 type="button"
-                                                onClick={() => setData('count_date', yesterday)}
+                                                onClick={() =>
+                                                    setData(
+                                                        'count_date',
+                                                        yesterday,
+                                                    )
+                                                }
                                                 className={cn(
                                                     'rounded-full border px-2.5 py-1 text-xs font-medium transition-colors',
-                                                    data.count_date === yesterday
+                                                    data.count_date ===
+                                                        yesterday
                                                         ? 'border-[var(--pos-teal)] bg-[var(--pos-teal)]/10 text-[var(--pos-teal)]'
                                                         : 'text-muted-foreground hover:bg-muted',
                                                 )}
@@ -139,7 +185,9 @@ export default function CreateInventoryCount({ locations, isOwner }: Props) {
                                         </div>
                                     </div>
                                     {errors.count_date && (
-                                        <p className="mt-1 text-sm text-red-600">{errors.count_date}</p>
+                                        <p className="mt-1 text-sm text-red-600">
+                                            {errors.count_date}
+                                        </p>
                                     )}
                                 </div>
 
@@ -148,7 +196,9 @@ export default function CreateInventoryCount({ locations, isOwner }: Props) {
                                     <Textarea
                                         id="notes"
                                         value={data.notes}
-                                        onChange={(e) => setData('notes', e.target.value)}
+                                        onChange={(e) =>
+                                            setData('notes', e.target.value)
+                                        }
                                         placeholder="e.g. Monthly count, back stock only, etc."
                                         className="focus-visible:ring-[var(--pos-teal)]"
                                     />
@@ -165,7 +215,12 @@ export default function CreateInventoryCount({ locations, isOwner }: Props) {
                                     <ClipboardCheck className="size-4" />
                                     {processing ? 'Starting…' : 'Start Count'}
                                 </Button>
-                                <Button type="button" variant="outline" asChild disabled={processing}>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    asChild
+                                    disabled={processing}
+                                >
                                     <Link href="/inventory-counts">Cancel</Link>
                                 </Button>
                             </div>
@@ -176,17 +231,27 @@ export default function CreateInventoryCount({ locations, isOwner }: Props) {
                             <div className="rounded-xl border bg-[var(--pos-teal)]/5 p-4">
                                 <div className="flex items-center gap-2 text-[var(--pos-teal)]">
                                     <Info className="size-4 shrink-0" />
-                                    <p className="text-sm font-medium">How counting works</p>
+                                    <p className="text-sm font-medium">
+                                        How counting works
+                                    </p>
                                 </div>
                                 <ul className="mt-2 space-y-1.5 text-xs text-muted-foreground">
-                                    <li>• You'll add and count products one at a time on the next screen.</li>
                                     <li>
-                                        • The system snapshots the expected quantity the moment you count each
+                                        • You'll add and count products one at a
+                                        time on the next screen.
+                                    </li>
+                                    <li>
+                                        • The system snapshots the expected
+                                        quantity the moment you count each
                                         product.
                                     </li>
-                                    <li>• Nothing in your stock records changes until you finalize the count.</li>
                                     <li>
-                                        • Finalizing adjusts stock to match reality and flags any shrinkage as a
+                                        • Nothing in your stock records changes
+                                        until you finalize the count.
+                                    </li>
+                                    <li>
+                                        • Finalizing adjusts stock to match
+                                        reality and flags any shrinkage as a
                                         variance.
                                     </li>
                                 </ul>
@@ -204,7 +269,13 @@ export default function CreateInventoryCount({ locations, isOwner }: Props) {
                             <ClipboardCheck className="size-4" />
                             {processing ? 'Starting…' : 'Start Count'}
                         </Button>
-                        <Button type="button" variant="outline" asChild disabled={processing} className="flex-1">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            asChild
+                            disabled={processing}
+                            className="flex-1"
+                        >
                             <Link href="/inventory-counts">Cancel</Link>
                         </Button>
                     </div>
