@@ -98,7 +98,6 @@ const inventoryNavItems: NavItem[] = [
         title: 'Products',
         href: products.index(),
         icon: Package,
-        managerOnly: true,
     },
     {
         title: 'Categories',
@@ -122,7 +121,6 @@ const inventoryNavItems: NavItem[] = [
         title: 'Stock Batch',
         href: stockBatches.index(),
         icon: Boxes,
-        managerOnly: true,
     },
     {
         title: 'Stock by Branch',
