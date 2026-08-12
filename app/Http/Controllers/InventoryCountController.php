@@ -21,7 +21,7 @@ class InventoryCountController extends Controller
     public function index(Request $request): Response
     {
         $user = $request->user();
-        $query = InventoryCount::with('location', 'countedBy')->orderByDesc('count_date');
+        $query = InventoryCount::with('location', 'countedBy')->withCount('items')->orderByDesc('count_date');
 
         if (! $user->seesAllLocations()) {
             $query->where('location_id', $user->location_id);

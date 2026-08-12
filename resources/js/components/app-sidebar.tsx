@@ -3,6 +3,7 @@ import {
     ArrowLeftRight,
     Boxes,
     Building2,
+    ClipboardCheck,
     Clock,
     History,
     LayoutGrid,
@@ -11,6 +12,7 @@ import {
     Receipt as ReceiptExpense,
     Repeat,
     Ruler,
+    Scale,
     ShoppingCart,
     Tags,
     TrendingUp,
@@ -135,6 +137,12 @@ const inventoryNavItems: NavItem[] = [
         icon: ArrowLeftRight,
         managerOnly: true,
     },
+    {
+        title: 'Inventory Counts',
+        href: '/inventory-counts',
+        icon: ClipboardCheck,
+        managerOnly: true,
+    },
 ];
 
 // ---------- Administration ----------
@@ -167,6 +175,12 @@ const adminNavItems: NavItem[] = [
         title: 'Profit & Loss',
         href: '/reports/profit-loss',
         icon: TrendingUp,
+        managerOnly: true,
+    },
+    {
+        title: 'Inventory Reconciliation',
+        href: '/reports/reconciliation',
+        icon: Scale,
         managerOnly: true,
     },
     {

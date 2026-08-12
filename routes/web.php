@@ -148,6 +148,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('accounts-payable/{payable}/mark-paid', [AccountsPayableController::class, 'markPaid'])->name('accounts-payable.mark-paid');
 
         Route::get('reports/profit-loss', [ProfitLossController::class, 'index'])->name('reports.profit-loss');
+        Route::get('reports/reconciliation', [ProfitLossController::class, 'reconciliation'])->name('reports.reconciliation');
 
         Route::get('inventory-counts', [InventoryCountController::class, 'index'])->name('inventory-counts.index');
         Route::get('inventory-counts/create', [InventoryCountController::class, 'create'])->name('inventory-counts.create');
