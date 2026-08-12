@@ -42,6 +42,14 @@ export default function InventoryCountsIndex({ counts }: { counts: InventoryCoun
         setStatus((current) => (current === value ? 'all' : value));
     }
 
+    function formatDate(dateString: string): string {
+        return new Date(dateString).toLocaleDateString('en-PH', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+        });
+    }
+
     const filtered = useMemo(() => {
         const q = query.trim().toLowerCase();
 
@@ -172,7 +180,7 @@ export default function InventoryCountsIndex({ counts }: { counts: InventoryCoun
                                 <tbody>
                                     {filtered.map((c) => (
                                         <tr key={c.id} className="border-t transition-colors hover:bg-muted/30">
-                                            <td className="p-2.5 whitespace-nowrap">{c.count_date}</td>
+                                            <td className="p-2.5 whitespace-nowrap">{formatDate(c.count_date)}</td>
                                             <td className="p-2.5">
                                                 <div className="flex items-center gap-2">
                                                     <div className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-[var(--pos-teal)]/10 text-[var(--pos-teal)]">
@@ -225,7 +233,7 @@ export default function InventoryCountsIndex({ counts }: { counts: InventoryCoun
                                             <div className="min-w-0">
                                                 <p className="truncate font-medium">{c.location.name}</p>
                                                 <p className="mt-0.5 text-xs text-muted-foreground">
-                                                    {c.count_date} &middot; {c.counted_by.name}
+                                                    {formatDate(c.count_date)} &middot; {c.counted_by.name}
                                                 </p>
                                             </div>
                                         </div>

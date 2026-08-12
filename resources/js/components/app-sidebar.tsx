@@ -3,6 +3,7 @@ import {
     ArrowLeftRight,
     Boxes,
     Building2,
+    ClipboardCheck,
     Clock,
     History,
     LayoutGrid,
@@ -97,6 +98,7 @@ const inventoryNavItems: NavItem[] = [
         title: 'Products',
         href: products.index(),
         icon: Package,
+        managerOnly: true,
     },
     {
         title: 'Categories',
@@ -120,6 +122,7 @@ const inventoryNavItems: NavItem[] = [
         title: 'Stock Batch',
         href: stockBatches.index(),
         icon: Boxes,
+        managerOnly: true,
     },
     {
         title: 'Stock by Branch',
@@ -131,6 +134,12 @@ const inventoryNavItems: NavItem[] = [
         title: 'Stock Transfers',
         href: '/stock-transfers',
         icon: ArrowLeftRight,
+        managerOnly: true,
+    },
+    {
+        title: 'Inventory Counts',
+        href: '/inventory-counts',
+        icon: ClipboardCheck,
         managerOnly: true,
     },
 ];
@@ -234,6 +243,7 @@ export function AppSidebar() {
             <SidebarFooter>
                 <NavUser />
                 <SidebarFooter>
+                    <NavUser />
                     {state !== 'collapsed' && (
                         <p className="px-2 pb-1 text-center text-[10px] text-muted-foreground">
                             v{appVersion}
