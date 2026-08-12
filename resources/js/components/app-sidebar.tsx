@@ -241,7 +241,6 @@ export function AppSidebar() {
                 <NavMain items={adminItems} label="Administration" />
             </SidebarContent>
             <SidebarFooter>
-                <NavUser />
                 <SidebarFooter>
                     <NavUser />
                     {state !== 'collapsed' && (
